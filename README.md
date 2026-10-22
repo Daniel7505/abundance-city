@@ -54,6 +54,31 @@ Open the URL Vite prints (default `http://localhost:5173`). The view is read-onl
 npm run build
 ```
 
+## Milestone M1 — economy & abundance dial v0
+
+M1 adds a closed-loop **integer-cent economy** and an **abundance dial** `a ∈ [0, 1]` (fixed per run). The M0 movement loop and browser view are unchanged; M1 runs headless via the CLI.
+
+- **World** (canonical seed-42 layout): 10 homes × 10 citizens, 5 workplaces (100 base job slots), 1 automated producer.
+- **Day cycle**: 24 ticks; jobs, wages, rent, purchases, and dividends settle on tick 23.
+- **Ledger** (`src/economy/ledger.ts`): all money moves through `transfer(from, to, cents, reason)` — no mint/burn after initialization.
+- **Dial**: `jobs = round((1-a)·100)` (slots removed in workplace id order); `price = p0·(1 - 0.6·a)`; producer share `a` of goods output (no wages).
+- **Config**: `config/economy.json`, energy-per-goods placeholders in `data/coefficients.json`.
+- **Daily metrics JSONL**: `workOptionalShare`, `costPerPerson`, `totalEnergyWh` (human/automated), `jobs`, `employed`, `price`, `moneySupply`, `unmetNeed`.
+
+### Run M1 simulation
+
+```bash
+npm run sim -- --m1 --seed 42 --abundance 0.5 --days 30
+```
+
+Outputs under `logs/` (or `--out`):
+
+- `seed-<seed>-a-<a>-days-<n>.jsonl` — per-tick agent positions (same shape as M0)
+- `seed-<seed>-a-<a>-days-<n>.daily.jsonl` — one metrics object per simulated day
+- `seed-<seed>-a-<a>-days-<n>.summary.json` — run summary
+
+M0 mode remains the default (`npm run sim -- --seed 42 --ticks 100`).
+
 ## Credits
 
 Libraries used in this project:

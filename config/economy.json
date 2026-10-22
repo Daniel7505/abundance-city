@@ -1,0 +1,23 @@
+{
+  "ticksPerDay": 24,
+  "settlementTickOfDay": 23,
+  "citizenCount": 100,
+  "homesCount": 10,
+  "citizensPerHome": 10,
+  "workplaceCount": 5,
+  "baseJobSlotsTotal": 100,
+  "baseSlotsPerWorkplace": 20,
+  "wageCents": 1200,
+  "rentCents": 500,
+  "goodsQuantityPerCitizen": 1,
+  "priceP0Cents": 400,
+  "abundancePriceFactor": 0.6,
+  "trailingDaysForWorkOptional": 7,
+  "initialBalancesCents": {
+    "citizen": 500,
+    "workplace": 80000,
+    "producer": 5000,
+    "landlord": 0,
+    "treasury": 8000
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "energyWhPerGoodsUnit": {
+    "human": 0.42,
+    "automated": 0.08
+  },
+  "sourceNote": "Placeholder rates inspired by robot-battery-monitor lap Wh/m (human labor intensity vs automated production); scaled per goods unit for M1 metrics only — not applied to grid travel in M1."
+}
