@@ -95,6 +95,7 @@ export function buildM2aWorld(seed: number): M2aWorld {
     sortedByIncome[i].isRenter = false;
   }
 
+  const agePrng = new SeededPrng(seed + 12_345);
   const agents: AgentState[] = [];
   for (const hh of households) {
     for (const id of hh.agentIds) {
@@ -105,7 +106,7 @@ export function buildM2aWorld(seed: number): M2aWorld {
         industryIndex: null,
         skill: prng.next(),
         dailyWageCents: 0,
-        ageYears: prng.nextInt(22, 72),
+        ageYears: agePrng.nextInt(22, 72),
       });
     }
   }

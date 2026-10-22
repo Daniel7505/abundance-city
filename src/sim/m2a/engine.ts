@@ -15,6 +15,7 @@ import {
   countDisplacedM2b,
   initM2bLaborState,
 } from "../../economy/m2b/labor.js";
+import m2bEconomy from "../../../config/m2b-economy.json" with { type: "json" };
 import {
   parseDividendPolicy,
   policyLabel,
@@ -87,9 +88,16 @@ export function runM2aSimulation(options: M2aSimOptions): M2aSimResult {
 
   const policy = resolvePolicy(options);
   if (m2bEnabled) {
-    const prices = industryPricesCents(world, options.abundance);
-    const refIndex = basketPriceIndex(world, options.abundance, prices);
+    const refAbundance = m2bEconomy.referenceAbundanceForDemand;
+    const refPrices = industryPricesCents(world, refAbundance);
+    const refIndex = basketPriceIndex(world, refAbundance, refPrices);
     initM2bLaborState(world, refIndex);
+    applyM2bLaborForDay(
+      world,
+      options.abundance,
+      0,
+      basketPriceIndex(world, options.abundance, industryPricesCents(world, options.abundance)),
+    );
   } else {
     applyLaborForAbundance(world, options.abundance);
   }

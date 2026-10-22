@@ -26,6 +26,8 @@ export interface DailyMetricLine {
   ownershipDistributedCents: number;
   queued?: number;
   retired?: number;
+  queueHiresCumulative?: number;
+  medianReemploymentDelayDays?: number;
 }
 
 interface TrailingHouseholdWindow {
@@ -139,6 +141,8 @@ export class M2aMetricsCollector {
     if (this.m2bEnabled) {
       line.queued = settlement.queued;
       line.retired = settlement.retired;
+      line.queueHiresCumulative = settlement.queueHiresCumulative;
+      line.medianReemploymentDelayDays = settlement.medianReemploymentDelayDays;
     }
     return line;
   }

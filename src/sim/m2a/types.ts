@@ -43,6 +43,8 @@ export interface ReemploymentQueueEntry {
 export interface M2bLaborState {
   queue: ReemploymentQueueEntry[];
   referencePriceIndex: number;
+  queueHiresCumulative: number;
+  reemploymentDelayDays: number[];
 }
 
 export interface M2aWorld {

@@ -18,6 +18,7 @@ import {
   householdDailyNeedsCentsLegacy,
 } from "../../sim/m2a/needs.js";
 import { needsPriceContext } from "../../sim/m2a/needs-prices.js";
+import { medianReemploymentDelayDays } from "../m2b/labor.js";
 
 export interface IndustryDayStats {
   jobs: number;
@@ -47,6 +48,8 @@ export interface DailySettlementResult {
   policyDistributedCents: number;
   queued: number;
   retired: number;
+  queueHiresCumulative: number;
+  medianReemploymentDelayDays: number;
 }
 
 export interface SettleM2aDayOptions {
@@ -228,7 +231,11 @@ export function settleM2aDay(
   const ssPaidByAgent = new Map<number, number>();
   const ssDaily = m2aEconomy.socialSecurityDailyCentsPerNlfAgent;
   for (const a of world.agents) {
-    if (a.laborStatus !== "not_in_labor_force" && a.laborStatus !== "retired") continue;
+    if (useQuantityNeeds) {
+      if (a.laborStatus !== "not_in_labor_force" && a.laborStatus !== "retired") continue;
+    } else if (a.laborStatus !== "not_in_labor_force") {
+      continue;
+    }
     const paid = ledger.transferUpTo(
       TREASURY_ACCOUNT,
       agentAccount(a.id),
@@ -240,7 +247,11 @@ export function settleM2aDay(
 
   const uiDaily = m2aEconomy.unemploymentDailyCentsPerAgent;
   for (const a of world.agents) {
-    if (a.laborStatus !== "unemployed" && a.laborStatus !== "retraining") continue;
+    if (useQuantityNeeds) {
+      if (a.laborStatus !== "unemployed" && a.laborStatus !== "retraining") continue;
+    } else if (a.laborStatus !== "unemployed") {
+      continue;
+    }
     const paid = ledger.transferUpTo(
       TREASURY_ACCOUNT,
       agentAccount(a.id),
@@ -367,5 +378,7 @@ export function settleM2aDay(
     policyDistributedCents,
     queued: world.m2b?.queue.length ?? 0,
     retired: world.agents.filter((a) => a.laborStatus === "retired").length,
+    queueHiresCumulative: world.m2b?.queueHiresCumulative ?? 0,
+    medianReemploymentDelayDays: medianReemploymentDelayDays(world),
   };
 }

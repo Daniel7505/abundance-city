@@ -23,29 +23,25 @@ function demandBonusSlots(world: M2aWorld, currentPriceIndex: number): number {
   const ref = world.m2b?.referencePriceIndex ?? currentPriceIndex;
   if (ref <= 0 || currentPriceIndex >= ref) return 0;
   const baseTotal = world.industrySlotsBase.reduce((s, n) => s + n, 0);
-  return Math.max(0, Math.floor(baseTotal * (ref / currentPriceIndex - 1)));
+  const ratio = ref / currentPriceIndex - 1;
+  return Math.max(0, Math.floor(baseTotal * ratio));
 }
 
-export function industrySlotCaps(
-  world: M2aWorld,
-  abundance: number,
-  currentPriceIndex: number,
-): number[] {
+export function automationSlotCaps(world: M2aWorld, abundance: number): number[] {
   const town = getTown();
-  const caps = world.industrySlotsBase.map((base, ind) => {
+  return world.industrySlotsBase.map((base, ind) => {
     const industryId = town.industry_employment_c24030[ind].id;
     const intensity = automatabilityForIndustry(industryId);
     return requiredSlots(base, abundance, intensity);
   });
+}
 
-  let bonus = demandBonusSlots(world, currentPriceIndex) + maintenanceJobSlots(abundance);
-  let idx = 0;
-  while (bonus > 0 && caps.length > 0) {
-    caps[idx % caps.length] += 1;
-    bonus -= 1;
-    idx += 1;
-  }
-  return caps;
+export function extraQueueSlotCount(
+  world: M2aWorld,
+  abundance: number,
+  currentPriceIndex: number,
+): number {
+  return demandBonusSlots(world, currentPriceIndex) + maintenanceJobSlots(abundance);
 }
 
 function enqueueDisplaced(world: M2aWorld, agentId: number, dayIndex: number): void {
@@ -77,37 +73,41 @@ function trimIndustryToCap(world: M2aWorld, industryIndex: number, cap: number):
   }
 }
 
-function fillVacanciesFromQueue(world: M2aWorld, caps: number[], dayIndex: number): void {
+function fillExtraSlotsFromQueue(
+  world: M2aWorld,
+  caps: number[],
+  extraSlots: number,
+  dayIndex: number,
+): void {
   const delay = m2bEconomy.retrainingDelayDays;
-  const kept: ReemploymentQueueEntry[] = [];
-  const eligible: ReemploymentQueueEntry[] = [];
   const m2b = world.m2b;
   if (!m2b) throw new Error("M2b labor state missing");
 
+  const kept: ReemploymentQueueEntry[] = [];
+  const eligible: ReemploymentQueueEntry[] = [];
   for (const entry of m2b.queue) {
     if (dayIndex - entry.enteredDay >= delay) eligible.push(entry);
     else kept.push(entry);
   }
 
-  const vacancies: number[] = [];
-  for (let ind = 0; ind < caps.length; ind++) {
-    const employed = world.agents.filter(
-      (a) => a.laborStatus === "employed" && a.industryIndex === ind,
-    ).length;
-    for (let k = employed; k < caps[ind]; k++) vacancies.push(ind);
-  }
-
-  let v = 0;
-  for (const entry of eligible) {
-    if (v >= vacancies.length) {
-      kept.push(entry);
-      continue;
-    }
+  let remaining = extraSlots;
+  let ind = 0;
+  let ei = 0;
+  while (remaining > 0 && ei < eligible.length && caps.length > 0) {
+    const entry = eligible[ei++];
+    const industryIndex = ind % caps.length;
+    ind += 1;
     const agent = world.agents[entry.agentId];
     agent.laborStatus = "employed";
-    agent.industryIndex = vacancies[v++];
+    agent.industryIndex = industryIndex;
+    m2b.queueHiresCumulative += 1;
+    m2b.reemploymentDelayDays.push(dayIndex - entry.enteredDay);
+    remaining -= 1;
   }
 
+  for (; ei < eligible.length; ei++) {
+    kept.push(eligible[ei]);
+  }
   m2b.queue = kept;
 }
 
@@ -122,10 +122,10 @@ export function applyM2bLaborForDay(
 
   const structuralUnemployed = new Set(world.baselineUnemployed);
   const baselineEmployed = new Set(world.baselineEmployment.map((s) => s.agentId));
-  const caps = industrySlotCaps(world, abundance, currentPriceIndex);
+  const automationCaps = automationSlotCaps(world, abundance);
 
-  for (let ind = 0; ind < caps.length; ind++) {
-    trimIndustryToCap(world, ind, caps[ind]);
+  for (let ind = 0; ind < automationCaps.length; ind++) {
+    trimIndustryToCap(world, ind, automationCaps[ind]);
   }
 
   for (const agentId of baselineEmployed) {
@@ -135,11 +135,17 @@ export function applyM2bLaborForDay(
     enqueueDisplaced(world, agentId, dayIndex);
   }
 
-  fillVacanciesFromQueue(world, caps, dayIndex);
+  const extra = extraQueueSlotCount(world, abundance, currentPriceIndex);
+  fillExtraSlotsFromQueue(world, automationCaps, extra, dayIndex);
 }
 
 export function initM2bLaborState(world: M2aWorld, referencePriceIndex: number): void {
-  world.m2b = { queue: [], referencePriceIndex };
+  world.m2b = {
+    queue: [],
+    referencePriceIndex,
+    queueHiresCumulative: 0,
+    reemploymentDelayDays: [],
+  };
 }
 
 export function countQueued(world: M2aWorld): number {
@@ -152,4 +158,14 @@ export function countRetired(agents: AgentState[]): number {
 
 export function countDisplacedM2b(world: M2aWorld): number {
   return countDisplaced(world);
+}
+
+export function medianReemploymentDelayDays(world: M2aWorld): number {
+  const delays = world.m2b?.reemploymentDelayDays ?? [];
+  if (delays.length === 0) return 0;
+  const sorted = [...delays].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 === 0
+    ? (sorted[mid - 1] + sorted[mid]) / 2
+    : sorted[mid];
 }
