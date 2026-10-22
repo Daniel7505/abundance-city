@@ -8,6 +8,19 @@ export function automatabilityForIndustry(industryId: string): number {
   return typeof v === "number" ? v : 0.4;
 }
 
+/** Per-agent task automatability (higher => hours cut first when revenue is short). */
+export function taskAutomatabilityScore(
+  agent: AgentState,
+  industryIndex: number,
+  town: ReturnType<typeof getTown>,
+): number {
+  const cfg = coefficients.taskAutomatability as { skillAutomatabilityWeight: number };
+  const industryId = town.industry_employment_c24030[industryIndex]?.id ?? "other";
+  const industry = automatabilityForIndustry(industryId);
+  const skillFactor = 1 - agent.skill * cfg.skillAutomatabilityWeight;
+  return industry * Math.max(0, skillFactor);
+}
+
 export function requiredSlots(baseSlots: number, abundance: number, intensity: number): number {
   const removed = Math.round(baseSlots * abundance * intensity);
   return Math.max(0, baseSlots - removed);
@@ -41,7 +54,11 @@ export function applyLaborForAbundance(world: M2aWorld, abundance: number): void
     const cap = requiredSlots(world.industrySlotsBase[ind], abundance, intensity);
     const workers = world.agents
       .filter((a) => a.laborStatus === "employed" && a.industryIndex === ind)
-      .sort((a, b) => a.skill - b.skill || a.id - b.id);
+      .sort(
+        (a, b) =>
+          taskAutomatabilityScore(b, ind, town) - taskAutomatabilityScore(a, ind, town) ||
+          a.id - b.id,
+      );
     for (let i = 0; i < workers.length; i++) {
       if (i >= cap) {
         workers[i].laborStatus = "unemployed";

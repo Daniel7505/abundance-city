@@ -18,8 +18,8 @@ describe("needs basket investigation", () => {
     const hh = world.households[0];
     const p0 = needsPriceContext(world, 0);
     const p1 = needsPriceContext(world, 1);
-    const cents0 = householdDailyNeedsCentsFromQuantities(hh, p0).requiredTotal;
-    const cents1 = householdDailyNeedsCentsFromQuantities(hh, p1).requiredTotal;
+    const cents0 = householdDailyNeedsCentsFromQuantities(hh, p0, 0).requiredTotal;
+    const cents1 = householdDailyNeedsCentsFromQuantities(hh, p1, 1).requiredTotal;
     expect(p1.goodsCentsPerUnit).toBeLessThan(p0.goodsCentsPerUnit);
     expect(cents1).toBeLessThan(cents0);
   });

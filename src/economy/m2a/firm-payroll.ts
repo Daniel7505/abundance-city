@@ -175,6 +175,7 @@ export function settleFirmPayroll(
       wagePool,
       "wage",
       wagePaidByAgent,
+      world.agents,
     );
     wagesPaidByIndustry[ind] = paid;
     wagesPaidCents += paid;

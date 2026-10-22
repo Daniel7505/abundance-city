@@ -1,5 +1,8 @@
+import { getTown } from "../../town/lindsborg.js";
 import { agentAccount } from "./accounts.js";
+import { taskAutomatabilityScore } from "./labor.js";
 import type { Ledger } from "../ledger.js";
+import type { AgentState } from "../../sim/m2a/types.js";
 
 export interface WageWorker {
   id: number;
@@ -7,7 +10,7 @@ export interface WageWorker {
   targetCents: number;
 }
 
-/** Pay fixed wage rates with pro-rata hours when the pool is insufficient. */
+/** Pay sticky wage rates; protect least-automatable tasks when the pool is insufficient. */
 export function payWagePoolProRata(
   ledger: Ledger,
   fromAccount: string,
@@ -15,34 +18,37 @@ export function payWagePoolProRata(
   poolCents: number,
   reason: string,
   wagePaidByAgent: Map<number, number>,
+  agents?: AgentState[],
 ): number {
   const totalTarget = workers.reduce((s, w) => s + w.targetCents, 0);
   if (totalTarget <= 0 || poolCents <= 0) return 0;
 
   const budget = Math.min(poolCents, totalTarget);
-  const ratio = budget / totalTarget;
-  const pays = workers.map((w) => ({
-    id: w.id,
-    industryIndex: w.industryIndex,
-    paid: Math.floor(w.targetCents * ratio),
-  }));
-  let paidSum = pays.reduce((s, p) => s + p.paid, 0);
-  let remainder = budget - paidSum;
-  const order = workers
-    .map((w, i) => ({ i, frac: w.targetCents * ratio - pays[i].paid }))
-    .sort((a, b) => b.frac - a.frac);
-  for (let k = 0; remainder > 0 && k < order.length; k++) {
-    pays[order[k].i].paid += 1;
-    remainder -= 1;
-    paidSum += 1;
-  }
+  const town = getTown();
+  const agentById = new Map(agents?.map((a) => [a.id, a]) ?? []);
+  const ordered = [...workers].sort((a, b) => {
+    const agentA = agentById.get(a.id);
+    const agentB = agentById.get(b.id);
+    const scoreA =
+      agentA && a.industryIndex !== null
+        ? taskAutomatabilityScore(agentA, a.industryIndex, town)
+        : 0;
+    const scoreB =
+      agentB && b.industryIndex !== null
+        ? taskAutomatabilityScore(agentB, b.industryIndex, town)
+        : 0;
+    return scoreA - scoreB || a.id - b.id;
+  });
 
+  let remaining = budget;
   let movedTotal = 0;
-  for (const row of pays) {
-    if (row.paid <= 0) continue;
-    const moved = ledger.transferUpTo(fromAccount, agentAccount(row.id), row.paid, reason);
+  for (const w of ordered) {
+    const paid = Math.min(w.targetCents, remaining);
+    if (paid <= 0) continue;
+    const moved = ledger.transferUpTo(fromAccount, agentAccount(w.id), paid, reason);
+    remaining -= moved;
     movedTotal += moved;
-    wagePaidByAgent.set(row.id, (wagePaidByAgent.get(row.id) ?? 0) + moved);
+    wagePaidByAgent.set(w.id, (wagePaidByAgent.get(w.id) ?? 0) + moved);
   }
   return movedTotal;
 }

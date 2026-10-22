@@ -11,6 +11,21 @@
     "sourceNote": "Placeholder M2b oversight/maintenance headcount tied to automation level; replace with sourced estimates.",
     "slotsPerAbundanceUnit": 8
   },
+  "housingDwellingRent": {
+    "sourceNote": "Placeholder: 1 dwelling-unit/day per household; ACS B25064 median gross rent split into fixed land rent (non-automatable) vs automatable landlord maintenance (labor + materials).",
+    "dwellingUnitsPerHouseholdDay": 1,
+    "landRentShareOfMedianGrossRent": 0.48,
+    "maintenanceLaborShareOfMaintenance": 0.55,
+    "maintenanceMaterialsAutomationSensitivity": 0.85
+  },
+  "housingNeedsShareByIncomeQuintile": {
+    "sourceNote": "Placeholder ACS-style housing share of subsistence needs (housing+food+electricity) at a=0; Q1 highest burden, Q5 lowest.",
+    "quintileShares": [0.42, 0.38, 0.34, 0.31, 0.28]
+  },
+  "taskAutomatability": {
+    "sourceNote": "Placeholder: per-job automatability = industry intensity × (1 - skill×weight); lowest skill tasks lose hours first when revenue falls.",
+    "skillAutomatabilityWeight": 1
+  },
   "industryAutomatabilityIntensity": {
     "sourceNote": "Placeholder per-industry automatability in [0,1] for M2a labor slots; replace with sourced estimates in M2b.",
     "educ": 0.15,

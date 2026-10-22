@@ -16,6 +16,7 @@ import { assignDailyWagesFromConsumption } from "../../economy/m2a/wages.js";
 import { basketPriceIndex, industryPricesCents } from "../../economy/m2a/prices.js";
 import { needsPriceContext } from "./needs-prices.js";
 import { deriveHouseholdNeedsQuantities } from "./needs-quantities.js";
+import { calibrateHouseholdHousingBurden } from "./housing-calibration.js";
 import type { AgentState, BaselineEmploymentSlot, Household, M2aWorld } from "./types.js";
 
 function sampleHouseholdSizes(prng: SeededPrng, households: number, targetAgents: number): number[] {
@@ -79,6 +80,7 @@ export function buildM2aWorld(seed: number): M2aWorld {
       incomeAnnualUsd,
       isRenter: false,
       agentIds,
+      housingBurdenMultiplier: 1,
       needsQuantity: {
         housingServiceUnits: 0,
         foodGoodsUnits: 0,
@@ -191,6 +193,7 @@ export function buildM2aWorld(seed: number): M2aWorld {
   for (const hh of households) {
     hh.needsQuantity = deriveHouseholdNeedsQuantities(hh, refPrices);
   }
+  calibrateHouseholdHousingBurden(worldDraft, refPrices);
 
   assignDailyWagesFromConsumption(worldDraft);
   const abundanceZeroPrices = industryPricesCents(worldDraft, 0);
