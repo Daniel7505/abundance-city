@@ -12,7 +12,8 @@ describe("Lindsborg calibration", () => {
   it("matches scaled ACS targets at a=0 day 0", () => {
     const { summary } = runM2aSimulation({ seed: 42, days: 1, abundance: 0 });
     const snap = summary.calibrationDay0;
-    expect(Math.abs(snap.agentCount - targetAgentCount())).toBeLessThanOrEqual(1);
+    expect(snap.agentCount).toBe(379);
+    expect(snap.agentCount).toBe(targetAgentCount());
     expect(snap.employed).toBe(202);
     expect(snap.industryCounts).toEqual(expectedIndustrySlots());
     expect(snap.medianHouseholdIncomeUsd).toBeGreaterThan(targetMedianIncomeUsd() * 0.9);

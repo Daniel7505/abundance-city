@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc -p tsconfig.build.json && vite build",
     "preview": "vite preview",
-    "test": "vitest run",
+    "test": "VITEST_SIM_BUDGET_MS=90000 vitest run",
+    "test:full": "VITEST_SIM_BUDGET_MS=180000 vitest run --config vitest.full.config.ts",
     "test:watch": "vitest",
     "sim": "tsx src/cli/sim-cli.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"

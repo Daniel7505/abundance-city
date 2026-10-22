@@ -27,6 +27,11 @@ import {
   parseLandPolicy,
   type LandPolicy,
 } from "../../economy/m2a/land-policy.js";
+import {
+  createHumanPremiumState,
+  parseHumanPremiumMode,
+  type HumanPremiumMode,
+} from "../../economy/m2a/human-variant.js";
 import { Ledger } from "../../economy/ledger.js";
 import { buildM2aWorld } from "./worldgen.js";
 import {
@@ -46,6 +51,13 @@ export interface M2aSimOptions {
   m2bEnabled?: boolean;
   landPolicy?: LandPolicy;
   landPolicyName?: string;
+  humanPremiumMode?: HumanPremiumMode | string;
+  /**
+   * Throw if one run exceeds this many wall-clock milliseconds.
+   * Under Vitest, defaults to VITEST_SIM_BUDGET_MS or 180_000 so a hung run fails
+   * instead of stalling the worker. Unset outside tests. 0 disables the guard.
+   */
+  wallClockBudgetMs?: number;
 }
 
 export interface M2aSimResult {
@@ -57,6 +69,7 @@ export interface M2aSimResult {
     abundance: number;
     policy: string;
     landPolicy: string;
+    humanPremiumMode: HumanPremiumMode;
     mode: "m2a" | "m2b";
     m2bEnabled: boolean;
     moneySupplyCents: number;
@@ -94,6 +107,23 @@ function resolveLandPolicy(options: M2aSimOptions): LandPolicy {
   return parseLandPolicy(name);
 }
 
+function resolveHumanPremiumMode(options: M2aSimOptions): HumanPremiumMode {
+  if (options.humanPremiumMode === "fixed" || options.humanPremiumMode === "adaptive") {
+    return options.humanPremiumMode;
+  }
+  return parseHumanPremiumMode(options.humanPremiumMode);
+}
+
+function resolveWallClockBudgetMs(options: M2aSimOptions): number | undefined {
+  if (options.wallClockBudgetMs === 0) return undefined;
+  if (options.wallClockBudgetMs !== undefined) return options.wallClockBudgetMs;
+  if (process.env.VITEST) {
+    const fromEnv = Number(process.env.VITEST_SIM_BUDGET_MS ?? 180_000);
+    return Number.isFinite(fromEnv) && fromEnv > 0 ? fromEnv : undefined;
+  }
+  return undefined;
+}
+
 export function runM2aSimulation(options: M2aSimOptions): M2aSimResult {
   const m2bEnabled = options.m2bEnabled ?? false;
   const world = buildM2aWorld(options.seed);
@@ -104,10 +134,15 @@ export function runM2aSimulation(options: M2aSimOptions): M2aSimResult {
   const ledger = new Ledger(initialBalances, {
     knownAccounts: known,
     initialSupplyCents: m2aMoneySupplyCents(world),
+    recordTransfers: false,
   });
 
   const policy = resolvePolicy(options);
   const landPolicy = resolveLandPolicy(options);
+  const humanPremiumMode = resolveHumanPremiumMode(options);
+  const humanPremiumState = createHumanPremiumState(firmCount);
+  const wallClockBudgetMs = resolveWallClockBudgetMs(options);
+  const wallClockStarted = wallClockBudgetMs === undefined ? 0 : Date.now();
   if (m2bEnabled) {
     const refAbundance = m2bEconomy.referenceAbundanceForDemand;
     const refPrices = industryPricesCents(world, refAbundance);
@@ -147,6 +182,15 @@ export function runM2aSimulation(options: M2aSimOptions): M2aSimResult {
         displaced = countDisplaced(world);
       }
 
+      if (
+        wallClockBudgetMs !== undefined &&
+        Date.now() - wallClockStarted > wallClockBudgetMs
+      ) {
+        throw new Error(
+          `Simulation exceeded wall-clock budget of ${wallClockBudgetMs}ms at day ${dayIndex} (possible hang)`,
+        );
+      }
+
       const settlement = settleM2aDay(
         ledger,
         world,
@@ -156,7 +200,12 @@ export function runM2aSimulation(options: M2aSimOptions): M2aSimResult {
         dayIndex,
         tick,
         displaced,
-        { useQuantityNeeds: m2bEnabled, consumptionState },
+        {
+          useQuantityNeeds: m2bEnabled,
+          consumptionState,
+          humanPremiumState,
+          humanPremiumMode,
+        },
       );
       const line = collector.record(settlement, world);
       dailyMetrics.push(JSON.stringify(line));
@@ -185,6 +234,7 @@ export function runM2aSimulation(options: M2aSimOptions): M2aSimResult {
       abundance: options.abundance,
       policy: policyLabel(policy),
       landPolicy: landPolicyLabel(landPolicy),
+      humanPremiumMode,
       mode: m2bEnabled ? "m2b" : "m2a",
       m2bEnabled,
       moneySupplyCents: ledger.initialSupplyCents,

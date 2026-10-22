@@ -70,18 +70,3 @@ describe("M2a policy contrast at a=1 (legacy needs)", () => {
   });
 });
 
-describe("M2b policy contrast at a=1 (quantity needs)", () => {
-  it("CapitalShare Gini exceeds EqualDividend after trailing window (365d)", () => {
-    const equal = finalMetrics(365, 1, "EqualDividend", true);
-    const capital = finalMetrics(365, 1, "CapitalShare", true);
-    expect(capital.giniDisposable).toBeGreaterThan(equal.giniDisposable);
-  });
-
-  it("TaxAndDividend is more equalizing than EqualDividend; CapitalShare exceeds Equal (365d)", () => {
-    const equal = finalMetrics(365, 1, "EqualDividend", true);
-    const tax = finalMetrics(365, 1, "TaxAndDividend", true);
-    const capital = finalMetrics(365, 1, "CapitalShare", true);
-    expect(capital.giniDisposable).toBeGreaterThan(equal.giniDisposable);
-    expect(tax.giniDisposable).toBeLessThan(capital.giniDisposable);
-  });
-});

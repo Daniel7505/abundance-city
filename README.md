@@ -38,7 +38,10 @@ Optional: `--out <directory>` to change the output folder.
 
 ```bash
 npm test
+npm run test:full
 ```
+
+`npm test` is the fast subset (mechanics, a short money sample, determinism, adaptive-premium direction). `npm run test:full` also runs the 365-day gates: a=0 median, Gini, wage gap, money conservation, and the agent-count check for every land policy. CI runs `test:full`. A simulation that exceeds its wall-clock budget throws instead of stalling the worker.
 
 ### Run the browser view
 
