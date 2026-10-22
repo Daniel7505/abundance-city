@@ -19,10 +19,16 @@ export interface DailyMetricLine {
   employed: number;
   price: number;
   moneySupply: number;
+  wageSubsidyCents: number;
+  payrollCents: number;
 }
 
 interface TrailingHouseholdWindow {
   days: Array<{ nonWage: number; needs: number }>;
+}
+
+interface TrailingAbundanceWindow {
+  dailyAbundanceCents: number[];
 }
 
 export function giniCoefficient(values: number[]): number {
@@ -40,12 +46,15 @@ export function giniCoefficient(values: number[]): number {
 
 export class M2aMetricsCollector {
   private householdWindows = new Map<number, TrailingHouseholdWindow>();
+  private abundanceWindows = new Map<number, TrailingAbundanceWindow>();
 
   record(
     settlement: DailySettlementResult,
     world: M2aWorld,
     wageIncomeByAgent: Map<number, number>,
   ): DailyMetricLine {
+    const trailingDays = m2aEconomy.trailingDaysForWorkOptional;
+
     for (const hh of world.households) {
       let window = this.householdWindows.get(hh.id);
       if (!window) {
@@ -55,8 +64,18 @@ export class M2aMetricsCollector {
       const nonWage = settlement.householdNonWageIncomeCents.get(hh.id) ?? 0;
       const needs = settlement.householdNeedsCents.get(hh.id) ?? 0;
       window.days.push({ nonWage, needs });
-      const maxLen = m2aEconomy.trailingDaysForWorkOptional;
-      if (window.days.length > maxLen) window.days.shift();
+      if (window.days.length > trailingDays) window.days.shift();
+
+      let abundanceWindow = this.abundanceWindows.get(hh.id);
+      if (!abundanceWindow) {
+        abundanceWindow = { dailyAbundanceCents: [] };
+        this.abundanceWindows.set(hh.id, abundanceWindow);
+      }
+      const dailyAbundance = settlement.householdAbundanceDividendCents.get(hh.id) ?? 0;
+      abundanceWindow.dailyAbundanceCents.push(dailyAbundance);
+      if (abundanceWindow.dailyAbundanceCents.length > trailingDays) {
+        abundanceWindow.dailyAbundanceCents.shift();
+      }
     }
 
     let optionalScore = 0;
@@ -68,16 +87,23 @@ export class M2aMetricsCollector {
       const window = this.householdWindows.get(hh.id)!;
       const sumNonWage = window.days.reduce((s, d) => s + d.nonWage, 0);
       const sumNeeds = window.days.reduce((s, d) => s + d.needs, 0);
-      const coverage = sumNeeds > 0 ? Math.min(1, sumNonWage / sumNeeds) : 1;
+      const ratio = sumNeeds > 0 ? sumNonWage / sumNeeds : 0;
+      const coverage = ratio / (ratio + 0.85);
       optionalScore += coverage;
     }
     const workOptionalShare = optionalScore / world.households.length;
 
-    const incomes: number[] = [];
-    for (const a of world.agents) {
-      const wage = settlement.wagePaidByAgent.get(a.id) ?? wageIncomeByAgent.get(a.id) ?? 0;
-      const nonWage = settlement.agentIncomeCents.get(a.id) ?? 0;
-      incomes.push(wage + nonWage);
+    const annualizedHouseholdIncomeUsd: number[] = [];
+    for (const hh of world.households) {
+      const abundanceWindow = this.abundanceWindows.get(hh.id)!;
+      const days = abundanceWindow.dailyAbundanceCents.length;
+      const sumAbundanceCents = abundanceWindow.dailyAbundanceCents.reduce(
+        (s, v) => s + v,
+        0,
+      );
+      const meanAbundanceCents = days > 0 ? sumAbundanceCents / days : 0;
+      const automationAnnualUsd = (meanAbundanceCents / 100) * 365;
+      annualizedHouseholdIncomeUsd.push(hh.incomeAnnualUsd + automationAnnualUsd);
     }
 
     const jobs = settlement.byIndustry.reduce((s, row) => s + row.jobs, 0);
@@ -86,7 +112,7 @@ export class M2aMetricsCollector {
       day: settlement.day,
       tick: settlement.tick,
       workOptionalShare,
-      gini: giniCoefficient(incomes),
+      gini: giniCoefficient(annualizedHouseholdIncomeUsd),
       unmetNeed: settlement.unmetNeedCents,
       shortHouseholds: settlement.shortHouseholds,
       byIndustry: settlement.byIndustry,
@@ -98,6 +124,8 @@ export class M2aMetricsCollector {
       employed: settlement.employed,
       price: settlement.priceCents,
       moneySupply: m2aMoneySupplyCents(world.agents.length, world.industrySlotsBase.length),
+      wageSubsidyCents: settlement.wageSubsidyCents,
+      payrollCents: settlement.payrollCents,
     };
   }
 }

@@ -21,5 +21,11 @@ describe("M2a abundance dial", () => {
     for (let i = 1; i < shares.length; i++) {
       expect(shares[i]).toBeGreaterThanOrEqual(shares[i - 1]);
     }
+    for (let i = 1; i < shares.length - 1; i++) {
+      expect(shares[i] - shares[i - 1]).toBeLessThanOrEqual(0.3);
+    }
+    expect(shares[shares.length - 1] - shares[shares.length - 2]).toBeLessThanOrEqual(
+      0.45,
+    );
   });
 });

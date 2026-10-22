@@ -10,7 +10,7 @@ import {
   firmAccount,
   type AccountId,
 } from "./accounts.js";
-import { goodsPriceCents, outputShares } from "./dial.js";
+import { abundanceDividendStrength, goodsPriceCents, outputShares } from "./dial.js";
 import { countEmployed } from "./jobs.js";
 import type { Ledger } from "../ledger.js";
 import type { AgentState, Household, M2aWorld } from "../../sim/m2a/types.js";
@@ -40,6 +40,10 @@ export interface DailySettlementResult {
   householdNeedsCents: Map<number, number>;
   agentIncomeCents: Map<number, number>;
   wagePaidByAgent: Map<number, number>;
+  wageSubsidyCents: number;
+  payrollCents: number;
+  householdMarketIncomeCents: Map<number, number>;
+  householdAbundanceDividendCents: Map<number, number>;
 }
 
 function discretionaryBudgetCents(hh: Household): number {
@@ -131,28 +135,10 @@ export function settleM2aDay(
   const householdNeeds = new Map<number, number>();
   const agentIncome = new Map<number, number>();
   const wagePaidByAgent = new Map<number, number>();
-
-  for (const a of world.agents) {
-    if (a.laborStatus === "employed" && a.industryIndex !== null) {
-      const firm = firmAccount(a.industryIndex);
-      const target = a.dailyWageCents;
-      let paid = ledger.transferUpTo(firm, agentAccount(a.id), target, "wage");
-      if (paid < target) {
-        paid += ledger.transferUpTo(
-          TREASURY_ACCOUNT,
-          agentAccount(a.id),
-          target - paid,
-          "wage_subsidy",
-        );
-      }
-      const hh = world.households[a.householdId];
-      if (paid < target && hh.incomeAnnualUsd <= povertyThresholdUsd) {
-        unmetNeedCents += target - paid;
-      }
-      byIndustry[a.industryIndex].wages += paid;
-      wagePaidByAgent.set(a.id, paid);
-    }
-  }
+  const householdMarketIncome = new Map<number, number>();
+  const householdAbundanceDividend = new Map<number, number>();
+  let wageSubsidyCents = 0;
+  let payrollCents = 0;
 
   for (const hh of world.households) {
     const needs = householdDailyNeedsCents(hh);
@@ -214,6 +200,52 @@ export function settleM2aDay(
     }
   }
 
+  for (const a of world.agents) {
+    if (a.laborStatus === "employed" && a.industryIndex !== null) {
+      const firm = firmAccount(a.industryIndex);
+      const target = a.dailyWageCents;
+      const paid = ledger.transferUpTo(firm, agentAccount(a.id), target, "wage");
+      payrollCents += target;
+      const hh = world.households[a.householdId];
+      if (paid < target && hh.incomeAnnualUsd <= povertyThresholdUsd) {
+        unmetNeedCents += target - paid;
+      }
+      byIndustry[a.industryIndex].wages += paid;
+      wagePaidByAgent.set(a.id, paid);
+    }
+  }
+
+  for (const hh of world.households) {
+    const targetDaily = Math.floor((hh.incomeAnnualUsd * 100) / 365);
+    let wagesToHousehold = 0;
+    for (const agentId of hh.agentIds) {
+      wagesToHousehold += wagePaidByAgent.get(agentId) ?? 0;
+    }
+    const nonEmployed = hh.agentIds.filter(
+      (id) => world.agents[id].laborStatus !== "employed",
+    );
+    const remainder = targetDaily - wagesToHousehold;
+    if (remainder > 0 && nonEmployed.length > 0) {
+      let left = remainder;
+      for (let i = 0; i < nonEmployed.length; i++) {
+        const agentId = nonEmployed[i];
+        const share =
+          i === nonEmployed.length - 1
+            ? left
+            : Math.floor(remainder / nonEmployed.length);
+        left -= share;
+        if (share <= 0) continue;
+        const paid = ledger.transferUpTo(
+          TREASURY_ACCOUNT,
+          agentAccount(agentId),
+          share,
+          "household_income_support",
+        );
+        agentIncome.set(agentId, (agentIncome.get(agentId) ?? 0) + paid);
+      }
+    }
+  }
+
   for (let ind = 0; ind < industryCount; ind++) {
     const workers = jobsByIndustry[ind];
     const avgWage =
@@ -236,33 +268,17 @@ export function settleM2aDay(
     ledger.transfer(LANDLORD_ACCOUNT, TREASURY_ACCOUNT, landlordTax, "landlord_tax");
   }
 
-  const ssDaily = m2aEconomy.socialSecurityDailyCentsPerNlfAgent;
-  for (const a of world.agents) {
-    if (a.laborStatus === "not_in_labor_force") {
-      const paid = ledger.transferUpTo(
-        TREASURY_ACCOUNT,
-        agentAccount(a.id),
-        ssDaily,
-        "social_security",
-      );
-      agentIncome.set(a.id, (agentIncome.get(a.id) ?? 0) + paid);
-      const hhId = a.householdId;
-      householdNonWageIncome.set(hhId, (householdNonWageIncome.get(hhId) ?? 0) + paid);
-    }
-  }
-
   const producerBal = ledger.getBalance(PRODUCER_ACCOUNT);
+  const dividendStrength = abundanceDividendStrength(abundance);
   const treasuryForAbundance = Math.floor(
     ledger.getBalance(TREASURY_ACCOUNT) *
       m2aEconomy.abundanceDividendTreasuryShare *
-      abundance,
+      dividendStrength,
   );
   const maxAbundanceFunds = producerBal + treasuryForAbundance;
   const abundancePool = Math.min(
     maxAbundanceFunds,
-    Math.floor(
-      maxAbundanceFunds * abundance * m2aEconomy.abundanceDividendMultiplier,
-    ),
+    Math.floor(maxAbundanceFunds * dividendStrength * m2aEconomy.abundanceDividendMultiplier),
   );
   if (abundancePool > 0) {
     const agentWeights = world.agents.map((a) => {
@@ -298,11 +314,24 @@ export function settleM2aDay(
           a.householdId,
           (householdNonWageIncome.get(a.householdId) ?? 0) + paid,
         );
+        householdAbundanceDividend.set(
+          a.householdId,
+          (householdAbundanceDividend.get(a.householdId) ?? 0) + paid,
+        );
       }
     }
   }
 
   const dividendPer = 0;
+
+  for (const hh of world.households) {
+    let total = 0;
+    for (const agentId of hh.agentIds) {
+      total +=
+        (wagePaidByAgent.get(agentId) ?? 0) + (agentIncome.get(agentId) ?? 0);
+    }
+    householdMarketIncome.set(hh.id, total);
+  }
 
   const humanEnergyWh =
     goodsUnitsPurchased * humanShare * coefficients.energyWhPerGoodsUnit.human;
@@ -333,5 +362,9 @@ export function settleM2aDay(
     householdNeedsCents: householdNeeds,
     agentIncomeCents: agentIncome,
     wagePaidByAgent,
+    wageSubsidyCents,
+    payrollCents,
+    householdMarketIncomeCents: householdMarketIncome,
+    householdAbundanceDividendCents: householdAbundanceDividend,
   };
 }

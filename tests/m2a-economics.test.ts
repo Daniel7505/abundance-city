@@ -34,4 +34,24 @@ describe("M2a economic sanity", () => {
     const m = day29(42, 1);
     expect(m.gini).toBeGreaterThan(0);
   });
+
+  it("a=0: Gini stable on annualized household income (day 60 vs day 0)", () => {
+    const { dailyMetrics } = runM2aSimulation({ seed: 42, days: 60, abundance: 0 });
+    const day0 = JSON.parse(dailyMetrics[0]) as DailyMetricLine;
+    const day59 = JSON.parse(dailyMetrics[59]) as DailyMetricLine;
+    expect(Math.abs(day59.gini - day0.gini)).toBeLessThanOrEqual(0.05);
+  });
+
+  it("a=0: treasury wage subsidy is negligible vs payroll", () => {
+    const { dailyMetrics } = runM2aSimulation({ seed: 42, days: 60, abundance: 0 });
+    let subsidy = 0;
+    let payroll = 0;
+    for (const line of dailyMetrics) {
+      const m = JSON.parse(line) as DailyMetricLine;
+      subsidy += m.wageSubsidyCents;
+      payroll += m.payrollCents;
+    }
+    expect(payroll).toBeGreaterThan(0);
+    expect(subsidy / payroll).toBeLessThanOrEqual(0.01);
+  });
 });

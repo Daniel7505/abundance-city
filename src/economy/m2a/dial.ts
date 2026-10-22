@@ -17,7 +17,23 @@ export function outputShares(a: number): { human: number; automated: number } {
   return { human: 1 - a, automated: a };
 }
 
+/** Smoothstep on [0,1] — shared by layoffs and dividend pools to avoid dial cliffs. */
+export function automationIntensity(a: number): number {
+  clampAbundance(a);
+  return a * a * (3 - 2 * a);
+}
+
+export function layoffIntensity(a: number): number {
+  clampAbundance(a);
+  return Math.pow(a, 2.2);
+}
+
 export function activeSlotsForIndustry(baseSlots: number, a: number): number {
-  const removed = Math.round(a * baseSlots);
+  const removed = Math.round(layoffIntensity(a) * baseSlots);
   return Math.max(0, baseSlots - removed);
+}
+
+/** Smooth ramp for automation dividends (avoids cliff when treasury pool crosses needs). */
+export function abundanceDividendStrength(a: number): number {
+  return automationIntensity(a);
 }

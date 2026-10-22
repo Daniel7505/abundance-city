@@ -8,8 +8,8 @@
   "ownerHousingCostAnnualFractionOfValue": 0.02,
   "renterIncomeTierWeights": [3, 2, 1],
   "socialSecurityDailyCentsPerNlfAgent": 420,
-  "abundanceDividendTreasuryShare": 0.55,
-  "abundanceDividendMultiplier": 1,
+  "abundanceDividendTreasuryShare": 0.75,
+  "abundanceDividendMultiplier": 1.4,
   "firmPayrollReserveDays": 1,
   "treasuryLandlordTaxShare": 0.05,
   "initialBalancesCents": {
