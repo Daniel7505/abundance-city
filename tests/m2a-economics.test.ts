@@ -14,14 +14,14 @@ describe("M2a steady-state mechanics", () => {
     const last = lines[lines.length - 1];
     expect(last.employed).toBe(202);
     expect(last.gini).toBeGreaterThanOrEqual(0.35);
-    expect(last.gini).toBeLessThanOrEqual(0.41);
+    expect(last.gini).toBeLessThanOrEqual(0.39);
     const annualizedMedian =
       lines
         .map((l) => l.gini)
         .slice(-30)
         .reduce((s, g) => s + g, 0) / 30;
     expect(annualizedMedian).toBeGreaterThanOrEqual(0.35);
-    expect(annualizedMedian).toBeLessThanOrEqual(0.41);
+    expect(annualizedMedian).toBeLessThanOrEqual(0.39);
     expect(lines.reduce((s, l) => s + l.wageSubsidyCents, 0)).toBe(0);
     const medianApprox = targetMedianIncomeUsd();
     expect(medianApprox).toBeGreaterThan(0);
@@ -65,7 +65,7 @@ describe("M2a policy contrast at a=1", () => {
       policyName: "CapitalShare",
     }).summary.finalDayMetrics!;
     expect(equal.gini).toBeLessThan(capital.gini);
-    expect(tax.gini).toBeLessThanOrEqual(capital.gini);
+    expect(tax.gini).toBeLessThan(capital.gini);
   });
 
   it("CapitalShare Gini exceeds EqualDividend; workOptionalShare differs", () => {

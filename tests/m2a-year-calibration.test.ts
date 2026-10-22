@@ -27,13 +27,15 @@ describe("M2a a=0 one-year steady state", () => {
 
     expect(last.employed).toBe(202);
 
+    for (const line of lines) {
+      expect(line.wageGapCents ?? 0).toBe(0);
+    }
     for (const line of stable) {
-      expect((line.wagesPaidCents ?? 0) + (line.wageGapCents ?? 0)).toBe(line.payrollCents);
       const wages = line.byIndustry.reduce((s, r) => s + r.wages, 0);
-      expect(wages).toBeLessThanOrEqual(line.wagesPaidCents ?? wages);
+      expect(wages).toBe(line.payrollCents);
     }
     expect(last.gini).toBeGreaterThanOrEqual(0.35);
-    expect(last.gini).toBeLessThanOrEqual(0.42);
+    expect(last.gini).toBeLessThanOrEqual(0.39);
 
     const acsMedian = calibrationSnapshot(buildM2aWorld(42)).medianHouseholdIncomeUsd;
     const target = targetMedianIncomeUsd();
