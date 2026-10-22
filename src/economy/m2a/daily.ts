@@ -1,7 +1,7 @@
 import m2aEconomy from "../../../config/m2a-economy.json" with { type: "json" };
 import { automatedLaborShare } from "./dial.js";
 import { distributePoolByPolicy } from "./distribute.js";
-import { industryPricesCents, priceIndex } from "./prices.js";
+import { basketPriceIndex, industryPricesCents } from "./prices.js";
 import type { DividendPolicy } from "./policy.js";
 import {
   LANDLORD_ACCOUNT,
@@ -184,7 +184,7 @@ export function settleM2aDay(
     hhPaid += elecPaid;
     if (elecPaid < needs.electricity) unmetNeedCents += needs.electricity - elecPaid;
 
-    const avgPrice = priceIndex(prices);
+    const avgPrice = basketPriceIndex(world, abundance, prices);
     goodsUnitsPurchased += avgPrice > 0 ? (foodPaid + elecPaid) / avgPrice : 0;
 
     const hasEmployed = hh.agentIds.some(
@@ -237,6 +237,9 @@ export function settleM2aDay(
   let ownershipDistributedCents = 0;
   let policyDistributedCents = 0;
 
+  const ownershipPolicy: DividendPolicy =
+    policy.kind === "TaxAndDividend" ? policy : { kind: "CapitalShare" };
+
   const markup = m2aEconomy.firmMarkup;
   const profitFromRevenue = (revenue: number, balance: number): number => {
     if (revenue <= 0 || markup <= 0) return 0;
@@ -251,7 +254,7 @@ export function settleM2aDay(
       ledger,
       from,
       profit,
-      { kind: "CapitalShare" },
+      ownershipPolicy,
       world.households,
       world.capitalShare,
       world.agents.length,
@@ -267,7 +270,7 @@ export function settleM2aDay(
       ledger,
       LANDLORD_ACCOUNT,
       landlordProfit,
-      { kind: "CapitalShare" },
+      ownershipPolicy,
       world.households,
       world.capitalShare,
       world.agents.length,
@@ -330,7 +333,7 @@ export function settleM2aDay(
     day: dayIndex,
     tick,
     pricesCents: prices,
-    priceIndex: priceIndex(prices),
+    priceIndex: basketPriceIndex(world, abundance, prices),
     employed: countEmployed(world.agents),
     displaced,
     unmetNeedCents,

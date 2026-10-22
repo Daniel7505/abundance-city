@@ -2,7 +2,7 @@ import coefficients from "../../../data/coefficients.json" with { type: "json" }
 import { getTown } from "../../town/lindsborg.js";
 import type { AgentState, M2aWorld } from "../../sim/m2a/types.js";
 
-function automatabilityForIndustry(industryId: string): number {
+export function automatabilityForIndustry(industryId: string): number {
   const map = coefficients.industryAutomatabilityIntensity as Record<string, number | string>;
   const v = map[industryId];
   return typeof v === "number" ? v : 0.4;

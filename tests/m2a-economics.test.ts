@@ -35,7 +35,38 @@ describe("M2a steady-state mechanics", () => {
   });
 });
 
+describe("M2a price index vs abundance", () => {
+  it("basket price index at a=1 is below a=0 (automation lowers unit costs)", () => {
+    const a0 = dayMetrics(42, 60, 0).at(-1)!.priceIndex;
+    const a1 = dayMetrics(42, 60, 1).at(-1)!.priceIndex;
+    expect(a1).toBeLessThan(a0);
+  });
+});
+
 describe("M2a policy contrast at a=1", () => {
+  it("TaxAndDividend Gini lies strictly between EqualDividend and CapitalShare", () => {
+    const equal = runM2aSimulation({
+      seed: 42,
+      days: 60,
+      abundance: 1,
+      policyName: "EqualDividend",
+    }).summary.finalDayMetrics!;
+    const tax = runM2aSimulation({
+      seed: 42,
+      days: 60,
+      abundance: 1,
+      policyName: "TaxAndDividend",
+    }).summary.finalDayMetrics!;
+    const capital = runM2aSimulation({
+      seed: 42,
+      days: 60,
+      abundance: 1,
+      policyName: "CapitalShare",
+    }).summary.finalDayMetrics!;
+    expect(tax.gini).toBeGreaterThan(equal.gini);
+    expect(tax.gini).toBeLessThan(capital.gini);
+  });
+
   it("CapitalShare Gini exceeds EqualDividend; workOptionalShare differs", () => {
     const equal = runM2aSimulation({
       seed: 42,
