@@ -24,7 +24,11 @@ import {
 } from "../../economy/m2a/policy.js";
 import { Ledger } from "../../economy/ledger.js";
 import { buildM2aWorld } from "./worldgen.js";
-import { M2aMetricsCollector, type DailyMetricLine } from "./metrics.js";
+import {
+  M2aMetricsCollector,
+  type DailyMetricLine,
+  type DistributionProbeSnapshot,
+} from "./metrics.js";
 import { calibrationSnapshot } from "./calibration.js";
 
 export interface M2aSimOptions {
@@ -39,6 +43,7 @@ export interface M2aSimOptions {
 
 export interface M2aSimResult {
   dailyMetrics: string[];
+  distributionProbe: DistributionProbeSnapshot | null;
   summary: {
     seed: number;
     days: number;
@@ -107,7 +112,9 @@ export function runM2aSimulation(options: M2aSimOptions): M2aSimResult {
   const dailyMetrics: string[] = [];
   const consumptionState = new HouseholdConsumptionState(world);
   const collector = new M2aMetricsCollector({ m2bEnabled });
+  collector.bindWorld(world);
   let finalDayMetrics: DailyMetricLine | null = null;
+  let distributionProbe: DistributionProbeSnapshot | null = null;
   const totalTicks = options.days * m2aEconomy.ticksPerDay;
 
   for (let tick = 0; tick < totalTicks; tick++) {
@@ -147,8 +154,11 @@ export function runM2aSimulation(options: M2aSimOptions): M2aSimResult {
     accountBalancesCents[id] = ledger.getBalance(id);
   }
 
+  distributionProbe = collector.exportDistributionProbe(world, options.abundance, policyLabel(policy));
+
   return {
     dailyMetrics,
+    distributionProbe,
     summary: {
       seed: options.seed,
       days: options.days,

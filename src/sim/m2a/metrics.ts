@@ -2,6 +2,20 @@ import m2aEconomy from "../../../config/m2a-economy.json" with { type: "json" };
 import type { DailySettlementResult, IndustryDayStats } from "../../economy/m2a/daily.js";
 import { m2aMoneySupplyCents } from "../../economy/m2a/accounts.js";
 import type { M2aWorld } from "./types.js";
+import {
+  MAX_TRAILING_PROBE_DAYS,
+  aggregateQuintileDistribution,
+  assignHouseholdIncomeQuintiles,
+  coverageRatioDeciles,
+  industryDistributionFromSettlement,
+  pushTrailingDay,
+  workOptionalShareForWindow,
+  type HouseholdTrailingDay,
+  type IndustryDistributionSnapshot,
+  type QuintileDistributionBucket,
+} from "./distribution.js";
+
+export type { IndustryDistributionSnapshot, QuintileDistributionBucket };
 
 export interface DailyMetricLine {
   day: number;
@@ -47,6 +61,15 @@ export interface DailyMetricLine {
     displacedUnqueued: number;
     nlf: number;
   };
+  quintileDistribution?: QuintileDistributionBucket[];
+  byIndustryDistribution?: IndustryDistributionSnapshot[];
+}
+
+export interface DistributionProbeSnapshot {
+  policy: string;
+  abundance: number;
+  workOptionalShareByWindow: Record<string, number>;
+  coverageRatioDecilesByWindow: Record<string, number[]>;
 }
 
 interface TrailingHouseholdWindow {
@@ -79,11 +102,40 @@ function trailingMean(values: number[]): number {
 
 export class M2aMetricsCollector {
   private householdWindows = new Map<number, TrailingHouseholdWindow>();
+  private distributionWindows = new Map<number, HouseholdTrailingDay[]>();
   private incomeWindows = new Map<number, TrailingIncomeWindow>();
   private readonly m2bEnabled: boolean;
+  private readonly quintileByHousehold = new Map<number, number>();
 
   constructor(options: { m2bEnabled?: boolean } = {}) {
     this.m2bEnabled = options.m2bEnabled ?? false;
+  }
+
+  bindWorld(world: M2aWorld): void {
+    const quintiles = assignHouseholdIncomeQuintiles(world.households);
+    this.quintileByHousehold.clear();
+    for (const [id, q] of quintiles) this.quintileByHousehold.set(id, q);
+  }
+
+  exportDistributionProbe(world: M2aWorld, abundance: number, policy: string): DistributionProbeSnapshot {
+    const windows = [7, 30, 90] as const;
+    const workOptionalShareByWindow: Record<string, number> = {};
+    const coverageRatioDecilesByWindow: Record<string, number[]> = {};
+    for (const w of windows) {
+      workOptionalShareByWindow[String(w)] = workOptionalShareForWindow(
+        world,
+        this.distributionWindows,
+        w,
+        this.m2bEnabled,
+      );
+      coverageRatioDecilesByWindow[String(w)] = coverageRatioDeciles(
+        world,
+        this.distributionWindows,
+        w,
+        this.m2bEnabled,
+      );
+    }
+    return { policy, abundance, workOptionalShareByWindow, coverageRatioDecilesByWindow };
   }
 
   record(settlement: DailySettlementResult, world: M2aWorld): DailyMetricLine {
@@ -98,7 +150,31 @@ export class M2aMetricsCollector {
       const wages = settlement.householdWageInflowCents.get(hh.id) ?? 0;
       const policy = settlement.householdPolicyInflowCents.get(hh.id) ?? 0;
       const needs = settlement.householdNeedsCents.get(hh.id) ?? 0;
+      const housingNeeds = settlement.householdHousingNeedsCents.get(hh.id) ?? 0;
+      const foodNeeds = settlement.householdFoodNeedsCents.get(hh.id) ?? 0;
+      const electricityNeeds = settlement.householdElectricityNeedsCents.get(hh.id) ?? 0;
+      const transfer = settlement.householdTransferInflowCents.get(hh.id) ?? 0;
       const nonWageDisposable = disposable - wages;
+
+      let distWindow = this.distributionWindows.get(hh.id);
+      if (!distWindow) {
+        distWindow = [];
+        this.distributionWindows.set(hh.id, distWindow);
+      }
+      pushTrailingDay(
+        distWindow,
+        {
+          wageCents: wages,
+          transferCents: transfer,
+          disposableCents: disposable,
+          needsCents: needs,
+          housingNeedsCents: housingNeeds,
+          foodNeedsCents: foodNeeds,
+          electricityNeedsCents: electricityNeeds,
+          nonWageDisposableCents: nonWageDisposable,
+        },
+        MAX_TRAILING_PROBE_DAYS,
+      );
 
       let window = this.householdWindows.get(hh.id);
       if (!window) {
@@ -168,6 +244,14 @@ export class M2aMetricsCollector {
     const giniFactor = giniCoefficient(annualizedFactorUsd);
     const giniDisposable = giniCoefficient(annualizedDisposableUsd);
 
+    const quintileDistribution = aggregateQuintileDistribution(
+      world,
+      this.quintileByHousehold,
+      this.distributionWindows,
+      trailingGini,
+    );
+    const byIndustryDistribution = industryDistributionFromSettlement(settlement);
+
     const jobs = settlement.byIndustry.reduce((s, row) => s + row.jobs, 0);
     const avgNeeds =
       world.households.reduce(
@@ -206,6 +290,8 @@ export class M2aMetricsCollector {
       agentCashCentsTotal: settlement.agentCashCentsTotal,
       firmRevenueCentsTotal: settlement.firmRevenueCentsTotal,
       producerInflowCents: settlement.producerInflowCents,
+      quintileDistribution,
+      byIndustryDistribution,
     };
     if (this.m2bEnabled) {
       line.queued = settlement.queued;
