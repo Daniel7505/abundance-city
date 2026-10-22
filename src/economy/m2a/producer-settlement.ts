@@ -56,6 +56,7 @@ export function settleProducerAccount(
     wagePool,
     "producer_demand_wage",
     wagePaidByAgent,
+    world.agents,
   );
 
   const distributable = Math.max(

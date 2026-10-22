@@ -5,6 +5,7 @@ import {
   automatabilityForIndustry,
   countDisplaced,
   requiredSlots,
+  taskAutomatabilityScore,
 } from "../m2a/labor.js";
 import type {
   AgentState,
@@ -70,6 +71,7 @@ function enqueueDisplaced(world: M2aWorld, agentId: number, dayIndex: number): v
 }
 
 function trimAutomationWorkersToCap(world: M2aWorld, industryIndex: number, cap: number): void {
+  const town = getTown();
   const workers = world.agents
     .filter(
       (a) =>
@@ -77,7 +79,11 @@ function trimAutomationWorkersToCap(world: M2aWorld, industryIndex: number, cap:
         a.industryIndex === industryIndex &&
         !a.demandSlotEmployment,
     )
-    .sort((a, b) => a.skill - b.skill || a.id - b.id);
+    .sort(
+      (a, b) =>
+        taskAutomatabilityScore(b, industryIndex, town) -
+          taskAutomatabilityScore(a, industryIndex, town) || a.id - b.id,
+    );
   for (let i = cap; i < workers.length; i++) {
     workers[i].laborStatus = "unemployed";
     workers[i].industryIndex = null;

@@ -83,19 +83,15 @@ describe("M2c distribution metrics", () => {
     expect(distWages).toBe(legacyWages);
   });
 
-  it("policy-tie probe: Mix/Capital/Tax workOptionalShare matches at a=1 with 7d window", () => {
-    const policies = ["Mix", "CapitalShare", "TaxAndDividend"] as const;
-    const shares = policies.map((policyName) => {
-      const { distributionProbe } = runM2aSimulation({
+  it("policy contrast: EqualDividend workOptionalShare exceeds CapitalShare at a=1", () => {
+    const run = (policyName: string) =>
+      runM2aSimulation({
         seed: 42,
         days: 365,
         abundance: 1,
         policyName,
         m2bEnabled: true,
-      });
-      return distributionProbe!.workOptionalShareByWindow["7"];
-    });
-    expect(shares[0]).toBeCloseTo(shares[1], 4);
-    expect(shares[1]).toBeCloseTo(shares[2], 4);
+      }).distributionProbe!.workOptionalShareByWindow["7"];
+    expect(run("EqualDividend")).toBeGreaterThan(run("CapitalShare"));
   });
 });

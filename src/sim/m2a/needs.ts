@@ -2,6 +2,7 @@ import { getTown, m2aConfig } from "../../town/lindsborg.js";
 import { readNumber } from "../../town/sourced.js";
 import type { Household, HouseholdNeedsQuantity } from "./types.js";
 import type { NeedsPriceContext } from "./needs-prices.js";
+import { householdHousingNeedsCentsAt } from "./housing-calibration.js";
 
 export interface HouseholdDailyNeedsCents {
   housing: number;
@@ -51,9 +52,10 @@ export function householdDailyNeedsCentsLegacy(hh: Household): HouseholdDailyNee
 export function householdDailyNeedsCentsFromQuantities(
   hh: Household,
   prices: NeedsPriceContext,
+  abundance = 0,
 ): HouseholdDailyNeedsCents {
   const q = householdNeedsQuantities(hh);
-  const housing = Math.round(q.housingServiceUnits * prices.housingCentsPerUnit);
+  const housing = householdHousingNeedsCentsAt(hh, abundance);
   const food = Math.round(q.foodGoodsUnits * prices.goodsCentsPerUnit);
   const electricity = Math.round(q.electricityKwh * prices.electricityCentsPerKwh);
   const requiredTotal = housing + food + electricity;

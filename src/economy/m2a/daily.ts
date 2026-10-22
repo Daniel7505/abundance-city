@@ -211,7 +211,7 @@ export function settleM2aDay(
 
   for (const hh of world.households) {
     const needs = useQuantityNeeds
-      ? householdDailyNeedsCentsFromQuantities(hh, needsPrices!)
+      ? householdDailyNeedsCentsFromQuantities(hh, needsPrices!, abundance)
       : householdDailyNeedsCentsLegacy(hh);
     householdNeeds.set(hh.id, needs.requiredTotal);
     householdHousingNeeds.set(hh.id, needs.housing);

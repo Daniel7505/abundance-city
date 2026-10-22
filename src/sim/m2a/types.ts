@@ -18,6 +18,8 @@ export interface Household {
   isRenter: boolean;
   agentIds: number[];
   needsQuantity: HouseholdNeedsQuantity;
+  /** Calibrated so a=0 housing share of needs matches ACS-style quintile burden. */
+  housingBurdenMultiplier: number;
 }
 
 export interface AgentState {
