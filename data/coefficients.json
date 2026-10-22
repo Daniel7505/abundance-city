@@ -22,6 +22,30 @@
     "sourceNote": "Placeholder ACS-style housing share of subsistence needs (housing+food+electricity) at a=0; Q1 highest burden, Q5 lowest.",
     "quintileShares": [0.42, 0.38, 0.34, 0.31, 0.28]
   },
+  "humanMadeVariety": {
+    "sourceNote": "Placeholder CES split between automated and human-made goods per industry; higher taste keeps human variant demand when auto is cheap.",
+    "substitutionElasticity": 2
+  },
+  "humanMadeVarietyTaste": {
+    "sourceNote": "Placeholder human-premium taste by industry (educ/health/care high; mfg/ag low).",
+    "educ": 2.4,
+    "mfg": 0.35,
+    "retail": 0.9,
+    "health": 2.2,
+    "prof": 1.6,
+    "arts": 1.8,
+    "constr": 0.7,
+    "ag": 0.3,
+    "fire": 1.1,
+    "other": 1,
+    "transp": 0.6,
+    "pubadmin": 1.2,
+    "info": 1
+  },
+  "landValueTax": {
+    "sourceNote": "Placeholder LVT rate on daily land-rent collections; taxed share recirculated via dividend policy.",
+    "defaultRate": 0.85
+  },
   "taskAutomatability": {
     "sourceNote": "Placeholder: per-job automatability = industry intensity × (1 - skill×weight); lowest skill tasks lose hours first when revenue falls.",
     "skillAutomatabilityWeight": 1

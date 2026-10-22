@@ -22,6 +22,11 @@ import {
   policyLabel,
   type DividendPolicy,
 } from "../../economy/m2a/policy.js";
+import {
+  landPolicyLabel,
+  parseLandPolicy,
+  type LandPolicy,
+} from "../../economy/m2a/land-policy.js";
 import { Ledger } from "../../economy/ledger.js";
 import { buildM2aWorld } from "./worldgen.js";
 import {
@@ -39,6 +44,8 @@ export interface M2aSimOptions {
   policyName?: string;
   mixWeight?: number;
   m2bEnabled?: boolean;
+  landPolicy?: LandPolicy;
+  landPolicyName?: string;
 }
 
 export interface M2aSimResult {
@@ -49,6 +56,7 @@ export interface M2aSimResult {
     days: number;
     abundance: number;
     policy: string;
+    landPolicy: string;
     mode: "m2a" | "m2b";
     m2bEnabled: boolean;
     moneySupplyCents: number;
@@ -80,6 +88,12 @@ function resolvePolicy(options: M2aSimOptions): DividendPolicy {
   return parseDividendPolicy(name, mix);
 }
 
+function resolveLandPolicy(options: M2aSimOptions): LandPolicy {
+  if (options.landPolicy) return options.landPolicy;
+  const name = options.landPolicyName ?? "PrivateLandlords";
+  return parseLandPolicy(name);
+}
+
 export function runM2aSimulation(options: M2aSimOptions): M2aSimResult {
   const m2bEnabled = options.m2bEnabled ?? false;
   const world = buildM2aWorld(options.seed);
@@ -93,6 +107,7 @@ export function runM2aSimulation(options: M2aSimOptions): M2aSimResult {
   });
 
   const policy = resolvePolicy(options);
+  const landPolicy = resolveLandPolicy(options);
   if (m2bEnabled) {
     const refAbundance = m2bEconomy.referenceAbundanceForDemand;
     const refPrices = industryPricesCents(world, refAbundance);
@@ -137,6 +152,7 @@ export function runM2aSimulation(options: M2aSimOptions): M2aSimResult {
         world,
         options.abundance,
         policy,
+        landPolicy,
         dayIndex,
         tick,
         displaced,
@@ -154,7 +170,11 @@ export function runM2aSimulation(options: M2aSimOptions): M2aSimResult {
     accountBalancesCents[id] = ledger.getBalance(id);
   }
 
-  distributionProbe = collector.exportDistributionProbe(world, options.abundance, policyLabel(policy));
+  distributionProbe = collector.exportDistributionProbe(
+    world,
+    options.abundance,
+    `${policyLabel(policy)}|${landPolicyLabel(landPolicy)}`,
+  );
 
   return {
     dailyMetrics,
@@ -164,6 +184,7 @@ export function runM2aSimulation(options: M2aSimOptions): M2aSimResult {
       days: options.days,
       abundance: options.abundance,
       policy: policyLabel(policy),
+      landPolicy: landPolicyLabel(landPolicy),
       mode: m2bEnabled ? "m2b" : "m2a",
       m2bEnabled,
       moneySupplyCents: ledger.initialSupplyCents,

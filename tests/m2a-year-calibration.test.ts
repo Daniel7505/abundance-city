@@ -14,7 +14,7 @@ function parseRun(days: number) {
     days,
     abundance: 0,
     policyName: "Mix",
-    m2bEnabled: false,
+    m2bEnabled: true,
   });
   return {
     lines: dailyMetrics.map((l) => JSON.parse(l) as DailyMetricLine),
