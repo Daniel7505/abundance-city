@@ -61,5 +61,7 @@ export interface M2aWorld {
   baselineNotInLaborForce: number[];
   capitalShare: number[];
   referenceGoodsCentsPerUnit: number;
+  /** Weighted basket price at abundance 0 (worldgen); metrics normalize to base 100. */
+  referenceBasketPriceIndex: number;
   m2b: M2bLaborState | null;
 }

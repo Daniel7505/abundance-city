@@ -13,6 +13,7 @@ import { readNumber } from "../../town/sourced.js";
 import { SeededPrng } from "../prng.js";
 import { assignHouseholdCapitalShares } from "../../economy/m2a/ownership.js";
 import { assignDailyWagesFromConsumption } from "../../economy/m2a/wages.js";
+import { basketPriceIndex, industryPricesCents } from "../../economy/m2a/prices.js";
 import { needsPriceContext } from "./needs-prices.js";
 import { deriveHouseholdNeedsQuantities } from "./needs-quantities.js";
 import type { AgentState, BaselineEmploymentSlot, Household, M2aWorld } from "./types.js";
@@ -182,6 +183,7 @@ export function buildM2aWorld(seed: number): M2aWorld {
     baselineNotInLaborForce,
     capitalShare,
     referenceGoodsCentsPerUnit: 1,
+    referenceBasketPriceIndex: 1,
     m2b: null,
   };
   const refPrices = needsPriceContext(worldDraft, 0);
@@ -191,6 +193,9 @@ export function buildM2aWorld(seed: number): M2aWorld {
   }
 
   assignDailyWagesFromConsumption(worldDraft);
+  const abundanceZeroPrices = industryPricesCents(worldDraft, 0);
+  worldDraft.referenceBasketPriceIndex = basketPriceIndex(worldDraft, 0, abundanceZeroPrices);
+  worldDraft.referenceGoodsCentsPerUnit = refPrices.goodsCentsPerUnit;
 
   return worldDraft;
 }

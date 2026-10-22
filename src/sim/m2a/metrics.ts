@@ -80,6 +80,8 @@ export class M2aMetricsCollector {
     const trailingOptional = m2aEconomy.trailingDaysForWorkOptional;
     const trailingGini = m2aEconomy.trailingDaysForGini;
 
+    const priceIndexBase = world.referenceBasketPriceIndex;
+
     for (const hh of world.households) {
       let window = this.householdWindows.get(hh.id);
       if (!window) {
@@ -162,7 +164,8 @@ export class M2aMetricsCollector {
       jobs,
       employed: settlement.employed,
       displaced: settlement.displaced,
-      priceIndex: settlement.priceIndex,
+      priceIndex:
+        priceIndexBase > 0 ? (settlement.priceIndex / priceIndexBase) * 100 : settlement.priceIndex,
       moneySupply: m2aMoneySupplyCents(world),
       wageSubsidyCents: settlement.wageSubsidyCents,
       payrollCents: settlement.payrollCents,
