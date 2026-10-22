@@ -41,7 +41,7 @@ npm test
 npm run test:full
 ```
 
-`npm test` is the fast subset (mechanics, a short money sample, determinism, adaptive-premium direction). `npm run test:full` also runs the 365-day gates: a=0 median, Gini, wage gap, money conservation, and the agent-count check for every land policy. CI runs `test:full`. A simulation that exceeds its wall-clock budget throws instead of stalling the worker.
+`npm test` is the fast subset (mechanics, a short money sample, determinism, adaptive-premium direction, automation-path and ownership checks). `npm run test:full` also runs the 365-day gates: a=0 median, Gini, wage gap, money conservation, and the agent-count check for every land policy and producer-ownership setting, plus a 10-year logistic run. CI runs `test:full`. A simulation that exceeds its wall-clock budget throws instead of stalling the worker.
 
 ### Run the browser view
 
@@ -91,6 +91,20 @@ npm run sim -- --m2a --seed 42 --abundance 0.5 --days 60
 ```
 
 Writes `m2a-seed-<seed>-a-<a>-days-<n>.daily.jsonl` and a JSON summary (no per-tick agent logs).
+
+## Milestone M3 — automation path, transition harm, public ownership
+
+The default run still holds abundance fixed. `--automation-path linear` or `logistic` follows a schedule `a(t)` (default horizon 3650 days, a 10-year logistic from 0 to 1). Hiring, prices, task caps, and the human premium use that day's level.
+
+`--ownership` is `PrivateOwners` (current producer residual), `PublicFund` (placeholder share 0.5, paid as an equal per-household dividend), or `GradualBuyIn` (the fund's share starts at 0 and grows by reinvesting a placeholder fraction of its income). Schedule and ownership coefficients in `data/coefficients.json` are labeled placeholders.
+
+Each year the result records work-optional share, disposable-income Gini, the share and depth of households whose disposable income is below needs, and the longest shortfall spell (p50/p90/max), with income-quintile and age-band breakdowns.
+
+```bash
+npx tsx scripts/m3-report.ts
+```
+
+That script is the 5-seed sweep. It prints to stdout and does not write run artifacts.
 
 ## Credits
 

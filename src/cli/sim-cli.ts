@@ -1,5 +1,8 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { parseAutomationPathMode } from "../economy/m2a/automation-path.js";
+import { parseLandPolicy } from "../economy/m2a/land-policy.js";
+import { parseProducerOwnershipMode } from "../economy/m2a/producer-ownership.js";
 import { runM1Simulation } from "../sim/m1/engine.js";
 import { runM2aSimulation } from "../sim/m2a/engine.js";
 import { runSimulation } from "../sim/engine.js";
@@ -15,6 +18,10 @@ function parseArgs(argv: string[]): {
   m2a: boolean;
   m2b: boolean;
   humanPremiumMode: string | undefined;
+  landPolicy: string | undefined;
+  ownership: string | undefined;
+  automationPath: string | undefined;
+  automationHorizon: number | undefined;
   outDir: string;
 } {
   let seed = 42;
@@ -27,6 +34,10 @@ function parseArgs(argv: string[]): {
   let m2a = false;
   let m2b = false;
   let humanPremiumMode: string | undefined;
+  let landPolicy: string | undefined;
+  let ownership: string | undefined;
+  let automationPath: string | undefined;
+  let automationHorizon: number | undefined;
   let outDir = "logs";
 
   for (let i = 0; i < argv.length; i++) {
@@ -52,11 +63,19 @@ function parseArgs(argv: string[]): {
       m2a = true;
     } else if (arg === "--human-premium" && argv[i + 1]) {
       humanPremiumMode = argv[++i];
+    } else if (arg === "--land-policy" && argv[i + 1]) {
+      landPolicy = argv[++i];
+    } else if (arg === "--ownership" && argv[i + 1]) {
+      ownership = argv[++i];
+    } else if (arg === "--automation-path" && argv[i + 1]) {
+      automationPath = argv[++i];
+    } else if (arg === "--automation-horizon" && argv[i + 1]) {
+      automationHorizon = Number(argv[++i]);
     } else if (arg === "--out" && argv[i + 1]) {
       outDir = argv[++i];
     } else if (arg === "--help" || arg === "-h") {
       console.log(
-        "Usage: npm run sim -- [--m1|--m2a|--m2b] [--seed <n>] [--ticks <n>] [--days <n>] [--abundance <0-1>] [--policy <name>] [--human-premium fixed|adaptive] [--out <dir>]",
+        "Usage: npm run sim -- [--m1|--m2a|--m2b] [--seed <n>] [--ticks <n>] [--days <n>] [--abundance <0-1>] [--policy <name>] [--land-policy <name>] [--ownership PrivateOwners|PublicFund|GradualBuyIn] [--automation-path fixed|linear|logistic] [--automation-horizon <days>] [--human-premium fixed|adaptive] [--out <dir>]",
       );
       process.exit(0);
     }
@@ -83,16 +102,59 @@ function parseArgs(argv: string[]): {
     console.error("Invalid --human-premium (expected fixed or adaptive)");
     process.exit(1);
   }
+  if (automationHorizon !== undefined && (!Number.isInteger(automationHorizon) || automationHorizon < 1)) {
+    console.error("Invalid --automation-horizon");
+    process.exit(1);
+  }
+  try {
+    if (landPolicy !== undefined) parseLandPolicy(landPolicy);
+    if (ownership !== undefined) parseProducerOwnershipMode(ownership);
+    if (automationPath !== undefined) parseAutomationPathMode(automationPath);
+  } catch (err) {
+    console.error(err instanceof Error ? err.message : String(err));
+    process.exit(1);
+  }
 
-  return { seed, ticks, days, abundance, policy, mixWeight, m1, m2a, m2b, humanPremiumMode, outDir };
+  return {
+    seed,
+    ticks,
+    days,
+    abundance,
+    policy,
+    mixWeight,
+    m1,
+    m2a,
+    m2b,
+    humanPremiumMode,
+    landPolicy,
+    ownership,
+    automationPath,
+    automationHorizon,
+    outDir,
+  };
 }
 
 function main(): void {
-  const { seed, ticks, days, abundance, policy, mixWeight, m1, m2a, m2b, humanPremiumMode, outDir } =
-    parseArgs(process.argv.slice(2));
+  const {
+    seed,
+    ticks,
+    days,
+    abundance,
+    policy,
+    mixWeight,
+    m1,
+    m2a,
+    m2b,
+    humanPremiumMode,
+    landPolicy,
+    ownership,
+    automationPath,
+    automationHorizon,
+    outDir,
+  } = parseArgs(process.argv.slice(2));
 
   if (m2a) {
-    const { dailyMetrics, summary } = runM2aSimulation({
+    const { dailyMetrics, summary, transition } = runM2aSimulation({
       seed,
       days,
       abundance,
@@ -100,6 +162,15 @@ function main(): void {
       mixWeight,
       m2bEnabled: m2b,
       humanPremiumMode,
+      landPolicyName: landPolicy,
+      ownership,
+      automationPath:
+        automationPath || automationHorizon
+          ? {
+              ...(automationPath ? { mode: automationPath } : {}),
+              ...(automationHorizon ? { horizonDays: automationHorizon } : {}),
+            }
+          : undefined,
     });
     mkdirSync(outDir, { recursive: true });
     const mode = m2b ? "m2b" : "m2a";
@@ -111,7 +182,11 @@ function main(): void {
       dailyMetrics.join("\n") + (dailyMetrics.length ? "\n" : ""),
       "utf8",
     );
-    writeFileSync(summaryPath, JSON.stringify(summary, null, 2) + "\n", "utf8");
+    writeFileSync(
+      summaryPath,
+      JSON.stringify({ ...summary, transition }, null, 2) + "\n",
+      "utf8",
+    );
     console.log(`Wrote ${dailyMetrics.length} daily metric lines to ${metricsPath}`);
     console.log(`Wrote summary to ${summaryPath}`);
     return;
