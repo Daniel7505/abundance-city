@@ -1,0 +1,172 @@
+{
+  "name": "Lindsborg, KS",
+  "place_geoid": "16000US2041375",
+  "scale_persons_per_agent": {
+    "value": 10,
+    "source_url": "https://github.com/Daniel7505/abundance-city",
+    "vintage": "M2a-design"
+  },
+  "population": {
+    "value": 3792,
+    "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B01003&geo_ids=16000US2041375",
+    "vintage": "ACS 2024 5-year"
+  },
+  "households": {
+    "value": 1408,
+    "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B11001&geo_ids=16000US2041375",
+    "vintage": "ACS 2024 5-year"
+  },
+  "persons_per_household": {
+    "value": 2.3,
+    "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B25010&geo_ids=16000US2041375",
+    "vintage": "ACS 2024 5-year"
+  },
+  "median_household_income_usd": {
+    "value": 81250,
+    "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19013&geo_ids=16000US2041375",
+    "vintage": "ACS 2024 5-year"
+  },
+  "median_household_income_moe_usd": {
+    "value": 14235,
+    "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19013&geo_ids=16000US2041375",
+    "vintage": "ACS 2024 5-year"
+  },
+  "per_capita_income_usd": {
+    "value": 35928,
+    "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19301&geo_ids=16000US2041375",
+    "vintage": "ACS 2024 5-year"
+  },
+  "gini_index": {
+    "value": 0.3704,
+    "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19083&geo_ids=16000US2041375",
+    "vintage": "ACS 2024 5-year"
+  },
+  "labor_force": {
+    "value": 2119,
+    "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B23025&geo_ids=16000US2041375",
+    "vintage": "ACS 2024 5-year"
+  },
+  "employed": {
+    "value": 2021,
+    "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B23025&geo_ids=16000US2041375",
+    "vintage": "ACS 2024 5-year"
+  },
+  "unemployed": {
+    "value": 98,
+    "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B23025&geo_ids=16000US2041375",
+    "vintage": "ACS 2024 5-year"
+  },
+  "owner_occupied_households": {
+    "value": 1088,
+    "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B25003&geo_ids=16000US2041375",
+    "vintage": "ACS 2024 5-year"
+  },
+  "renter_occupied_households": {
+    "value": 320,
+    "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B25003&geo_ids=16000US2041375",
+    "vintage": "ACS 2024 5-year"
+  },
+  "median_gross_rent_usd_monthly": {
+    "value": 1022,
+    "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B25064&geo_ids=16000US2041375",
+    "vintage": "ACS 2024 5-year"
+  },
+  "median_home_value_usd": {
+    "value": 188000,
+    "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B25077&geo_ids=16000US2041375",
+    "vintage": "ACS 2024 5-year"
+  },
+  "poverty_rate_pct": {
+    "value": 6.8,
+    "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B17001&geo_ids=16000US2041375",
+    "vintage": "ACS 2024 5-year"
+  },
+  "mean_commute_minutes": {
+    "value": 16.4,
+    "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B08303&geo_ids=16000US2041375",
+    "vintage": "ACS 2024 5-year"
+  },
+  "median_earnings_men_usd": {
+    "value": 51378,
+    "source_url": "https://datausa.io/profile/geo/lindsborg-ks",
+    "vintage": "ACS 2024 5-year"
+  },
+  "median_earnings_women_usd": {
+    "value": 35833,
+    "source_url": "https://datausa.io/profile/geo/lindsborg-ks",
+    "vintage": "ACS 2024 5-year"
+  },
+  "electricity_cents_per_kwh": {
+    "value": 15.27,
+    "source_url": "https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_6_a",
+    "vintage": "2026-07 KS residential"
+  },
+  "electricity_kwh_per_month": {
+    "value": 875,
+    "source_url": "https://electricrates.org/states/rates.csv",
+    "vintage": "2024"
+  },
+  "ce_housing_share": {
+    "value": 0.334,
+    "source_url": "https://www.bls.gov/opub/ted/2026/housing-and-transportation-accounted-for-50-percent-of-household-spending-in-2024.htm",
+    "vintage": "BLS CE 2024"
+  },
+  "ce_transport_share": {
+    "value": 0.17,
+    "source_url": "https://www.bls.gov/opub/ted/2026/housing-and-transportation-accounted-for-50-percent-of-household-spending-in-2024.htm",
+    "vintage": "BLS CE 2024"
+  },
+  "ce_food_share": {
+    "value": 0.129,
+    "source_url": "https://www.bls.gov/opub/ted/2026/housing-and-transportation-accounted-for-50-percent-of-household-spending-in-2024.htm",
+    "vintage": "BLS CE 2024"
+  },
+  "ce_health_share": {
+    "value": 0.079,
+    "source_url": "https://www.bls.gov/opub/ted/2026/housing-and-transportation-accounted-for-50-percent-of-household-spending-in-2024.htm",
+    "vintage": "BLS CE 2024"
+  },
+  "ce_avg_annual_spending_usd": {
+    "value": 78535,
+    "source_url": "https://www.bls.gov/opub/ted/2026/housing-and-transportation-accounted-for-50-percent-of-household-spending-in-2024.htm",
+    "vintage": "BLS CE 2024"
+  },
+  "wages_oews": {
+    "value": null,
+    "source_url": "https://www.bls.gov/oes/2024/may/oessrcma.htm",
+    "vintage": "TODO KS nonmetro OEWS"
+  },
+  "income_bands_b19001": [
+    { "label": "lt_10k", "min_usd": { "value": 0, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19001&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" }, "max_usd": { "value": 9999, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19001&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" }, "household_count": { "value": 60, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19001&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" } },
+    { "label": "10_15k", "min_usd": { "value": 10000, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19001&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" }, "max_usd": { "value": 14999, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19001&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" }, "household_count": { "value": 0, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19001&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" } },
+    { "label": "15_20k", "min_usd": { "value": 15000, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19001&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" }, "max_usd": { "value": 19999, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19001&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" }, "household_count": { "value": 51, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19001&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" } },
+    { "label": "20_25k", "min_usd": { "value": 20000, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19001&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" }, "max_usd": { "value": 24999, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19001&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" }, "household_count": { "value": 48, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19001&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" } },
+    { "label": "25_30k", "min_usd": { "value": 25000, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19001&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" }, "max_usd": { "value": 29999, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19001&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" }, "household_count": { "value": 29, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19001&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" } },
+    { "label": "30_35k", "min_usd": { "value": 30000, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19001&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" }, "max_usd": { "value": 34999, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19001&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" }, "household_count": { "value": 21, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19001&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" } },
+    { "label": "35_40k", "min_usd": { "value": 35000, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19001&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" }, "max_usd": { "value": 39999, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19001&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" }, "household_count": { "value": 77, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19001&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" } },
+    { "label": "40_45k", "min_usd": { "value": 40000, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19001&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" }, "max_usd": { "value": 44999, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19001&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" }, "household_count": { "value": 16, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19001&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" } },
+    { "label": "45_50k", "min_usd": { "value": 45000, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19001&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" }, "max_usd": { "value": 49999, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19001&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" }, "household_count": { "value": 119, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19001&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" } },
+    { "label": "50_60k", "min_usd": { "value": 50000, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19001&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" }, "max_usd": { "value": 59999, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19001&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" }, "household_count": { "value": 134, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19001&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" } },
+    { "label": "60_75k", "min_usd": { "value": 60000, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19001&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" }, "max_usd": { "value": 74999, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19001&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" }, "household_count": { "value": 78, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19001&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" } },
+    { "label": "75_100k", "min_usd": { "value": 75000, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19001&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" }, "max_usd": { "value": 99999, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19001&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" }, "household_count": { "value": 243, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19001&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" } },
+    { "label": "100_125k", "min_usd": { "value": 100000, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19001&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" }, "max_usd": { "value": 124999, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19001&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" }, "household_count": { "value": 191, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19001&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" } },
+    { "label": "125_150k", "min_usd": { "value": 125000, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19001&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" }, "max_usd": { "value": 149999, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19001&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" }, "household_count": { "value": 63, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19001&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" } },
+    { "label": "150_200k", "min_usd": { "value": 150000, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19001&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" }, "max_usd": { "value": 199999, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19001&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" }, "household_count": { "value": 180, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19001&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" } },
+    { "label": "200k_plus", "min_usd": { "value": 200000, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19001&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" }, "max_usd": { "value": 500000, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19001&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" }, "household_count": { "value": 98, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=B19001&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" } }
+  ],
+  "industry_employment_c24030": [
+    { "id": "educ", "label": "Educational services", "count": { "value": 451, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=C24030&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" } },
+    { "id": "mfg", "label": "Manufacturing", "count": { "value": 294, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=C24030&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" } },
+    { "id": "retail", "label": "Retail trade", "count": { "value": 250, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=C24030&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" } },
+    { "id": "health", "label": "Health care", "count": { "value": 241, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=C24030&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" } },
+    { "id": "arts", "label": "Arts and food services", "count": { "value": 187, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=C24030&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" } },
+    { "id": "prof", "label": "Professional and administrative", "count": { "value": 145, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=C24030&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" } },
+    { "id": "constr", "label": "Construction", "count": { "value": 93, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=C24030&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" } },
+    { "id": "ag", "label": "Agriculture", "count": { "value": 83, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=C24030&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" } },
+    { "id": "fire", "label": "Finance and real estate", "count": { "value": 70, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=C24030&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" } },
+    { "id": "other", "label": "Other services", "count": { "value": 65, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=C24030&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" } },
+    { "id": "transp", "label": "Transportation", "count": { "value": 58, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=C24030&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" } },
+    { "id": "pubadmin", "label": "Public administration", "count": { "value": 57, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=C24030&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" } },
+    { "id": "info", "label": "Information", "count": { "value": 27, "source_url": "https://api.censusreporter.org/1.0/data/show/latest?table_ids=C24030&geo_ids=16000US2041375", "vintage": "ACS 2024 5-year" } }
+  ]
+}

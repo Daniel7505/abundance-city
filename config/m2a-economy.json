@@ -1,0 +1,26 @@
+{
+  "ticksPerDay": 24,
+  "settlementTickOfDay": 23,
+  "trailingDaysForWorkOptional": 7,
+  "trailingDaysForGini": 30,
+  "paretoAlphaAbove200k": 2,
+  "ownerHousingCostAnnualFractionOfValue": 0.02,
+  "ownershipParetoAlpha": 1.05,
+  "defaultPolicy": "Mix",
+  "defaultMixWeight": 0.5,
+  "householdLaborIncomeShare": 0.86,
+  "payrollTaxRate": 0.0765,
+  "socialSecurityDailyCentsPerNlfAgent": 1850,
+  "unemploymentDailyCentsPerAgent": 4200,
+  "firmMarkup": 0.14,
+  "materialsCentsPerWorkerDay": 1200,
+  "energyCentsPerWorkerDayAtHuman": 450,
+  "capitalServiceCentsPerWorkerDay": 800,
+  "initialBalancesCents": {
+    "agent": 0,
+    "firm": 0,
+    "producer": 0,
+    "landlord": 0,
+    "treasury": 0
+  }
+}

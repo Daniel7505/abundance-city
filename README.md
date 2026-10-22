@@ -79,15 +79,28 @@ Outputs under `logs/` (or `--out`):
 
 M0 mode remains the default (`npm run sim -- --seed 42 --ticks 100`).
 
+## Milestone M2a — Lindsborg heterogeneous households
+
+M2a models **Lindsborg, KS** from sourced ACS/BLS/EIA data (`data/towns/lindsborg-ks.json`), with heterogeneous households, 13 industry firms, and a non-binary `workOptionalShare` driven by trailing household non-wage income vs needs. M0/M1 legacy modes are unchanged.
+
+```bash
+npm run sim -- --m2a --seed 42 --abundance 0.5 --days 60
+```
+
+Writes `m2a-seed-<seed>-a-<a>-days-<n>.daily.jsonl` and a JSON summary (no per-tick agent logs).
+
 ## Credits
 
-Libraries used in this project:
+Libraries and public data used in this project:
 
 - [Three.js](https://threejs.org/) — WebGL renderer for the M0 city view
 - [Vite](https://vitejs.dev/) — dev server and frontend build
 - [Vitest](https://vitest.dev/) — unit tests
 - [TypeScript](https://www.typescriptlang.org/) — language tooling
 - [tsx](https://github.com/privatenumber/tsx) — TypeScript execution for the headless CLI
+- [U.S. Census Bureau / ACS](https://www.census.gov/programs-surveys/acs) — Lindsborg place profile via Census Reporter API
+- [U.S. Bureau of Labor Statistics](https://www.bls.gov/) — Consumer Expenditure category shares
+- [U.S. Energy Information Administration](https://www.eia.gov/) — Kansas residential electricity price
 
 ## License
 

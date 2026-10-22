@@ -3,5 +3,20 @@
     "human": 0.42,
     "automated": 0.08
   },
-  "sourceNote": "Placeholder rates inspired by robot-battery-monitor lap Wh/m (human labor intensity vs automated production); scaled per goods unit for M1 metrics only — not applied to grid travel in M1."
+  "industryAutomatabilityIntensity": {
+    "sourceNote": "Placeholder per-industry automatability in [0,1] for M2a labor slots; replace with sourced estimates in M2b.",
+    "educ": 0.15,
+    "mfg": 0.55,
+    "retail": 0.35,
+    "health": 0.25,
+    "prof": 0.2,
+    "accom": 0.3,
+    "admin": 0.4,
+    "other": 0.45,
+    "trans": 0.5,
+    "const": 0.45,
+    "agri": 0.5,
+    "info": 0.35,
+    "finance": 0.3
+  }
 }
