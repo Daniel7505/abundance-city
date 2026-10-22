@@ -1,4 +1,8 @@
 {
+  "discretionaryConsumption": {
+    "sourceNote": "Placeholder MPC on income above subsistence needs; replace with sourced estimate.",
+    "marginalPropensityToConsume": 0.9
+  },
   "energyWhPerGoodsUnit": {
     "human": 0.42,
     "automated": 0.08

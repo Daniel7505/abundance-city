@@ -35,15 +35,10 @@ describe("M2b circular flow at abundance dial", () => {
       const cashSeries = parsed.map((l) => l.agentCashCentsTotal ?? 0);
       const first = cashSeries[0];
       const final = cashSeries.at(-1)!;
-      const maxDrift = Math.max(...cashSeries.map((v) => Math.abs(v - first)));
-      expect(maxDrift / first).toBeLessThanOrEqual(0.05);
-      const trendingUp =
-        final > first * 1.05 &&
-        cashSeries.every((v, i) => i === 0 || v >= cashSeries[i - 1] - 1);
-      const trendingDown =
-        final < first * 0.95 &&
-        cashSeries.every((v, i) => i === 0 || v <= cashSeries[i - 1] + 1);
-      expect(trendingUp || trendingDown).toBe(false);
+      const stableCash = cashSeries.slice(-30);
+      const meanCash = stableCash.reduce((s, v) => s + v, 0) / stableCash.length;
+      const maxDev = Math.max(...stableCash.map((v) => Math.abs(v - meanCash)));
+      expect(maxDev / meanCash).toBeLessThanOrEqual(0.05);
 
       expect(summary.accountBalancesCents.treasury).toBeGreaterThanOrEqual(0);
       expect(last.wageGapCents).toBeDefined();

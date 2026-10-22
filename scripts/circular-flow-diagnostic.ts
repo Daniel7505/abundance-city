@@ -16,6 +16,7 @@ import {
   m2aMoneySupplyCents,
   type AccountId,
 } from "../src/economy/m2a/accounts.js";
+import { HouseholdConsumptionState } from "../src/economy/m2a/consumption.js";
 import { settleM2aDay } from "../src/economy/m2a/daily.js";
 import { basketPriceIndex, industryPricesCents } from "../src/economy/m2a/prices.js";
 import {
@@ -193,7 +194,8 @@ function runDiagnostic(
     basketPriceIndex(world, abundance, industryPricesCents(world, abundance)),
   );
 
-  const collector = new M2aMetricsCollector({ m2bEnabled: true });
+  const collector = new M2aMetricsCollector({ m2bEnabled: true, abundance });
+  const consumptionState = new HouseholdConsumptionState(world);
   const records: DayRecord[] = [];
   let transferCursor = 0;
   const totalTicks = days * m2aEconomy.ticksPerDay;
@@ -213,7 +215,7 @@ function runDiagnostic(
       dayIndex,
       tick,
       displaced,
-      { useQuantityNeeds: true },
+      { useQuantityNeeds: true, consumptionState },
     );
     const line = collector.record(settlement, world);
     const flows = flowsFromTransfers(ledger.getTransfers(), firmCount, transferCursor);

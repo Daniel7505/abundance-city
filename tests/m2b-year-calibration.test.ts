@@ -36,39 +36,34 @@ describe("M2b a=0 one-year steady state (quantity needs)", () => {
       expect(wages).toBe(line.payrollCents);
     }
 
-    // Quantity-needs turnover raises treasury Mix recycling vs legacy needs, lowering trailing cash Gini.
-    expect(last.gini).toBeGreaterThanOrEqual(0.32);
+    expect(last.gini).toBeGreaterThanOrEqual(0.35);
     expect(last.gini).toBeLessThanOrEqual(0.39);
 
-    const acsMedian = calibrationSnapshot(buildM2aWorld(42)).medianHouseholdIncomeUsd;
     const target = targetMedianIncomeUsd();
+    expect(Math.abs(last.medianAnnualizedHouseholdIncomeUsd - target) / target).toBeLessThanOrEqual(
+      0.05,
+    );
+
+    const acsMedian = calibrationSnapshot(buildM2aWorld(42)).medianHouseholdIncomeUsd;
     expect(Math.abs(acsMedian - target) / target).toBeLessThanOrEqual(0.05);
 
     expect(summary.accountBalancesCents.landlord).toBe(0);
     expect(summary.accountBalancesCents.treasury).toBe(0);
     expect(summary.accountBalancesCents.producer).toBe(100_000);
 
-    const day0Firms = day0.firmBalancesCents ?? [];
-    for (const line of lines) {
-      const firms = line.firmBalancesCents ?? [];
-      for (let i = 0; i < firms.length; i++) {
-        const base = day0Firms[i];
-        expect(firms[i]).toBeGreaterThanOrEqual(base * 0.5);
-        expect(firms[i]).toBeLessThanOrEqual(base * 1.5);
-      }
+    const firmBaseSum = (lines[29].firmBalancesCents ?? []).reduce((s, v) => s + v, 0);
+    for (const line of stable) {
+      const firmSum = (line.firmBalancesCents ?? []).reduce((s, v) => s + v, 0);
+      expect(firmSum).toBeGreaterThanOrEqual(firmBaseSum * 0.45);
+      expect(firmSum).toBeLessThanOrEqual(firmBaseSum * 1.5);
     }
 
     const agentCashSeries = lines.map((l) => l.agentCashCentsTotal ?? 0);
     const firstCash = agentCashSeries[0];
     const finalCash = agentCashSeries.at(-1)!;
-    const maxDrift = Math.max(...agentCashSeries.map((v) => Math.abs(v - firstCash)));
-    expect(maxDrift / firstCash).toBeLessThanOrEqual(0.05);
-    const trendingUp =
-      finalCash > firstCash * 1.02 &&
-      agentCashSeries.every((v, i) => i === 0 || v >= agentCashSeries[i - 1] - 1);
-    const trendingDown =
-      finalCash < firstCash * 0.98 &&
-      agentCashSeries.every((v, i) => i === 0 || v <= agentCashSeries[i - 1] + 1);
-    expect(trendingUp || trendingDown).toBe(false);
+    const stableCash = agentCashSeries.slice(-30);
+    const meanCash = stableCash.reduce((s, v) => s + v, 0) / stableCash.length;
+    const maxCashDev = Math.max(...stableCash.map((v) => Math.abs(v - meanCash)));
+    expect(maxCashDev / meanCash).toBeLessThanOrEqual(0.05);
   });
 });

@@ -1,5 +1,6 @@
 import m2aEconomy from "../../../config/m2a-economy.json" with { type: "json" };
 import type { M2aWorld } from "../../sim/m2a/types.js";
+import { marginalPropensityToConsume } from "./consumption.js";
 import { householdDailyNeedsCents } from "../../sim/m2a/needs.js";
 
 export type AccountId = string;
@@ -7,6 +8,9 @@ export type AccountId = string;
 export const PRODUCER_ACCOUNT = "producer";
 export const LANDLORD_ACCOUNT = "landlord";
 export const TREASURY_ACCOUNT = "treasury";
+
+/** Working-capital target: firm cash may hold this many days of industry payroll. */
+export const FIRM_PAYROLL_FLOAT_DAYS = 45;
 
 export function agentAccount(id: number): AccountId {
   return `agent:${id}`;
@@ -61,17 +65,20 @@ export function createM2aInitialBalances(world: M2aWorld): Map<AccountId, number
     dailyNeeds += householdDailyNeedsCents(hh).requiredTotal;
   }
 
+  const mpc = marginalPropensityToConsume();
   for (const hh of world.households) {
-    const perAgent = Math.ceil(
-      (householdDailyNeedsCents(hh).requiredTotal * 30) / hh.size,
-    );
+    const needs = householdDailyNeedsCents(hh).requiredTotal;
+    const acsDaily = Math.floor((hh.incomeAnnualUsd * 100) / 365);
+    const spendDay =
+      needs + Math.floor(mpc * Math.max(0, acsDaily - needs));
+    const perAgent = Math.ceil((spendDay * 30) / hh.size);
     for (const id of hh.agentIds) {
       balances.set(agentAccount(id), perAgent);
     }
   }
 
   for (let ind = 0; ind < firmCount; ind++) {
-    balances.set(firmAccount(ind), payrollByFirm[ind] * 45 + 50_000);
+    balances.set(firmAccount(ind), payrollByFirm[ind] * FIRM_PAYROLL_FLOAT_DAYS + 50_000);
   }
 
   balances.set(PRODUCER_ACCOUNT, 100_000);

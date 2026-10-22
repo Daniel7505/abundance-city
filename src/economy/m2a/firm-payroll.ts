@@ -2,7 +2,12 @@ import m2aEconomy from "../../../config/m2a-economy.json" with { type: "json" };
 import { automatedLaborShare } from "./dial.js";
 import { distributePoolByPolicy } from "./distribute.js";
 import type { DividendPolicy } from "./policy.js";
-import { TREASURY_ACCOUNT, agentAccount, firmAccount } from "./accounts.js";
+import {
+  FIRM_PAYROLL_FLOAT_DAYS,
+  TREASURY_ACCOUNT,
+  agentAccount,
+  firmAccount,
+} from "./accounts.js";
 import { laborHoursFromPaid, payWagePoolProRata, type WageWorker } from "./wage-pool.js";
 import type { Ledger } from "../ledger.js";
 import type { M2aWorld } from "../../sim/m2a/types.js";
@@ -44,7 +49,8 @@ function settleFirmPayrollNoAutomation(
 
   for (let ind = 0; ind < industryCount; ind++) {
     const balance = ledger.getBalance(firmAccount(ind));
-    const excess = balance - payrollByIndustry[ind];
+    const floatTarget = payrollByIndustry[ind] * FIRM_PAYROLL_FLOAT_DAYS;
+    const excess = balance - floatTarget;
     if (excess > 0) {
       ledger.transfer(firmAccount(ind), TREASURY_ACCOUNT, excess, "firm_payroll_rebalance");
     }
@@ -95,7 +101,8 @@ function settleFirmPayrollNoAutomation(
         agentDividends,
       );
     }
-    const residual = ledger.getBalance(firmAccount(ind));
+    const floatTarget = payrollByIndustry[ind] * FIRM_PAYROLL_FLOAT_DAYS;
+    const residual = ledger.getBalance(firmAccount(ind)) - floatTarget;
     if (residual > 0) {
       ledger.transfer(firmAccount(ind), TREASURY_ACCOUNT, residual, "firm_residual_sweep");
     }

@@ -4,6 +4,7 @@ import {
   createM2aInitialBalances,
   m2aMoneySupplyCents,
 } from "../../economy/m2a/accounts.js";
+import { HouseholdConsumptionState } from "../../economy/m2a/consumption.js";
 import { settleM2aDay } from "../../economy/m2a/daily.js";
 import {
   applyLaborForAbundance,
@@ -104,7 +105,11 @@ export function runM2aSimulation(options: M2aSimOptions): M2aSimResult {
   const calibrationDay0 = calibrationSnapshot(world);
 
   const dailyMetrics: string[] = [];
-  const collector = new M2aMetricsCollector({ m2bEnabled });
+  const consumptionState = new HouseholdConsumptionState(world);
+  const collector = new M2aMetricsCollector({
+    m2bEnabled,
+    abundance: options.abundance,
+  });
   let finalDayMetrics: DailyMetricLine | null = null;
   const totalTicks = options.days * m2aEconomy.ticksPerDay;
 
@@ -131,7 +136,7 @@ export function runM2aSimulation(options: M2aSimOptions): M2aSimResult {
         dayIndex,
         tick,
         displaced,
-        { useQuantityNeeds: m2bEnabled },
+        { useQuantityNeeds: m2bEnabled, consumptionState },
       );
       const line = collector.record(settlement, world);
       dailyMetrics.push(JSON.stringify(line));

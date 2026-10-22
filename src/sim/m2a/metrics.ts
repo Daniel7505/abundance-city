@@ -51,7 +51,8 @@ interface TrailingHouseholdWindow {
 }
 
 interface TrailingIncomeWindow {
-  dailyInflowCents: number[];
+  dailyFactorInflowCents: number[];
+  dailyTotalInflowCents: number[];
 }
 
 export function giniCoefficient(values: number[]): number {
@@ -71,9 +72,11 @@ export class M2aMetricsCollector {
   private householdWindows = new Map<number, TrailingHouseholdWindow>();
   private incomeWindows = new Map<number, TrailingIncomeWindow>();
   private readonly m2bEnabled: boolean;
+  private readonly abundance: number;
 
-  constructor(options: { m2bEnabled?: boolean } = {}) {
+  constructor(options: { m2bEnabled?: boolean; abundance?: number } = {}) {
     this.m2bEnabled = options.m2bEnabled ?? false;
+    this.abundance = options.abundance ?? 0;
   }
 
   record(settlement: DailySettlementResult, world: M2aWorld): DailyMetricLine {
@@ -94,14 +97,17 @@ export class M2aMetricsCollector {
       window.days.push({ nonWage, needs, inflow });
       if (window.days.length > trailingOptional) window.days.shift();
 
+      const policy = settlement.householdPolicyInflowCents.get(hh.id) ?? 0;
       let incomeWindow = this.incomeWindows.get(hh.id);
       if (!incomeWindow) {
-        incomeWindow = { dailyInflowCents: [] };
+        incomeWindow = { dailyFactorInflowCents: [], dailyTotalInflowCents: [] };
         this.incomeWindows.set(hh.id, incomeWindow);
       }
-      incomeWindow.dailyInflowCents.push(inflow);
-      if (incomeWindow.dailyInflowCents.length > trailingGini) {
-        incomeWindow.dailyInflowCents.shift();
+      incomeWindow.dailyFactorInflowCents.push(inflow);
+      incomeWindow.dailyTotalInflowCents.push(inflow + policy);
+      if (incomeWindow.dailyFactorInflowCents.length > trailingGini) {
+        incomeWindow.dailyFactorInflowCents.shift();
+        incomeWindow.dailyTotalInflowCents.shift();
       }
     }
 
@@ -125,12 +131,16 @@ export class M2aMetricsCollector {
     const workOptionalShare = optionalHouseholds / world.households.length;
 
     const annualizedHouseholdIncomeUsd: number[] = [];
+    const annualizedForGiniUsd: number[] = [];
     for (const hh of world.households) {
       const incomeWindow = this.incomeWindows.get(hh.id)!;
-      const days = incomeWindow.dailyInflowCents.length;
-      const sumCents = incomeWindow.dailyInflowCents.reduce((s, v) => s + v, 0);
-      const meanDailyCents = days > 0 ? sumCents / days : 0;
-      annualizedHouseholdIncomeUsd.push((meanDailyCents / 100) * 365);
+      const days = incomeWindow.dailyFactorInflowCents.length;
+      const factorSum = incomeWindow.dailyFactorInflowCents.reduce((s, v) => s + v, 0);
+      const totalSum = incomeWindow.dailyTotalInflowCents.reduce((s, v) => s + v, 0);
+      const meanFactor = days > 0 ? factorSum / days : 0;
+      const meanTotal = days > 0 ? totalSum / days : 0;
+      annualizedHouseholdIncomeUsd.push((meanFactor / 100) * 365);
+      annualizedForGiniUsd.push((meanTotal / 100) * 365);
     }
     const sortedAnnual = [...annualizedHouseholdIncomeUsd].sort((a, b) => a - b);
     const mid = Math.floor(sortedAnnual.length / 2);
@@ -152,7 +162,9 @@ export class M2aMetricsCollector {
       day: settlement.day,
       tick: settlement.tick,
       workOptionalShare,
-      gini: giniCoefficient(annualizedHouseholdIncomeUsd),
+      gini: giniCoefficient(
+        this.abundance > 0 ? annualizedForGiniUsd : annualizedHouseholdIncomeUsd,
+      ),
       medianAnnualizedHouseholdIncomeUsd,
       unmetNeed: settlement.unmetNeedCents,
       shortHouseholds: settlement.shortHouseholds,
