@@ -17,6 +17,7 @@ export function restoreBaselineEmployment(world: M2aWorld): void {
   for (const a of world.agents) {
     a.laborStatus = "not_in_labor_force";
     a.industryIndex = null;
+    a.demandSlotEmployment = false;
   }
   for (const id of world.baselineNotInLaborForce) {
     world.agents[id].laborStatus = "not_in_labor_force";
@@ -45,6 +46,7 @@ export function applyLaborForAbundance(world: M2aWorld, abundance: number): void
       if (i >= cap) {
         workers[i].laborStatus = "unemployed";
         workers[i].industryIndex = null;
+        workers[i].demandSlotEmployment = false;
       }
     }
   }

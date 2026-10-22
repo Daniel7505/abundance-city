@@ -1,7 +1,15 @@
 {
+  "discretionaryConsumption": {
+    "sourceNote": "Placeholder MPC on income above subsistence needs; replace with sourced estimate.",
+    "marginalPropensityToConsume": 0.9
+  },
   "energyWhPerGoodsUnit": {
     "human": 0.42,
     "automated": 0.08
+  },
+  "automatedProducerMaintenanceJobs": {
+    "sourceNote": "Placeholder M2b oversight/maintenance headcount tied to automation level; replace with sourced estimates.",
+    "slotsPerAbundanceUnit": 8
   },
   "industryAutomatabilityIntensity": {
     "sourceNote": "Placeholder per-industry automatability in [0,1] for M2a labor slots; replace with sourced estimates in M2b.",

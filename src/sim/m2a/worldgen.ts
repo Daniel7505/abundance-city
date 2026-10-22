@@ -12,6 +12,10 @@ import {
 import { readNumber } from "../../town/sourced.js";
 import { SeededPrng } from "../prng.js";
 import { assignHouseholdCapitalShares } from "../../economy/m2a/ownership.js";
+import { assignDailyWagesFromConsumption } from "../../economy/m2a/wages.js";
+import { basketPriceIndex, industryPricesCents } from "../../economy/m2a/prices.js";
+import { needsPriceContext } from "./needs-prices.js";
+import { deriveHouseholdNeedsQuantities } from "./needs-quantities.js";
 import type { AgentState, BaselineEmploymentSlot, Household, M2aWorld } from "./types.js";
 
 function sampleHouseholdSizes(prng: SeededPrng, households: number, targetAgents: number): number[] {
@@ -75,6 +79,11 @@ export function buildM2aWorld(seed: number): M2aWorld {
       incomeAnnualUsd,
       isRenter: false,
       agentIds,
+      needsQuantity: {
+        housingServiceUnits: 0,
+        foodGoodsUnits: 0,
+        electricityKwh: 0,
+      },
     });
   }
 
@@ -88,6 +97,7 @@ export function buildM2aWorld(seed: number): M2aWorld {
     sortedByIncome[i].isRenter = false;
   }
 
+  const agePrng = new SeededPrng(seed + 12_345);
   const agents: AgentState[] = [];
   for (const hh of households) {
     for (const id of hh.agentIds) {
@@ -96,8 +106,10 @@ export function buildM2aWorld(seed: number): M2aWorld {
         householdId: hh.id,
         laborStatus: "not_in_labor_force",
         industryIndex: null,
+        demandSlotEmployment: false,
         skill: prng.next(),
         dailyWageCents: 0,
+        ageYears: agePrng.nextInt(22, 72),
       });
     }
   }
@@ -147,20 +159,6 @@ export function buildM2aWorld(seed: number): M2aWorld {
     agents[id].laborStatus = "unemployed";
   }
 
-  for (const hh of households) {
-    const earners = hh.agentIds.filter((id) => agents[id].laborStatus === "employed").length;
-    const dailyWageCents = Math.floor(
-      (hh.incomeAnnualUsd * 100 * m2aEconomy.householdLaborIncomeShare) /
-        365 /
-        Math.max(1, earners),
-    );
-    for (const id of hh.agentIds) {
-      if (agents[id].laborStatus === "employed") {
-        agents[id].dailyWageCents = dailyWageCents;
-      }
-    }
-  }
-
   const baselineEmployment: BaselineEmploymentSlot[] = [];
   const baselineUnemployed: number[] = [];
   const baselineNotInLaborForce: number[] = [];
@@ -176,7 +174,7 @@ export function buildM2aWorld(seed: number): M2aWorld {
 
   const capitalShare = assignHouseholdCapitalShares(seed, households);
 
-  return {
+  const worldDraft: M2aWorld = {
     agents,
     households,
     industrySlotsBase: employedSlots,
@@ -184,5 +182,20 @@ export function buildM2aWorld(seed: number): M2aWorld {
     baselineUnemployed,
     baselineNotInLaborForce,
     capitalShare,
+    referenceGoodsCentsPerUnit: 1,
+    referenceBasketPriceIndex: 1,
+    m2b: null,
   };
+  const refPrices = needsPriceContext(worldDraft, 0);
+  worldDraft.referenceGoodsCentsPerUnit = refPrices.goodsCentsPerUnit;
+  for (const hh of households) {
+    hh.needsQuantity = deriveHouseholdNeedsQuantities(hh, refPrices);
+  }
+
+  assignDailyWagesFromConsumption(worldDraft);
+  const abundanceZeroPrices = industryPricesCents(worldDraft, 0);
+  worldDraft.referenceBasketPriceIndex = basketPriceIndex(worldDraft, 0, abundanceZeroPrices);
+  worldDraft.referenceGoodsCentsPerUnit = refPrices.goodsCentsPerUnit;
+
+  return worldDraft;
 }

@@ -1,4 +1,15 @@
-export type LaborStatus = "employed" | "unemployed" | "not_in_labor_force";
+export type LaborStatus =
+  | "employed"
+  | "unemployed"
+  | "not_in_labor_force"
+  | "retraining"
+  | "retired";
+
+export interface HouseholdNeedsQuantity {
+  housingServiceUnits: number;
+  foodGoodsUnits: number;
+  electricityKwh: number;
+}
 
 export interface Household {
   id: number;
@@ -6,6 +17,7 @@ export interface Household {
   incomeAnnualUsd: number;
   isRenter: boolean;
   agentIds: number[];
+  needsQuantity: HouseholdNeedsQuantity;
 }
 
 export interface AgentState {
@@ -13,13 +25,31 @@ export interface AgentState {
   householdId: number;
   laborStatus: LaborStatus;
   industryIndex: number | null;
+  /** M2b: true when employed via demand/maintenance queue slots (not automation caps). */
+  demandSlotEmployment: boolean;
   skill: number;
   dailyWageCents: number;
+  ageYears: number;
 }
 
 export interface BaselineEmploymentSlot {
   agentId: number;
   industryIndex: number;
+}
+
+export interface ReemploymentQueueEntry {
+  agentId: number;
+  enteredDay: number;
+}
+
+export interface M2bLaborState {
+  queue: ReemploymentQueueEntry[];
+  referencePriceIndex: number;
+  queueHiresCumulative: number;
+  reemploymentDelayDays: number[];
+  hiresToday: number;
+  separationsToday: number;
+  separationsCumulative: number;
 }
 
 export interface M2aWorld {
@@ -30,4 +60,8 @@ export interface M2aWorld {
   baselineUnemployed: number[];
   baselineNotInLaborForce: number[];
   capitalShare: number[];
+  referenceGoodsCentsPerUnit: number;
+  /** Weighted basket price at abundance 0 (worldgen); metrics normalize to base 100. */
+  referenceBasketPriceIndex: number;
+  m2b: M2bLaborState | null;
 }

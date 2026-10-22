@@ -140,14 +140,22 @@ export function distributePoolByPolicy(
 
   let moved = 0;
   if (policy.kind === "EqualDividend") {
-    const per = Math.floor(poolCents / agentCount);
-    let rem = poolCents - per * agentCount;
-    for (let i = 0; i < agentCount; i++) {
-      const extra = rem > 0 ? 1 : 0;
+    const hhCount = households.length;
+    const perHousehold = Math.floor(poolCents / hhCount);
+    let rem = poolCents - perHousehold * hhCount;
+    for (let h = 0; h < hhCount; h++) {
+      const hh = households[h];
+      const share = perHousehold + (rem > 0 ? 1 : 0);
       if (rem > 0) rem -= 1;
-      const amt = per + extra;
-      credit(i, amt);
-      moved += amt;
+      if (share <= 0) continue;
+      const perAgent = Math.floor(share / hh.agentIds.length);
+      let left = share - perAgent * hh.agentIds.length;
+      for (const agentId of hh.agentIds) {
+        const amt = perAgent + (left > 0 ? 1 : 0);
+        if (left > 0) left -= 1;
+        credit(agentId, amt);
+        moved += amt;
+      }
     }
     return moved;
   }

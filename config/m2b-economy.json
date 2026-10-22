@@ -1,0 +1,6 @@
+{
+  "enabled": false,
+  "retrainingDelayDays": 90,
+  "earlyRetirementAgeYears": 62,
+  "referenceAbundanceForDemand": 0
+}

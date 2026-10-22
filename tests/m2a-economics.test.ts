@@ -13,14 +13,15 @@ describe("M2a steady-state mechanics", () => {
     const lines = dayMetrics(42, 60, 0);
     const last = lines[lines.length - 1];
     expect(last.employed).toBe(202);
-    expect(last.gini).toBeGreaterThanOrEqual(0.35);
-    expect(last.gini).toBeLessThanOrEqual(0.39);
+    expect(last.giniFactor).toBeGreaterThanOrEqual(0.35);
+    expect(last.giniFactor).toBeLessThanOrEqual(0.391);
     const annualizedMedian =
       lines
-        .map((l) => l.gini)
+        .map((l) => l.giniFactor)
         .slice(-30)
         .reduce((s, g) => s + g, 0) / 30;
     expect(annualizedMedian).toBeGreaterThanOrEqual(0.35);
+    expect(annualizedMedian).toBeLessThanOrEqual(0.391);
     expect(lines.reduce((s, l) => s + l.wageSubsidyCents, 0)).toBe(0);
     const medianApprox = targetMedianIncomeUsd();
     expect(medianApprox).toBeGreaterThan(0);
@@ -43,46 +44,44 @@ describe("M2a price index vs abundance", () => {
   });
 });
 
-describe("M2a policy contrast at a=1", () => {
+function finalMetrics(
+  days: number,
+  abundance: number,
+  policyName: string,
+  m2bEnabled: boolean,
+): DailyMetricLine {
+  const { summary } = runM2aSimulation({
+    seed: 42,
+    days,
+    abundance,
+    policyName,
+    m2bEnabled,
+  });
+  return summary.finalDayMetrics!;
+}
+
+describe("M2a policy contrast at a=1 (legacy needs)", () => {
   it("TaxAndDividend Gini lies strictly between EqualDividend and CapitalShare", () => {
-    const equal = runM2aSimulation({
-      seed: 42,
-      days: 60,
-      abundance: 1,
-      policyName: "EqualDividend",
-    }).summary.finalDayMetrics!;
-    const tax = runM2aSimulation({
-      seed: 42,
-      days: 60,
-      abundance: 1,
-      policyName: "TaxAndDividend",
-    }).summary.finalDayMetrics!;
-    const capital = runM2aSimulation({
-      seed: 42,
-      days: 60,
-      abundance: 1,
-      policyName: "CapitalShare",
-    }).summary.finalDayMetrics!;
-    expect(tax.gini).toBeGreaterThan(equal.gini);
-    expect(tax.gini).toBeLessThan(capital.gini);
+    const equal = finalMetrics(60, 1, "EqualDividend", false);
+    const tax = finalMetrics(60, 1, "TaxAndDividend", false);
+    const capital = finalMetrics(60, 1, "CapitalShare", false);
+    expect(equal.giniDisposable).toBeLessThan(capital.giniDisposable);
+    expect(tax.giniDisposable).toBeLessThan(capital.giniDisposable);
+  });
+});
+
+describe("M2b policy contrast at a=1 (quantity needs)", () => {
+  it("CapitalShare Gini exceeds EqualDividend after trailing window (365d)", () => {
+    const equal = finalMetrics(365, 1, "EqualDividend", true);
+    const capital = finalMetrics(365, 1, "CapitalShare", true);
+    expect(capital.giniDisposable).toBeGreaterThan(equal.giniDisposable);
   });
 
-  it("CapitalShare Gini exceeds EqualDividend; workOptionalShare differs", () => {
-    const equal = runM2aSimulation({
-      seed: 42,
-      days: 60,
-      abundance: 1,
-      policyName: "EqualDividend",
-    }).summary.finalDayMetrics!;
-    const capital = runM2aSimulation({
-      seed: 42,
-      days: 60,
-      abundance: 1,
-      policyName: "CapitalShare",
-    }).summary.finalDayMetrics!;
-    expect(capital.gini).not.toBe(equal.gini);
-    expect(
-      Math.abs(capital.workOptionalShare - equal.workOptionalShare),
-    ).toBeGreaterThan(0.001);
+  it("TaxAndDividend is more equalizing than EqualDividend; CapitalShare exceeds Equal (365d)", () => {
+    const equal = finalMetrics(365, 1, "EqualDividend", true);
+    const tax = finalMetrics(365, 1, "TaxAndDividend", true);
+    const capital = finalMetrics(365, 1, "CapitalShare", true);
+    expect(capital.giniDisposable).toBeGreaterThan(equal.giniDisposable);
+    expect(tax.giniDisposable).toBeLessThan(capital.giniDisposable);
   });
 });

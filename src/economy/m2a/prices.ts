@@ -23,7 +23,7 @@ function averageIndustryWageCents(world: M2aWorld, industryIndex: number): numbe
   return n > 0 ? Math.round(sum / n) : 0;
 }
 
-function energyCentsPerUnitAtAbundance(abundance: number): number {
+export function energyCentsPerUnitAtAbundance(abundance: number): number {
   const humanShare = humanLaborShare(abundance);
   const human = m2aEconomy.energyCentsPerWorkerDayAtHuman;
   const automated = human * 0.25;
@@ -66,6 +66,16 @@ export function automatedProducerUnitCostCents(abundance: number): number {
   );
   return (
     autoLabor +
+    energyPerUnit +
+    m2aEconomy.materialsCentsPerWorkerDay +
+    Math.round(m2aEconomy.capitalServiceCentsPerWorkerDay * 0.5)
+  );
+}
+
+/** Energy, materials, and capital service per automated goods unit (excludes embedded auto-labor). */
+export function automatedProducerNonLaborUnitCostCents(abundance: number): number {
+  const energyPerUnit = energyCentsPerUnitAtAbundance(abundance);
+  return (
     energyPerUnit +
     m2aEconomy.materialsCentsPerWorkerDay +
     Math.round(m2aEconomy.capitalServiceCentsPerWorkerDay * 0.5)
