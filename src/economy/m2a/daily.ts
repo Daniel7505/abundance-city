@@ -29,6 +29,7 @@ import { needsPriceContext } from "../../sim/m2a/needs-prices.js";
 import { laborPartitionCounts, medianReemploymentDelayDays } from "../m2b/labor.js";
 import { settleFirmPayroll } from "./firm-payroll.js";
 import { laborHoursFromPaid } from "./wage-pool.js";
+import type { ProducerOwnershipState } from "./producer-ownership.js";
 import { settleProducerAccount } from "./producer-settlement.js";
 import { HouseholdConsumptionState } from "./consumption.js";
 
@@ -92,6 +93,8 @@ export interface SettleM2aDayOptions {
   /** Persisted across days. A fresh state each call only applies one day of evidence. */
   humanPremiumState?: HumanPremiumState;
   humanPremiumMode?: HumanPremiumMode;
+  /** Persisted across days. PrivateOwners keeps the historical producer residual path. */
+  producerOwnership?: ProducerOwnershipState;
 }
 
 function payFromHousehold(
@@ -384,6 +387,7 @@ export function settleM2aDay(
     purchaseRevenue.producer,
     wagePaidByAgent,
     agentOwnershipDividends,
+    settleOptions.producerOwnership,
   );
   policyDistributedCents += producerResult.producerDistributedCents;
 

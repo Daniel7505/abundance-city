@@ -1,5 +1,9 @@
 import { distributePoolByPolicy } from "./distribute.js";
 import type { DividendPolicy } from "./policy.js";
+import {
+  distributeAutomatedProducerResidual,
+  type ProducerOwnershipState,
+} from "./producer-ownership.js";
 import { PRODUCER_ACCOUNT, TREASURY_ACCOUNT } from "./accounts.js";
 import {
   automatedProducerNonLaborUnitCostCents,
@@ -27,6 +31,7 @@ export function settleProducerAccount(
   producerInflowCents: number,
   wagePaidByAgent: Map<number, number>,
   agentDividends: Map<number, number>,
+  ownership?: ProducerOwnershipState,
 ): ProducerSettlementResult {
   const price = producerPriceCents(abundance);
   const goodsUnits = price > 0 ? producerInflowCents / price : 0;
@@ -65,17 +70,28 @@ export function settleProducerAccount(
   );
   let distributed = 0;
   if (distributable > 0) {
-    distributed = distributePoolByPolicy(
-      ledger,
-      PRODUCER_ACCOUNT,
-      distributable,
-      policy,
-      world.households,
-      world.capitalShare,
-      world.agents.length,
-      "automated_producer_residual",
-      agentDividends,
-    );
+    if (ownership && ownership.mode !== "PrivateOwners") {
+      distributed = distributeAutomatedProducerResidual(
+        ledger,
+        world,
+        policy,
+        distributable,
+        ownership,
+        agentDividends,
+      );
+    } else {
+      distributed = distributePoolByPolicy(
+        ledger,
+        PRODUCER_ACCOUNT,
+        distributable,
+        policy,
+        world.households,
+        world.capitalShare,
+        world.agents.length,
+        "automated_producer_residual",
+        agentDividends,
+      );
+    }
   }
 
   return {

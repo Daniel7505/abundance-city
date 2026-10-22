@@ -82,6 +82,23 @@
     "sourceNote": "Placeholder LVT rate on daily land-rent collections; taxed share recirculated via dividend policy.",
     "defaultRate": 0.85
   },
+  "automationPath": {
+    "sourceNote": "PLACEHOLDER M3 automation schedule. Not curve-fit. fixed holds the run abundance constant and reproduces a fixed-a run. linear ramps startLevel to endLevel across horizonDays (day 0 = start, day horizonDays-1 = end, then holds endLevel). logistic is startLevel + (endLevel-startLevel) / (1 + exp(-logisticSteepness * (day - logisticMidpointDay))). Default horizon is 10 years = 3650 days. Steepness is per day.",
+    "defaultMode": "fixed",
+    "horizonDays": 3650,
+    "startLevel": 0,
+    "endLevel": 1,
+    "logisticMidpointDay": 1825,
+    "logisticSteepness": 0.005
+  },
+  "producerOwnership": {
+    "sourceNote": "PLACEHOLDER M3 ownership of the automated producer. Not curve-fit. PrivateOwners distributes the producer residual with the dividend policy and does not open a public-fund account (current behavior). PublicFund assigns publicEquityShare of that residual to a city fund from day 0; the fund pays its slice as an equal per-household dividend and the private remainder follows the dividend policy. GradualBuyIn starts the fund share at 0. Each day fund income is a profit levy (profitLevyRate of the residual) plus the dividend on book equity it already holds. It spends reinvestFraction of that income to buy equity from private owners at bookValueCents (placeholder price of 100% of producer equity). Purchase cash is paid to private owners in capital-share proportion and the fund share rises, capped at 1. Unspent fund cash is paid as an equal per-household dividend. profitLevyRate is the default; a run may pass a different levy without changing this file.",
+    "defaultMode": "PrivateOwners",
+    "publicEquityShare": 0.5,
+    "profitLevyRate": 0.05,
+    "reinvestFraction": 0.5,
+    "bookValueCents": 100000000
+  },
   "taskAutomatability": {
     "sourceNote": "Placeholder: per-job automatability = industry intensity × (1 - skill×weight); lowest skill tasks lose hours first when revenue falls.",
     "skillAutomatabilityWeight": 1

@@ -3,7 +3,21 @@ import {
   allM2aAccountIds,
   createM2aInitialBalances,
   m2aMoneySupplyCents,
+  PUBLIC_FUND_ACCOUNT,
 } from "../../economy/m2a/accounts.js";
+import {
+  automationLevelAtDay,
+  resolveAutomationPath,
+  type AutomationPathOption,
+  type ResolvedAutomationPath,
+} from "../../economy/m2a/automation-path.js";
+import {
+  createProducerOwnershipState,
+  parseProducerOwnershipMode,
+  type ProducerOwnershipMode,
+} from "../../economy/m2a/producer-ownership.js";
+import { householdSubsistenceNeedsCents } from "./needs.js";
+import { needsPriceContext, type NeedsPriceContext } from "./needs-prices.js";
 import { HouseholdConsumptionState } from "../../economy/m2a/consumption.js";
 import { settleM2aDay } from "../../economy/m2a/daily.js";
 import {
@@ -40,6 +54,7 @@ import {
   type DistributionProbeSnapshot,
 } from "./metrics.js";
 import { calibrationSnapshot } from "./calibration.js";
+import { TransitionHarmTracker, type YearlyHarmRow } from "./transition-harm.js";
 
 export interface M2aSimOptions {
   seed: number;
@@ -52,6 +67,15 @@ export interface M2aSimOptions {
   landPolicy?: LandPolicy;
   landPolicyName?: string;
   humanPremiumMode?: HumanPremiumMode | string;
+  /** fixed (default) keeps `abundance` every day. linear and logistic follow a(t). */
+  automationPath?: AutomationPathOption;
+  /** PrivateOwners (default) is the historical producer residual. */
+  ownership?: ProducerOwnershipMode | string;
+  /**
+   * GradualBuyIn profit levy. Omitted uses producerOwnership.profitLevyRate.
+   * Does not change the default model.
+   */
+  ownershipLevyRate?: number;
   /**
    * Throw if one run exceeds this many wall-clock milliseconds.
    * Under Vitest, defaults to VITEST_SIM_BUDGET_MS or 180_000 so a hung run fails
@@ -60,9 +84,18 @@ export interface M2aSimOptions {
   wallClockBudgetMs?: number;
 }
 
+export interface TransitionReport {
+  automationPath: ResolvedAutomationPath;
+  finalAbundance: number;
+  ownership: ProducerOwnershipMode;
+  finalPublicShare: number;
+  yearlyHarm: YearlyHarmRow[];
+}
+
 export interface M2aSimResult {
   dailyMetrics: string[];
   distributionProbe: DistributionProbeSnapshot | null;
+  transition: TransitionReport;
   summary: {
     seed: number;
     days: number;
@@ -129,20 +162,28 @@ export function runM2aSimulation(options: M2aSimOptions): M2aSimResult {
   const world = buildM2aWorld(options.seed);
   const firmCount = world.industrySlotsBase.length;
   const agentCount = world.agents.length;
-  const known = new Set(allM2aAccountIds(agentCount, firmCount));
+  const policy = resolvePolicy(options);
+  const landPolicy = resolveLandPolicy(options);
+  const humanPremiumMode = resolveHumanPremiumMode(options);
+  const automationPath = resolveAutomationPath(options.abundance, options.automationPath);
+  const ownershipMode = parseProducerOwnershipMode(options.ownership);
+  const ownershipState = createProducerOwnershipState(ownershipMode, {
+    profitLevyRate: options.ownershipLevyRate,
+  });
+  const includePublicFund = ownershipMode !== "PrivateOwners";
+  const known = new Set(allM2aAccountIds(agentCount, firmCount, includePublicFund));
   const initialBalances = createM2aInitialBalances(world);
+  if (includePublicFund) initialBalances.set(PUBLIC_FUND_ACCOUNT, 0);
   const ledger = new Ledger(initialBalances, {
     knownAccounts: known,
     initialSupplyCents: m2aMoneySupplyCents(world),
     recordTransfers: false,
   });
-
-  const policy = resolvePolicy(options);
-  const landPolicy = resolveLandPolicy(options);
-  const humanPremiumMode = resolveHumanPremiumMode(options);
+  const abundanceAt = (dayIndex: number) => automationLevelAtDay(automationPath, dayIndex);
   const humanPremiumState = createHumanPremiumState(firmCount);
   const wallClockBudgetMs = resolveWallClockBudgetMs(options);
   const wallClockStarted = wallClockBudgetMs === undefined ? 0 : Date.now();
+  const a0 = abundanceAt(0);
   if (m2bEnabled) {
     const refAbundance = m2bEconomy.referenceAbundanceForDemand;
     const refPrices = industryPricesCents(world, refAbundance);
@@ -150,12 +191,12 @@ export function runM2aSimulation(options: M2aSimOptions): M2aSimResult {
     initM2bLaborState(world, refIndex);
     applyM2bLaborForDay(
       world,
-      options.abundance,
+      a0,
       0,
-      basketPriceIndex(world, options.abundance, industryPricesCents(world, options.abundance)),
+      basketPriceIndex(world, a0, industryPricesCents(world, a0)),
     );
   } else {
-    applyLaborForAbundance(world, options.abundance);
+    applyLaborForAbundance(world, a0);
   }
   const calibrationDay0 = calibrationSnapshot(world);
 
@@ -163,6 +204,11 @@ export function runM2aSimulation(options: M2aSimOptions): M2aSimResult {
   const consumptionState = new HouseholdConsumptionState(world);
   const collector = new M2aMetricsCollector({ m2bEnabled });
   collector.bindWorld(world);
+  const harm = new TransitionHarmTracker(world);
+  // Wage-inclusive a=0 prices. Quantity needs were scaled off the pre-wage index.
+  const subsistenceBaseline: NeedsPriceContext | null = m2bEnabled
+    ? needsPriceContext(world, 0)
+    : null;
   let finalDayMetrics: DailyMetricLine | null = null;
   let distributionProbe: DistributionProbeSnapshot | null = null;
   const totalTicks = options.days * m2aEconomy.ticksPerDay;
@@ -170,15 +216,16 @@ export function runM2aSimulation(options: M2aSimOptions): M2aSimResult {
   for (let tick = 0; tick < totalTicks; tick++) {
     if (tick % m2aEconomy.ticksPerDay === m2aEconomy.settlementTickOfDay) {
       const dayIndex = Math.floor(tick / m2aEconomy.ticksPerDay);
-      const prices = industryPricesCents(world, options.abundance);
-      const priceIndex = basketPriceIndex(world, options.abundance, prices);
+      const abundance = abundanceAt(dayIndex);
+      const prices = industryPricesCents(world, abundance);
+      const priceIndex = basketPriceIndex(world, abundance, prices);
 
       let displaced: number;
       if (m2bEnabled) {
-        applyM2bLaborForDay(world, options.abundance, dayIndex, priceIndex);
+        applyM2bLaborForDay(world, abundance, dayIndex, priceIndex);
         displaced = countDisplacedM2b(world);
       } else {
-        applyLaborForAbundance(world, options.abundance);
+        applyLaborForAbundance(world, abundance);
         displaced = countDisplaced(world);
       }
 
@@ -194,7 +241,7 @@ export function runM2aSimulation(options: M2aSimOptions): M2aSimResult {
       const settlement = settleM2aDay(
         ledger,
         world,
-        options.abundance,
+        abundance,
         policy,
         landPolicy,
         dayIndex,
@@ -205,9 +252,31 @@ export function runM2aSimulation(options: M2aSimOptions): M2aSimResult {
           consumptionState,
           humanPremiumState,
           humanPremiumMode,
+          producerOwnership: ownershipState,
         },
       );
       const line = collector.record(settlement, world);
+      const householdNeedsCents = new Map<number, number>();
+      if (subsistenceBaseline) {
+        const prices = needsPriceContext(world, abundance);
+        for (const hh of world.households) {
+          householdNeedsCents.set(
+            hh.id,
+            householdSubsistenceNeedsCents(hh, prices, subsistenceBaseline, abundance).requiredTotal,
+          );
+        }
+      } else {
+        for (const [id, cents] of settlement.householdNeedsCents) householdNeedsCents.set(id, cents);
+      }
+      harm.observe({
+        dayIndex,
+        abundance,
+        publicShare: ownershipState.publicShare,
+        workOptionalShare: line.workOptionalShare,
+        giniDisposable: line.giniDisposable,
+        householdDisposableCents: settlement.householdDisposableInflowCents,
+        householdNeedsCents,
+      });
       dailyMetrics.push(JSON.stringify(line));
       finalDayMetrics = line;
     }
@@ -219,15 +288,25 @@ export function runM2aSimulation(options: M2aSimOptions): M2aSimResult {
     accountBalancesCents[id] = ledger.getBalance(id);
   }
 
+  const finalDay = options.days > 0 ? options.days - 1 : 0;
+  const finalAbundance = abundanceAt(finalDay);
+  const yearlyHarm = harm.finish(options.days > 0 ? options.days - 1 : -1);
   distributionProbe = collector.exportDistributionProbe(
     world,
-    options.abundance,
+    finalAbundance,
     `${policyLabel(policy)}|${landPolicyLabel(landPolicy)}`,
   );
 
   return {
     dailyMetrics,
     distributionProbe,
+    transition: {
+      automationPath,
+      finalAbundance,
+      ownership: ownershipMode,
+      finalPublicShare: ownershipState.publicShare,
+      yearlyHarm,
+    },
     summary: {
       seed: options.seed,
       days: options.days,

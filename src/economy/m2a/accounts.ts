@@ -8,6 +8,7 @@ export type AccountId = string;
 export const PRODUCER_ACCOUNT = "producer";
 export const LANDLORD_ACCOUNT = "landlord";
 export const TREASURY_ACCOUNT = "treasury";
+export const PUBLIC_FUND_ACCOUNT = "publicFund";
 
 /** Working-capital target: firm cash may hold this many days of industry payroll. */
 export const FIRM_PAYROLL_FLOAT_DAYS = 45;
@@ -21,7 +22,12 @@ export function firmAccount(industryIndex: number): AccountId {
 }
 
 export function isKnownM2aAccount(id: AccountId, agentCount: number, firmCount: number): boolean {
-  if (id === PRODUCER_ACCOUNT || id === LANDLORD_ACCOUNT || id === TREASURY_ACCOUNT) {
+  if (
+    id === PRODUCER_ACCOUNT ||
+    id === LANDLORD_ACCOUNT ||
+    id === TREASURY_ACCOUNT ||
+    id === PUBLIC_FUND_ACCOUNT
+  ) {
     return true;
   }
   if (id.startsWith("agent:")) {
@@ -35,11 +41,16 @@ export function isKnownM2aAccount(id: AccountId, agentCount: number, firmCount: 
   return false;
 }
 
-export function allM2aAccountIds(agentCount: number, firmCount: number): AccountId[] {
+export function allM2aAccountIds(
+  agentCount: number,
+  firmCount: number,
+  includePublicFund = false,
+): AccountId[] {
   const ids: AccountId[] = [];
   for (let i = 0; i < agentCount; i++) ids.push(agentAccount(i));
   for (let i = 0; i < firmCount; i++) ids.push(firmAccount(i));
   ids.push(PRODUCER_ACCOUNT, LANDLORD_ACCOUNT, TREASURY_ACCOUNT);
+  if (includePublicFund) ids.push(PUBLIC_FUND_ACCOUNT);
   return ids;
 }
 
