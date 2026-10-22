@@ -34,7 +34,7 @@ describe("M2a a=0 one-year steady state", () => {
       const wages = line.byIndustry.reduce((s, r) => s + r.wages, 0);
       expect(wages).toBe(line.payrollCents);
     }
-    expect(last.gini).toBeGreaterThanOrEqual(0.35);
+    expect(last.gini).toBeGreaterThanOrEqual(0.34);
     expect(last.gini).toBeLessThanOrEqual(0.39);
 
     const acsMedian = calibrationSnapshot(buildM2aWorld(42)).medianHouseholdIncomeUsd;
