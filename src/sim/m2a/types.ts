@@ -17,8 +17,17 @@ export interface AgentState {
   dailyWageCents: number;
 }
 
+export interface BaselineEmploymentSlot {
+  agentId: number;
+  industryIndex: number;
+}
+
 export interface M2aWorld {
   agents: AgentState[];
   households: Household[];
   industrySlotsBase: number[];
+  baselineEmployment: BaselineEmploymentSlot[];
+  baselineUnemployed: number[];
+  baselineNotInLaborForce: number[];
+  capitalShare: number[];
 }

@@ -1,6 +1,6 @@
 import { getTown, industryAgentSlots, scaledAgentCount } from "../../town/lindsborg.js";
 import { readNumber } from "../../town/sourced.js";
-import { industryEmploymentCounts } from "../../economy/m2a/jobs.js";
+import { countEmployed } from "../../economy/m2a/labor.js";
 import { giniCoefficient } from "./metrics.js";
 import type { M2aWorld } from "./types.js";
 
@@ -24,10 +24,11 @@ export function calibrationSnapshot(world: M2aWorld): CalibrationSnapshot {
   const renters = world.households.filter((h) => h.isRenter).length;
   return {
     agentCount: world.agents.length,
-    employed: world.agents.filter((a) => a.laborStatus === "employed").length,
-    industryCounts: industryEmploymentCounts(
-      world.agents,
-      world.industrySlotsBase.length,
+    employed: countEmployed(world.agents),
+    industryCounts: world.industrySlotsBase.map((_, ind) =>
+      world.agents.filter(
+        (a) => a.laborStatus === "employed" && a.industryIndex === ind,
+      ).length,
     ),
     medianHouseholdIncomeUsd: median,
     giniHouseholdIncome: giniCoefficient(incomes),

@@ -10,13 +10,24 @@ const M1_DAILY_HASHES: Record<string, string> = {
   "1": "baecb2a0312adc718da2e094e9848faaee85dcec2dc3a658fae9cb5ec02192c2",
 };
 
-function m2aBlob(seed: number, abundance: number, days: number): string {
-  const { dailyMetrics, summary } = runM2aSimulation({ seed, abundance, days });
+function m2aBlob(
+  seed: number,
+  abundance: number,
+  days: number,
+  policyName = "Mix",
+): string {
+  const { dailyMetrics, summary } = runM2aSimulation({
+    seed,
+    abundance,
+    days,
+    policyName,
+    mixWeight: 0.5,
+  });
   return dailyMetrics.join("\n") + "\n" + JSON.stringify(summary);
 }
 
 describe("M2a determinism", () => {
-  it("seed-42 a=0.5 runs are byte-identical", () => {
+  it("seed-42 a=0.5 Mix policy runs are byte-identical", () => {
     const a = m2aBlob(42, 0.5, 30);
     const b = m2aBlob(42, 0.5, 30);
     expect(a).toBe(b);

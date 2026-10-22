@@ -1,4 +1,6 @@
 import m2aEconomy from "../../../config/m2a-economy.json" with { type: "json" };
+import type { M2aWorld } from "../../sim/m2a/types.js";
+import { householdDailyNeedsCents } from "../../sim/m2a/needs.js";
 
 export type AccountId = string;
 
@@ -37,27 +39,54 @@ export function allM2aAccountIds(agentCount: number, firmCount: number): Account
   return ids;
 }
 
-export function createM2aInitialBalances(
-  agentCount: number,
-  firmCount: number,
-): Map<AccountId, number> {
-  const init = m2aEconomy.initialBalancesCents;
+export function createM2aInitialBalances(world: M2aWorld): Map<AccountId, number> {
   const balances = new Map<AccountId, number>();
-  for (let i = 0; i < agentCount; i++) {
-    balances.set(agentAccount(i), init.agent);
+  const agentCount = world.agents.length;
+  const firmCount = world.industrySlotsBase.length;
+
+  let dailyPayroll = 0;
+  const payrollByFirm = Array.from({ length: firmCount }, () => 0);
+  for (const a of world.agents) {
+    if (a.laborStatus === "employed" && a.industryIndex !== null) {
+      dailyPayroll += a.dailyWageCents;
+      payrollByFirm[a.industryIndex] += a.dailyWageCents;
+    }
   }
-  for (let i = 0; i < firmCount; i++) {
-    balances.set(firmAccount(i), init.firm);
+
+  const nlf = world.agents.filter((a) => a.laborStatus === "not_in_labor_force").length;
+  const dailySs = nlf * m2aEconomy.socialSecurityDailyCentsPerNlfAgent;
+
+  let dailyNeeds = 0;
+  for (const hh of world.households) {
+    dailyNeeds += householdDailyNeedsCents(hh).requiredTotal;
   }
-  balances.set(PRODUCER_ACCOUNT, init.producer);
-  balances.set(LANDLORD_ACCOUNT, init.landlord);
-  balances.set(TREASURY_ACCOUNT, init.treasury);
+
+  for (const hh of world.households) {
+    const perAgent = Math.ceil(
+      (householdDailyNeedsCents(hh).requiredTotal * 14) / hh.size,
+    );
+    for (const id of hh.agentIds) {
+      balances.set(agentAccount(id), perAgent);
+    }
+  }
+
+  for (let ind = 0; ind < firmCount; ind++) {
+    balances.set(firmAccount(ind), payrollByFirm[ind] * 45 + 50_000);
+  }
+
+  balances.set(PRODUCER_ACCOUNT, 100_000);
+  balances.set(LANDLORD_ACCOUNT, Math.floor(dailyNeeds * 0.35 * 30));
+  balances.set(
+    TREASURY_ACCOUNT,
+    Math.floor(dailySs * 60 + dailyPayroll * m2aEconomy.payrollTaxRate * 30),
+  );
+
   return balances;
 }
 
-export function m2aMoneySupplyCents(agentCount: number, firmCount: number): number {
+export function m2aMoneySupplyCents(world: M2aWorld): number {
   let total = 0;
-  for (const v of createM2aInitialBalances(agentCount, firmCount).values()) {
+  for (const v of createM2aInitialBalances(world).values()) {
     total += v;
   }
   return total;

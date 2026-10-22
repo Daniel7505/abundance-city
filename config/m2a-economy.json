@@ -1,22 +1,26 @@
 {
   "ticksPerDay": 24,
   "settlementTickOfDay": 23,
-  "priceP0Cents": 400,
-  "abundancePriceFactor": 0.6,
   "trailingDaysForWorkOptional": 7,
+  "trailingDaysForGini": 30,
   "paretoAlphaAbove200k": 2,
   "ownerHousingCostAnnualFractionOfValue": 0.02,
-  "renterIncomeTierWeights": [3, 2, 1],
-  "socialSecurityDailyCentsPerNlfAgent": 420,
-  "abundanceDividendTreasuryShare": 0.75,
-  "abundanceDividendMultiplier": 1.4,
-  "firmPayrollReserveDays": 1,
-  "treasuryLandlordTaxShare": 0.05,
+  "ownershipParetoAlpha": 1.05,
+  "defaultPolicy": "Mix",
+  "defaultMixWeight": 0.5,
+  "householdLaborIncomeShare": 0.86,
+  "payrollTaxRate": 0.0765,
+  "socialSecurityDailyCentsPerNlfAgent": 1850,
+  "unemploymentDailyCentsPerAgent": 4200,
+  "firmMarkup": 0.14,
+  "materialsCentsPerWorkerDay": 1200,
+  "energyCentsPerWorkerDayAtHuman": 450,
+  "capitalServiceCentsPerWorkerDay": 800,
   "initialBalancesCents": {
-    "agent": 500,
-    "firm": 800000,
-    "producer": 10000,
+    "agent": 0,
+    "firm": 0,
+    "producer": 0,
     "landlord": 0,
-    "treasury": 800000
+    "treasury": 0
   }
 }

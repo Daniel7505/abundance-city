@@ -11,7 +11,8 @@ import {
 } from "../../town/lindsborg.js";
 import { readNumber } from "../../town/sourced.js";
 import { SeededPrng } from "../prng.js";
-import type { AgentState, Household, M2aWorld } from "./types.js";
+import { assignHouseholdCapitalShares } from "../../economy/m2a/ownership.js";
+import type { AgentState, BaselineEmploymentSlot, Household, M2aWorld } from "./types.js";
 
 function sampleHouseholdSizes(prng: SeededPrng, households: number, targetAgents: number): number[] {
   const sizes: number[] = [];
@@ -101,14 +102,36 @@ export function buildM2aWorld(seed: number): M2aWorld {
     }
   }
 
-  const laborForceIds = [...agents]
-    .sort((a, b) => a.id - b.id)
-    .slice(0, scaledLaborForceCount())
-    .map((a) => a.id);
+  const laborForceTarget = scaledLaborForceCount();
+  const laborForceIds: number[] = [];
+  const byHousehold = households.map((hh) => [...hh.agentIds].sort((a, b) => a - b));
+  let lfCursor = 0;
+  while (laborForceIds.length < laborForceTarget) {
+    let added = false;
+    for (const memberIds of byHousehold) {
+      if (lfCursor >= memberIds.length) continue;
+      laborForceIds.push(memberIds[lfCursor]);
+      added = true;
+      if (laborForceIds.length >= laborForceTarget) break;
+    }
+    if (!added) break;
+    lfCursor += 1;
+  }
+  if (laborForceIds.length < laborForceTarget) {
+    for (const a of agents) {
+      if (laborForceIds.includes(a.id)) continue;
+      laborForceIds.push(a.id);
+      if (laborForceIds.length >= laborForceTarget) break;
+    }
+  }
+
   const unemployedCount = scaledUnemployedCount();
-  const unemployedIds = new Set(
-    laborForceIds.slice(laborForceIds.length - unemployedCount),
-  );
+  const lfByIncomeAsc = [...laborForceIds].sort((a, b) => {
+    const ha = households[agents[a].householdId].incomeAnnualUsd;
+    const hb = households[agents[b].householdId].incomeAnnualUsd;
+    return ha - hb || agents[a].skill - agents[b].skill || a - b;
+  });
+  const unemployedIds = new Set(lfByIncomeAsc.slice(0, unemployedCount));
   const employedSlots = industryAgentSlots();
   const employedPool = laborForceIds.filter((id) => !unemployedIds.has(id));
 
@@ -127,7 +150,9 @@ export function buildM2aWorld(seed: number): M2aWorld {
   for (const hh of households) {
     const earners = hh.agentIds.filter((id) => agents[id].laborStatus === "employed").length;
     const dailyWageCents = Math.floor(
-      (hh.incomeAnnualUsd * 100) / 365 / Math.max(1, earners),
+      (hh.incomeAnnualUsd * 100 * m2aEconomy.householdLaborIncomeShare) /
+        365 /
+        Math.max(1, earners),
     );
     for (const id of hh.agentIds) {
       if (agents[id].laborStatus === "employed") {
@@ -136,9 +161,28 @@ export function buildM2aWorld(seed: number): M2aWorld {
     }
   }
 
+  const baselineEmployment: BaselineEmploymentSlot[] = [];
+  const baselineUnemployed: number[] = [];
+  const baselineNotInLaborForce: number[] = [];
+  for (const a of agents) {
+    if (a.laborStatus === "employed" && a.industryIndex !== null) {
+      baselineEmployment.push({ agentId: a.id, industryIndex: a.industryIndex });
+    } else if (a.laborStatus === "unemployed") {
+      baselineUnemployed.push(a.id);
+    } else {
+      baselineNotInLaborForce.push(a.id);
+    }
+  }
+
+  const capitalShare = assignHouseholdCapitalShares(seed, households);
+
   return {
     agents,
     households,
     industrySlotsBase: employedSlots,
+    baselineEmployment,
+    baselineUnemployed,
+    baselineNotInLaborForce,
+    capitalShare,
   };
 }

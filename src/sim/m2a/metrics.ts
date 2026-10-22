@@ -17,18 +17,21 @@ export interface DailyMetricLine {
   automatedEnergyWh: number;
   jobs: number;
   employed: number;
-  price: number;
+  displaced: number;
+  priceIndex: number;
   moneySupply: number;
   wageSubsidyCents: number;
   payrollCents: number;
+  totalLaborHours: number;
+  ownershipDistributedCents: number;
 }
 
 interface TrailingHouseholdWindow {
   days: Array<{ nonWage: number; needs: number }>;
 }
 
-interface TrailingAbundanceWindow {
-  dailyAbundanceCents: number[];
+interface TrailingIncomeWindow {
+  dailyInflowCents: number[];
 }
 
 export function giniCoefficient(values: number[]): number {
@@ -46,14 +49,11 @@ export function giniCoefficient(values: number[]): number {
 
 export class M2aMetricsCollector {
   private householdWindows = new Map<number, TrailingHouseholdWindow>();
-  private abundanceWindows = new Map<number, TrailingAbundanceWindow>();
+  private incomeWindows = new Map<number, TrailingIncomeWindow>();
 
-  record(
-    settlement: DailySettlementResult,
-    world: M2aWorld,
-    wageIncomeByAgent: Map<number, number>,
-  ): DailyMetricLine {
-    const trailingDays = m2aEconomy.trailingDaysForWorkOptional;
+  record(settlement: DailySettlementResult, world: M2aWorld): DailyMetricLine {
+    const trailingOptional = m2aEconomy.trailingDaysForWorkOptional;
+    const trailingGini = m2aEconomy.trailingDaysForGini;
 
     for (const hh of world.households) {
       let window = this.householdWindows.get(hh.id);
@@ -64,21 +64,21 @@ export class M2aMetricsCollector {
       const nonWage = settlement.householdNonWageIncomeCents.get(hh.id) ?? 0;
       const needs = settlement.householdNeedsCents.get(hh.id) ?? 0;
       window.days.push({ nonWage, needs });
-      if (window.days.length > trailingDays) window.days.shift();
+      if (window.days.length > trailingOptional) window.days.shift();
 
-      let abundanceWindow = this.abundanceWindows.get(hh.id);
-      if (!abundanceWindow) {
-        abundanceWindow = { dailyAbundanceCents: [] };
-        this.abundanceWindows.set(hh.id, abundanceWindow);
+      let incomeWindow = this.incomeWindows.get(hh.id);
+      if (!incomeWindow) {
+        incomeWindow = { dailyInflowCents: [] };
+        this.incomeWindows.set(hh.id, incomeWindow);
       }
-      const dailyAbundance = settlement.householdAbundanceDividendCents.get(hh.id) ?? 0;
-      abundanceWindow.dailyAbundanceCents.push(dailyAbundance);
-      if (abundanceWindow.dailyAbundanceCents.length > trailingDays) {
-        abundanceWindow.dailyAbundanceCents.shift();
+      const inflow = settlement.householdCashInflowCents.get(hh.id) ?? 0;
+      incomeWindow.dailyInflowCents.push(inflow);
+      if (incomeWindow.dailyInflowCents.length > trailingGini) {
+        incomeWindow.dailyInflowCents.shift();
       }
     }
 
-    let optionalScore = 0;
+    let optionalHouseholds = 0;
     for (const hh of world.households) {
       const hasEmployed = hh.agentIds.some(
         (id) => world.agents[id].laborStatus === "employed",
@@ -87,26 +87,25 @@ export class M2aMetricsCollector {
       const window = this.householdWindows.get(hh.id)!;
       const sumNonWage = window.days.reduce((s, d) => s + d.nonWage, 0);
       const sumNeeds = window.days.reduce((s, d) => s + d.needs, 0);
-      const ratio = sumNeeds > 0 ? sumNonWage / sumNeeds : 0;
-      const coverage = ratio / (ratio + 0.85);
-      optionalScore += coverage;
+      if (sumNonWage >= sumNeeds) optionalHouseholds += 1;
     }
-    const workOptionalShare = optionalScore / world.households.length;
+    const workOptionalShare = optionalHouseholds / world.households.length;
 
     const annualizedHouseholdIncomeUsd: number[] = [];
     for (const hh of world.households) {
-      const abundanceWindow = this.abundanceWindows.get(hh.id)!;
-      const days = abundanceWindow.dailyAbundanceCents.length;
-      const sumAbundanceCents = abundanceWindow.dailyAbundanceCents.reduce(
-        (s, v) => s + v,
-        0,
-      );
-      const meanAbundanceCents = days > 0 ? sumAbundanceCents / days : 0;
-      const automationAnnualUsd = (meanAbundanceCents / 100) * 365;
-      annualizedHouseholdIncomeUsd.push(hh.incomeAnnualUsd + automationAnnualUsd);
+      const incomeWindow = this.incomeWindows.get(hh.id)!;
+      const days = incomeWindow.dailyInflowCents.length;
+      const sumCents = incomeWindow.dailyInflowCents.reduce((s, v) => s + v, 0);
+      const meanDailyCents = days > 0 ? sumCents / days : 0;
+      annualizedHouseholdIncomeUsd.push((meanDailyCents / 100) * 365);
     }
 
     const jobs = settlement.byIndustry.reduce((s, row) => s + row.jobs, 0);
+    const avgNeeds =
+      world.households.reduce(
+        (s, hh) => s + (settlement.householdNeedsCents.get(hh.id) ?? 0),
+        0,
+      ) / world.households.length;
 
     return {
       day: settlement.day,
@@ -116,16 +115,19 @@ export class M2aMetricsCollector {
       unmetNeed: settlement.unmetNeedCents,
       shortHouseholds: settlement.shortHouseholds,
       byIndustry: settlement.byIndustry,
-      costPerPerson: settlement.costPerPersonCents,
-      totalEnergyWh: settlement.totalEnergyWh,
-      humanEnergyWh: settlement.humanEnergyWh,
-      automatedEnergyWh: settlement.automatedEnergyWh,
+      costPerPerson: Math.round(avgNeeds),
+      totalEnergyWh: settlement.goodsUnitsPurchased,
+      humanEnergyWh: settlement.goodsUnitsPurchased * (1 - settlement.employed / world.agents.length),
+      automatedEnergyWh: settlement.goodsUnitsPurchased * (settlement.employed / world.agents.length),
       jobs,
       employed: settlement.employed,
-      price: settlement.priceCents,
-      moneySupply: m2aMoneySupplyCents(world.agents.length, world.industrySlotsBase.length),
+      displaced: settlement.displaced,
+      priceIndex: settlement.priceIndex,
+      moneySupply: m2aMoneySupplyCents(world),
       wageSubsidyCents: settlement.wageSubsidyCents,
       payrollCents: settlement.payrollCents,
+      totalLaborHours: settlement.totalLaborHours,
+      ownershipDistributedCents: settlement.ownershipDistributedCents,
     };
   }
 }
