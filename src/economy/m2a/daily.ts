@@ -50,6 +50,11 @@ export interface DailySettlementResult {
   /** All cash inflows: wages, ownership, SS/UI, and policy transfers. */
   householdDisposableInflowCents: Map<number, number>;
   householdPolicyInflowCents: Map<number, number>;
+  /** SS, UI, and policy transfers (excludes ownership dividends). */
+  householdTransferInflowCents: Map<number, number>;
+  householdHousingNeedsCents: Map<number, number>;
+  householdFoodNeedsCents: Map<number, number>;
+  householdElectricityNeedsCents: Map<number, number>;
   wagePaidByAgent: Map<number, number>;
   wageSubsidyCents: number;
   /** Full-rate wage targets (not paid amounts). */
@@ -191,6 +196,10 @@ export function settleM2aDay(
   const householdWageOwnershipInflow = new Map<number, number>();
   const householdDisposableInflow = new Map<number, number>();
   const householdPolicyInflow = new Map<number, number>();
+  const householdTransferInflow = new Map<number, number>();
+  const householdHousingNeeds = new Map<number, number>();
+  const householdFoodNeeds = new Map<number, number>();
+  const householdElectricityNeeds = new Map<number, number>();
   const wagePaidByAgent = new Map<number, number>();
   const agentOwnershipDividends = new Map<number, number>();
   const agentPolicyDividends = new Map<number, number>();
@@ -205,6 +214,9 @@ export function settleM2aDay(
       ? householdDailyNeedsCentsFromQuantities(hh, needsPrices!)
       : householdDailyNeedsCentsLegacy(hh);
     householdNeeds.set(hh.id, needs.requiredTotal);
+    householdHousingNeeds.set(hh.id, needs.housing);
+    householdFoodNeeds.set(hh.id, needs.food);
+    householdElectricityNeeds.set(hh.id, needs.electricity);
     let hhPaid = 0;
 
     const housingPaid = payFromHousehold(ledger, hh, needs.housing, (agentId, max) =>
@@ -355,6 +367,7 @@ export function settleM2aDay(
   }
 
   const ssPaidByAgent = new Map<number, number>();
+  const uiPaidByAgent = new Map<number, number>();
   const ssDaily = m2aEconomy.socialSecurityDailyCentsPerNlfAgent;
   for (const a of world.agents) {
     if (useQuantityNeeds) {
@@ -384,7 +397,7 @@ export function settleM2aDay(
       uiDaily,
       "unemployment_insurance",
     );
-    ssPaidByAgent.set(a.id, (ssPaidByAgent.get(a.id) ?? 0) + paid);
+    uiPaidByAgent.set(a.id, paid);
   }
 
   const treasuryPool = ledger.getBalance(TREASURY_ACCOUNT);
@@ -408,22 +421,26 @@ export function settleM2aDay(
     let wageOwnershipInflow = 0;
     let disposableInflow = 0;
     let policyInflow = 0;
+    let transferInflow = 0;
     let nonWage = 0;
     for (const agentId of hh.agentIds) {
       const wage = wagePaidByAgent.get(agentId) ?? 0;
       const ss = ssPaidByAgent.get(agentId) ?? 0;
+      const ui = uiPaidByAgent.get(agentId) ?? 0;
       const ownership = agentOwnershipDividends.get(agentId) ?? 0;
       const policy = agentPolicyDividends.get(agentId) ?? 0;
       wageInflow += wage;
       wageOwnershipInflow += wage + ownership;
-      disposableInflow += wage + ss + ownership + policy;
+      disposableInflow += wage + ss + ui + ownership + policy;
       policyInflow += policy;
-      nonWage += ss + ownership + policy;
+      transferInflow += ss + ui + policy;
+      nonWage += ss + ui + ownership + policy;
     }
     householdWageInflow.set(hh.id, wageInflow);
     householdWageOwnershipInflow.set(hh.id, wageOwnershipInflow);
     householdDisposableInflow.set(hh.id, disposableInflow);
     householdPolicyInflow.set(hh.id, policyInflow);
+    householdTransferInflow.set(hh.id, transferInflow);
     householdNonWageIncome.set(hh.id, nonWage);
     consumptionState.recordDay(
       hh.id,
@@ -449,6 +466,10 @@ export function settleM2aDay(
     householdWageOwnershipInflowCents: householdWageOwnershipInflow,
     householdDisposableInflowCents: householdDisposableInflow,
     householdPolicyInflowCents: householdPolicyInflow,
+    householdTransferInflowCents: householdTransferInflow,
+    householdHousingNeedsCents: householdHousingNeeds,
+    householdFoodNeedsCents: householdFoodNeeds,
+    householdElectricityNeedsCents: householdElectricityNeeds,
     wagePaidByAgent,
     wageSubsidyCents,
     payrollCents,
