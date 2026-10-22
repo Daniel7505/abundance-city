@@ -1,8 +1,10 @@
 import m2aEconomy from "../../../config/m2a-economy.json" with { type: "json" };
-import { automatedLaborShare } from "./dial.js";
 import { distributePoolByPolicy } from "./distribute.js";
+import { humanVariantExpenditureShare } from "./human-variant.js";
+import { settleLandRentPolicy, type LandPolicy } from "./land-policy.js";
 import { basketPriceIndex, industryPricesCents } from "./prices.js";
 import type { DividendPolicy } from "./policy.js";
+import { dwellingRentCentsPerDay } from "../../sim/m2a/housing-rent.js";
 import {
   LANDLORD_ACCOUNT,
   PRODUCER_ACCOUNT,
@@ -74,6 +76,8 @@ export interface DailySettlementResult {
   firmBalancesCents: number[];
   agentCashCentsTotal: number;
   firmRevenueCentsTotal: number;
+  humanVariantSpendByIndustry: number[];
+  goodsSpendByIndustry: number[];
 }
 
 export interface SettleM2aDayOptions {
@@ -101,6 +105,8 @@ function payFromHousehold(
 interface PurchaseRevenue {
   firm: number[];
   producer: number;
+  humanVariantSpendByIndustry: number[];
+  goodsSpendByIndustry: number[];
 }
 
 function allocateByWeight(total: number, weights: number[]): number[] {
@@ -119,42 +125,64 @@ function allocateByWeight(total: number, weights: number[]): number[] {
   return floors;
 }
 
-function routePurchase(
+function routeGoodsPurchase(
   ledger: Ledger,
+  world: M2aWorld,
   agentId: number,
   amount: number,
   payrollByIndustry: number[],
   industryCount: number,
-  autoShare: number,
+  abundance: number,
   reason: string,
   revenue?: PurchaseRevenue,
 ): number {
-  const totalPayroll = payrollByIndustry.reduce((s, n) => s + n, 0) || 1;
-  let remaining = amount;
+  if (amount <= 0) return 0;
+  const firmShares = allocateByWeight(amount, payrollByIndustry);
   let paid = 0;
-  const toAuto = Math.round(amount * autoShare);
-  const toHuman = amount - toAuto;
-  if (toAuto > 0) {
-    const slice = ledger.transferUpTo(
-      agentAccount(agentId),
-      PRODUCER_ACCOUNT,
-      Math.min(toAuto, remaining),
-      `${reason}_auto`,
-    );
-    if (revenue) revenue.producer += slice;
-    paid += slice;
-    remaining -= slice;
-  }
-  const firmShares = allocateByWeight(toHuman, payrollByIndustry);
   for (let ind = 0; ind < industryCount; ind++) {
     const share = firmShares[ind];
     if (share <= 0) continue;
-    const slice = ledger.transferUpTo(agentAccount(agentId), firmAccount(ind), share, reason);
-    if (revenue) revenue.firm[ind] += slice;
-    paid += slice;
-    remaining -= slice;
+    const humanShare = humanVariantExpenditureShare(world, ind, abundance);
+    const humanCents = Math.round(share * humanShare);
+    const autoCents = share - humanCents;
+    if (humanCents > 0) {
+      const slice = ledger.transferUpTo(
+        agentAccount(agentId),
+        firmAccount(ind),
+        humanCents,
+        `${reason}_human`,
+      );
+      if (revenue) {
+        revenue.firm[ind] += slice;
+        revenue.humanVariantSpendByIndustry[ind] += slice;
+        revenue.goodsSpendByIndustry[ind] += slice;
+      }
+      paid += slice;
+    }
+    if (autoCents > 0) {
+      const slice = ledger.transferUpTo(
+        agentAccount(agentId),
+        PRODUCER_ACCOUNT,
+        autoCents,
+        `${reason}_auto`,
+      );
+      if (revenue) {
+        revenue.producer += slice;
+        revenue.goodsSpendByIndustry[ind] += slice;
+      }
+      paid += slice;
+    }
   }
   return paid;
+}
+
+function payLandRentComponent(
+  ledger: Ledger,
+  agentId: number,
+  amount: number,
+): number {
+  if (amount <= 0) return 0;
+  return ledger.transferUpTo(agentAccount(agentId), LANDLORD_ACCOUNT, amount, "land_rent");
 }
 
 export function settleM2aDay(
@@ -162,6 +190,7 @@ export function settleM2aDay(
   world: M2aWorld,
   abundance: number,
   policy: DividendPolicy,
+  landPolicy: LandPolicy,
   dayIndex: number,
   tick: number,
   displaced: number,
@@ -172,7 +201,6 @@ export function settleM2aDay(
     settleOptions.consumptionState ?? new HouseholdConsumptionState(world);
   const industryCount = world.industrySlotsBase.length;
   const prices = industryPricesCents(world, abundance);
-  const autoShare = automatedLaborShare(abundance);
   const jobsByIndustry = Array.from({ length: industryCount }, () => 0);
   const payrollByIndustry = Array.from({ length: industryCount }, () => 0);
   for (const a of world.agents) {
@@ -205,7 +233,13 @@ export function settleM2aDay(
   const agentPolicyDividends = new Map<number, number>();
   const wageSubsidyCents = 0;
   const firmRevenue = Array.from({ length: industryCount }, () => 0);
-  const purchaseRevenue: PurchaseRevenue = { firm: firmRevenue, producer: 0 };
+  const purchaseRevenue: PurchaseRevenue = {
+    firm: firmRevenue,
+    producer: 0,
+    humanVariantSpendByIndustry: Array.from({ length: industryCount }, () => 0),
+    goodsSpendByIndustry: Array.from({ length: industryCount }, () => 0),
+  };
+  const agentLandDividends = new Map<number, number>();
 
   const needsPrices = useQuantityNeeds ? needsPriceContext(world, abundance) : null;
 
@@ -219,29 +253,43 @@ export function settleM2aDay(
     householdElectricityNeeds.set(hh.id, needs.electricity);
     let hhPaid = 0;
 
-    const housingPaid = payFromHousehold(ledger, hh, needs.housing, (agentId, max) =>
-      routePurchase(
+    const rentParts = dwellingRentCentsPerDay(abundance);
+    const landFrac =
+      needs.housing > 0 && rentParts.totalCents > 0
+        ? rentParts.landRentCents / rentParts.totalCents
+        : 0;
+    const landDue = Math.round(needs.housing * landFrac);
+    const maintDue = needs.housing - landDue;
+
+    const landPaid = payFromHousehold(ledger, hh, landDue, (agentId, max) =>
+      payLandRentComponent(ledger, agentId, max),
+    );
+    const maintPaid = payFromHousehold(ledger, hh, maintDue, (agentId, max) =>
+      routeGoodsPurchase(
         ledger,
+        world,
         agentId,
         max,
         payrollByIndustry,
         industryCount,
-        autoShare,
-        "housing_purchase",
+        abundance,
+        "housing_maintenance",
         purchaseRevenue,
       ),
     );
+    const housingPaid = landPaid + maintPaid;
     hhPaid += housingPaid;
     if (housingPaid < needs.housing) unmetNeedCents += needs.housing - housingPaid;
 
     const foodPaid = payFromHousehold(ledger, hh, needs.food, (agentId, max) =>
-      routePurchase(
+      routeGoodsPurchase(
         ledger,
+        world,
         agentId,
         max,
         payrollByIndustry,
         industryCount,
-        autoShare,
+        abundance,
         "food_purchase",
         purchaseRevenue,
       ),
@@ -250,13 +298,14 @@ export function settleM2aDay(
     if (foodPaid < needs.food) unmetNeedCents += needs.food - foodPaid;
 
     const elecPaid = payFromHousehold(ledger, hh, needs.electricity, (agentId, max) =>
-      routePurchase(
+      routeGoodsPurchase(
         ledger,
+        world,
         agentId,
         max,
         payrollByIndustry,
         industryCount,
-        autoShare,
+        abundance,
         "electricity_purchase",
         purchaseRevenue,
       ),
@@ -273,13 +322,14 @@ export function settleM2aDay(
       hh,
       discretionaryTarget,
       (agentId, max) =>
-        routePurchase(
+        routeGoodsPurchase(
           ledger,
+          world,
           agentId,
           max,
           payrollByIndustry,
           industryCount,
-          autoShare,
+          abundance,
           "discretionary_goods",
           purchaseRevenue,
         ),
@@ -295,6 +345,8 @@ export function settleM2aDay(
     );
     if (hasEmployed && hhPaid < needs.requiredTotal) shortHouseholds += 1;
   }
+
+  settleLandRentPolicy(ledger, world, landPolicy, policy, agentLandDividends);
 
   const firmPayroll = settleFirmPayroll(
     ledger,
@@ -429,12 +481,13 @@ export function settleM2aDay(
       const ui = uiPaidByAgent.get(agentId) ?? 0;
       const ownership = agentOwnershipDividends.get(agentId) ?? 0;
       const policy = agentPolicyDividends.get(agentId) ?? 0;
+      const land = agentLandDividends.get(agentId) ?? 0;
       wageInflow += wage;
       wageOwnershipInflow += wage + ownership;
-      disposableInflow += wage + ss + ui + ownership + policy;
-      policyInflow += policy;
-      transferInflow += ss + ui + policy;
-      nonWage += ss + ui + ownership + policy;
+      disposableInflow += wage + ss + ui + ownership + policy + land;
+      policyInflow += policy + land;
+      transferInflow += ss + ui + policy + land;
+      nonWage += ss + ui + ownership + policy + land;
     }
     householdWageInflow.set(hh.id, wageInflow);
     householdWageOwnershipInflow.set(hh.id, wageOwnershipInflow);
@@ -493,5 +546,7 @@ export function settleM2aDay(
       0,
     ),
     firmRevenueCentsTotal: firmRevenue.reduce((s, n) => s + n, 0),
+    humanVariantSpendByIndustry: purchaseRevenue.humanVariantSpendByIndustry,
+    goodsSpendByIndustry: purchaseRevenue.goodsSpendByIndustry,
   };
 }

@@ -63,6 +63,8 @@ export interface DailyMetricLine {
   };
   quintileDistribution?: QuintileDistributionBucket[];
   byIndustryDistribution?: IndustryDistributionSnapshot[];
+  /** Human-made variant spend / total goods spend by industry (day total). */
+  humanVariantShareByIndustry?: number[];
 }
 
 export interface DistributionProbeSnapshot {
@@ -251,6 +253,10 @@ export class M2aMetricsCollector {
       trailingGini,
     );
     const byIndustryDistribution = industryDistributionFromSettlement(settlement);
+    const humanVariantShareByIndustry = settlement.goodsSpendByIndustry.map((total, ind) => {
+      if (total <= 0) return 0;
+      return settlement.humanVariantSpendByIndustry[ind] / total;
+    });
 
     const jobs = settlement.byIndustry.reduce((s, row) => s + row.jobs, 0);
     const avgNeeds =
@@ -292,6 +298,7 @@ export class M2aMetricsCollector {
       producerInflowCents: settlement.producerInflowCents,
       quintileDistribution,
       byIndustryDistribution,
+      humanVariantShareByIndustry,
     };
     if (this.m2bEnabled) {
       line.queued = settlement.queued;

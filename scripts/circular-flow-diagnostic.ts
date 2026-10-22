@@ -18,6 +18,7 @@ import {
 } from "../src/economy/m2a/accounts.js";
 import { HouseholdConsumptionState } from "../src/economy/m2a/consumption.js";
 import { settleM2aDay } from "../src/economy/m2a/daily.js";
+import { parseLandPolicy } from "../src/economy/m2a/land-policy.js";
 import { basketPriceIndex, industryPricesCents } from "../src/economy/m2a/prices.js";
 import {
   applyM2bLaborForDay,
@@ -212,6 +213,7 @@ function runDiagnostic(
       world,
       abundance,
       policy,
+      parseLandPolicy("PrivateLandlords"),
       dayIndex,
       tick,
       displaced,
