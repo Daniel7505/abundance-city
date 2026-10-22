@@ -6,3 +6,5 @@ export type { AgentTickLog, RunSummary, SimRunResult } from "./types.js";
 export { cellKind } from "./grid.js";
 export { runM1Simulation } from "./m1/engine.js";
 export type { M1SimOptions, M1SimResult } from "./m1/engine.js";
+export { runM2aSimulation } from "./m2a/engine.js";
+export type { M2aSimOptions, M2aSimResult } from "./m2a/engine.js";

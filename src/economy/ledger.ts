@@ -19,18 +19,37 @@ export interface TransferRecord {
   reason: string;
 }
 
+export interface LedgerOptions {
+  initialSupplyCents?: number;
+  knownAccounts?: ReadonlySet<AccountId>;
+}
+
+function sumBalances(map: Map<AccountId, number>): number {
+  let sum = 0;
+  for (const v of map.values()) sum += v;
+  return sum;
+}
+
 export class Ledger {
   private balances: Map<AccountId, number>;
   readonly initialSupplyCents: number;
   private transfers: TransferRecord[] = [];
+  private readonly knownAccounts: ReadonlySet<AccountId> | null;
 
-  constructor(initial?: Map<AccountId, number>) {
+  constructor(initial?: Map<AccountId, number>, options?: LedgerOptions) {
     this.balances = initial ?? createInitialBalances();
-    this.initialSupplyCents = moneySupplyCents();
+    this.knownAccounts = options?.knownAccounts ?? null;
+    this.initialSupplyCents =
+      options?.initialSupplyCents ?? sumBalances(this.balances);
+  }
+
+  private isKnown(account: AccountId): boolean {
+    if (this.knownAccounts) return this.knownAccounts.has(account);
+    return isKnownAccount(account);
   }
 
   getBalance(account: AccountId): number {
-    if (!isKnownAccount(account)) {
+    if (!this.isKnown(account)) {
       throw new LedgerError(`Unknown account: ${account}`);
     }
     return this.balances.get(account) ?? 0;
@@ -44,7 +63,7 @@ export class Ledger {
       throw new LedgerError("Transfer amount cannot be negative");
     }
     if (cents === 0) return;
-    if (!isKnownAccount(from) || !isKnownAccount(to)) {
+    if (!this.isKnown(from) || !this.isKnown(to)) {
       throw new LedgerError("Unknown account in transfer");
     }
     const fromBal = this.getBalance(from);

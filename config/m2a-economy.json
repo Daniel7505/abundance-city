@@ -1,0 +1,17 @@
+{
+  "ticksPerDay": 24,
+  "settlementTickOfDay": 23,
+  "priceP0Cents": 400,
+  "abundancePriceFactor": 0.6,
+  "trailingDaysForWorkOptional": 7,
+  "paretoAlphaAbove200k": 2,
+  "ownerHousingCostAnnualFractionOfValue": 0.02,
+  "renterIncomeTierWeights": [3, 2, 1],
+  "initialBalancesCents": {
+    "agent": 15000,
+    "firm": 250000,
+    "producer": 50000,
+    "landlord": 0,
+    "treasury": 500000
+  }
+}
