@@ -44,6 +44,10 @@ export function extraQueueSlotCount(
   return demandBonusSlots(world, currentPriceIndex) + maintenanceJobSlots(abundance);
 }
 
+function countDemandEmployed(agents: AgentState[]): number {
+  return agents.filter((a) => a.laborStatus === "employed" && a.demandSlotEmployment).length;
+}
+
 function enqueueDisplaced(world: M2aWorld, agentId: number, dayIndex: number): void {
   const agent = world.agents[agentId];
   const m2b = world.m2b;
@@ -55,30 +59,60 @@ function enqueueDisplaced(world: M2aWorld, agentId: number, dayIndex: number): v
   if (agent.ageYears >= m2bEconomy.earlyRetirementAgeYears) {
     agent.laborStatus = "retired";
     agent.industryIndex = null;
+    agent.demandSlotEmployment = false;
     return;
   }
 
   agent.laborStatus = "retraining";
   agent.industryIndex = null;
+  agent.demandSlotEmployment = false;
   queue.push({ agentId, enteredDay: dayIndex });
 }
 
-function trimIndustryToCap(world: M2aWorld, industryIndex: number, cap: number): void {
+function trimAutomationWorkersToCap(world: M2aWorld, industryIndex: number, cap: number): void {
   const workers = world.agents
-    .filter((a) => a.laborStatus === "employed" && a.industryIndex === industryIndex)
+    .filter(
+      (a) =>
+        a.laborStatus === "employed" &&
+        a.industryIndex === industryIndex &&
+        !a.demandSlotEmployment,
+    )
     .sort((a, b) => a.skill - b.skill || a.id - b.id);
   for (let i = cap; i < workers.length; i++) {
     workers[i].laborStatus = "unemployed";
     workers[i].industryIndex = null;
+    workers[i].demandSlotEmployment = false;
+    const m2b = world.m2b;
+    if (m2b) {
+      m2b.separationsToday += 1;
+      m2b.separationsCumulative += 1;
+    }
+  }
+}
+
+function trimDemandEmployedToCount(world: M2aWorld, target: number): void {
+  const demandWorkers = world.agents
+    .filter((a) => a.laborStatus === "employed" && a.demandSlotEmployment)
+    .sort((a, b) => a.skill - b.skill || a.id - b.id);
+  for (let i = target; i < demandWorkers.length; i++) {
+    const agent = demandWorkers[i];
+    agent.laborStatus = "unemployed";
+    agent.industryIndex = null;
+    agent.demandSlotEmployment = false;
+    const m2b = world.m2b;
+    if (m2b) {
+      m2b.separationsToday += 1;
+      m2b.separationsCumulative += 1;
+    }
   }
 }
 
 function fillExtraSlotsFromQueue(
   world: M2aWorld,
-  caps: number[],
+  industryCount: number,
   extraSlots: number,
   dayIndex: number,
-): void {
+): number {
   const delay = m2bEconomy.retrainingDelayDays;
   const m2b = world.m2b;
   if (!m2b) throw new Error("M2b labor state missing");
@@ -90,18 +124,27 @@ function fillExtraSlotsFromQueue(
     else kept.push(entry);
   }
 
-  let remaining = extraSlots;
+  let hiresToday = 0;
+  let remaining = extraSlots - countDemandEmployed(world.agents);
+  if (remaining < 0) {
+    trimDemandEmployedToCount(world, extraSlots);
+    remaining = 0;
+  }
+
   let ind = 0;
   let ei = 0;
-  while (remaining > 0 && ei < eligible.length && caps.length > 0) {
+  while (remaining > 0 && ei < eligible.length && industryCount > 0) {
     const entry = eligible[ei++];
-    const industryIndex = ind % caps.length;
+    const industryIndex = ind % industryCount;
     ind += 1;
     const agent = world.agents[entry.agentId];
     agent.laborStatus = "employed";
     agent.industryIndex = industryIndex;
+    agent.demandSlotEmployment = true;
     m2b.queueHiresCumulative += 1;
+    m2b.hiresToday += 1;
     m2b.reemploymentDelayDays.push(dayIndex - entry.enteredDay);
+    hiresToday += 1;
     remaining -= 1;
   }
 
@@ -109,6 +152,7 @@ function fillExtraSlotsFromQueue(
     kept.push(eligible[ei]);
   }
   m2b.queue = kept;
+  return hiresToday;
 }
 
 export function applyM2bLaborForDay(
@@ -119,14 +163,20 @@ export function applyM2bLaborForDay(
 ): void {
   const m2b = world.m2b;
   if (!m2b) throw new Error("M2b labor state missing");
+  m2b.hiresToday = 0;
+  m2b.separationsToday = 0;
 
   const structuralUnemployed = new Set(world.baselineUnemployed);
   const baselineEmployed = new Set(world.baselineEmployment.map((s) => s.agentId));
   const automationCaps = automationSlotCaps(world, abundance);
+  const industryCount = automationCaps.length;
 
-  for (let ind = 0; ind < automationCaps.length; ind++) {
-    trimIndustryToCap(world, ind, automationCaps[ind]);
+  for (let ind = 0; ind < industryCount; ind++) {
+    trimAutomationWorkersToCap(world, ind, automationCaps[ind]);
   }
+
+  const extraTarget = extraQueueSlotCount(world, abundance, currentPriceIndex);
+  trimDemandEmployedToCount(world, extraTarget);
 
   for (const agentId of baselineEmployed) {
     const a = world.agents[agentId];
@@ -135,8 +185,7 @@ export function applyM2bLaborForDay(
     enqueueDisplaced(world, agentId, dayIndex);
   }
 
-  const extra = extraQueueSlotCount(world, abundance, currentPriceIndex);
-  fillExtraSlotsFromQueue(world, automationCaps, extra, dayIndex);
+  fillExtraSlotsFromQueue(world, industryCount, extraTarget, dayIndex);
 }
 
 export function initM2bLaborState(world: M2aWorld, referencePriceIndex: number): void {
@@ -145,6 +194,8 @@ export function initM2bLaborState(world: M2aWorld, referencePriceIndex: number):
     referencePriceIndex,
     queueHiresCumulative: 0,
     reemploymentDelayDays: [],
+    hiresToday: 0,
+    separationsCumulative: 0,
   };
 }
 
@@ -168,4 +219,53 @@ export function medianReemploymentDelayDays(world: M2aWorld): number {
   return sorted.length % 2 === 0
     ? (sorted[mid - 1] + sorted[mid]) / 2
     : sorted[mid];
+}
+
+export interface LaborPartitionCounts {
+  employed: number;
+  queued: number;
+  retired: number;
+  displacedUnqueued: number;
+  nlf: number;
+}
+
+/** Partition agents for accounting invariant (sums to agent count). */
+export function laborPartitionCounts(world: M2aWorld): LaborPartitionCounts {
+  const queueIds = new Set(world.m2b?.queue.map((e) => e.agentId) ?? []);
+  const baselineEmployed = new Set(world.baselineEmployment.map((s) => s.agentId));
+  const structuralUnemployed = new Set(world.baselineUnemployed);
+
+  let employed = 0;
+  let queued = 0;
+  let retired = 0;
+  let displacedUnqueued = 0;
+  let nlf = 0;
+
+  for (const a of world.agents) {
+    switch (a.laborStatus) {
+      case "employed":
+        employed += 1;
+        break;
+      case "retraining":
+        queued += 1;
+        break;
+      case "retired":
+        retired += 1;
+        break;
+      case "unemployed":
+        if (baselineEmployed.has(a.id) && !structuralUnemployed.has(a.id) && !queueIds.has(a.id)) {
+          displacedUnqueued += 1;
+        } else {
+          nlf += 1;
+        }
+        break;
+      case "not_in_labor_force":
+        nlf += 1;
+        break;
+      default:
+        break;
+    }
+  }
+
+  return { employed, queued, retired, displacedUnqueued, nlf };
 }

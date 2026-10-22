@@ -8,6 +8,7 @@ export interface DailyMetricLine {
   tick: number;
   workOptionalShare: number;
   gini: number;
+  medianAnnualizedHouseholdIncomeUsd: number;
   unmetNeed: number;
   shortHouseholds: number;
   byIndustry: IndustryDayStats[];
@@ -28,10 +29,19 @@ export interface DailyMetricLine {
   retired?: number;
   queueHiresCumulative?: number;
   medianReemploymentDelayDays?: number;
+  queueHiresToday?: number;
+  separationsToday?: number;
+  laborPartition?: {
+    employed: number;
+    queued: number;
+    retired: number;
+    displacedUnqueued: number;
+    nlf: number;
+  };
 }
 
 interface TrailingHouseholdWindow {
-  days: Array<{ nonWage: number; needs: number }>;
+  days: Array<{ nonWage: number; needs: number; inflow: number }>;
 }
 
 interface TrailingIncomeWindow {
@@ -72,7 +82,8 @@ export class M2aMetricsCollector {
       }
       const nonWage = settlement.householdNonWageIncomeCents.get(hh.id) ?? 0;
       const needs = settlement.householdNeedsCents.get(hh.id) ?? 0;
-      window.days.push({ nonWage, needs });
+      const inflow = settlement.householdCashInflowCents.get(hh.id) ?? 0;
+      window.days.push({ nonWage, needs, inflow });
       if (window.days.length > trailingOptional) window.days.shift();
 
       let incomeWindow = this.incomeWindows.get(hh.id);
@@ -80,7 +91,6 @@ export class M2aMetricsCollector {
         incomeWindow = { dailyInflowCents: [] };
         this.incomeWindows.set(hh.id, incomeWindow);
       }
-      const inflow = settlement.householdCashInflowCents.get(hh.id) ?? 0;
       incomeWindow.dailyInflowCents.push(inflow);
       if (incomeWindow.dailyInflowCents.length > trailingGini) {
         incomeWindow.dailyInflowCents.shift();
@@ -89,14 +99,20 @@ export class M2aMetricsCollector {
 
     let optionalHouseholds = 0;
     for (const hh of world.households) {
-      const hasEmployed = hh.agentIds.some(
-        (id) => world.agents[id].laborStatus === "employed",
-      );
-      if (hasEmployed) continue;
+      const hasAutomationEmployment = hh.agentIds.some((id) => {
+        const a = world.agents[id];
+        return a.laborStatus === "employed" && !a.demandSlotEmployment;
+      });
       const window = this.householdWindows.get(hh.id)!;
       const sumNonWage = window.days.reduce((s, d) => s + d.nonWage, 0);
       const sumNeeds = window.days.reduce((s, d) => s + d.needs, 0);
-      if (sumNonWage >= sumNeeds) optionalHouseholds += 1;
+      if (hasAutomationEmployment) continue;
+      const sumInflow = window.days.reduce((s, d) => s + d.inflow, 0);
+      if (this.m2bEnabled) {
+        if (sumInflow >= sumNeeds || sumNonWage >= sumNeeds) optionalHouseholds += 1;
+      } else if (sumNonWage >= sumNeeds) {
+        optionalHouseholds += 1;
+      }
     }
     const workOptionalShare = optionalHouseholds / world.households.length;
 
@@ -108,6 +124,14 @@ export class M2aMetricsCollector {
       const meanDailyCents = days > 0 ? sumCents / days : 0;
       annualizedHouseholdIncomeUsd.push((meanDailyCents / 100) * 365);
     }
+    const sortedAnnual = [...annualizedHouseholdIncomeUsd].sort((a, b) => a - b);
+    const mid = Math.floor(sortedAnnual.length / 2);
+    const medianAnnualizedHouseholdIncomeUsd =
+      sortedAnnual.length === 0
+        ? 0
+        : sortedAnnual.length % 2 === 0
+          ? (sortedAnnual[mid - 1] + sortedAnnual[mid]) / 2
+          : sortedAnnual[mid];
 
     const jobs = settlement.byIndustry.reduce((s, row) => s + row.jobs, 0);
     const avgNeeds =
@@ -121,6 +145,7 @@ export class M2aMetricsCollector {
       tick: settlement.tick,
       workOptionalShare,
       gini: giniCoefficient(annualizedHouseholdIncomeUsd),
+      medianAnnualizedHouseholdIncomeUsd,
       unmetNeed: settlement.unmetNeedCents,
       shortHouseholds: settlement.shortHouseholds,
       byIndustry: settlement.byIndustry,
@@ -143,6 +168,9 @@ export class M2aMetricsCollector {
       line.retired = settlement.retired;
       line.queueHiresCumulative = settlement.queueHiresCumulative;
       line.medianReemploymentDelayDays = settlement.medianReemploymentDelayDays;
+      line.queueHiresToday = settlement.queueHiresToday;
+      line.separationsToday = settlement.separationsToday;
+      line.laborPartition = settlement.laborPartition ?? undefined;
     }
     return line;
   }

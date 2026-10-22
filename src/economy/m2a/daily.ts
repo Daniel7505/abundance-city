@@ -18,7 +18,7 @@ import {
   householdDailyNeedsCentsLegacy,
 } from "../../sim/m2a/needs.js";
 import { needsPriceContext } from "../../sim/m2a/needs-prices.js";
-import { medianReemploymentDelayDays } from "../m2b/labor.js";
+import { laborPartitionCounts, medianReemploymentDelayDays } from "../m2b/labor.js";
 
 export interface IndustryDayStats {
   jobs: number;
@@ -50,6 +50,9 @@ export interface DailySettlementResult {
   retired: number;
   queueHiresCumulative: number;
   medianReemploymentDelayDays: number;
+  queueHiresToday: number;
+  separationsToday: number;
+  laborPartition: ReturnType<typeof laborPartitionCounts> | null;
 }
 
 export interface SettleM2aDayOptions {
@@ -306,6 +309,15 @@ export function settleM2aDay(
     );
     ownershipDistributedCents += moved;
   }
+  const landlordResidual = ledger.getBalance(LANDLORD_ACCOUNT);
+  if (landlordResidual > 0) {
+    ledger.transfer(
+      LANDLORD_ACCOUNT,
+      TREASURY_ACCOUNT,
+      landlordResidual,
+      "landlord_operating_surplus_sweep",
+    );
+  }
 
   const producerProfit = profitFromRevenue(
     purchaseRevenue.producer,
@@ -380,5 +392,8 @@ export function settleM2aDay(
     retired: world.agents.filter((a) => a.laborStatus === "retired").length,
     queueHiresCumulative: world.m2b?.queueHiresCumulative ?? 0,
     medianReemploymentDelayDays: medianReemploymentDelayDays(world),
+    queueHiresToday: world.m2b?.hiresToday ?? 0,
+    separationsToday: world.m2b?.separationsToday ?? 0,
+    laborPartition: world.m2b ? laborPartitionCounts(world) : null,
   };
 }

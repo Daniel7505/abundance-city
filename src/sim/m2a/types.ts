@@ -25,6 +25,8 @@ export interface AgentState {
   householdId: number;
   laborStatus: LaborStatus;
   industryIndex: number | null;
+  /** M2b: true when employed via demand/maintenance queue slots (not automation caps). */
+  demandSlotEmployment: boolean;
   skill: number;
   dailyWageCents: number;
   ageYears: number;
@@ -45,6 +47,8 @@ export interface M2bLaborState {
   referencePriceIndex: number;
   queueHiresCumulative: number;
   reemploymentDelayDays: number[];
+  hiresToday: number;
+  separationsCumulative: number;
 }
 
 export interface M2aWorld {

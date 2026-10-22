@@ -104,6 +104,7 @@ export function buildM2aWorld(seed: number): M2aWorld {
         householdId: hh.id,
         laborStatus: "not_in_labor_force",
         industryIndex: null,
+        demandSlotEmployment: false,
         skill: prng.next(),
         dailyWageCents: 0,
         ageYears: agePrng.nextInt(22, 72),

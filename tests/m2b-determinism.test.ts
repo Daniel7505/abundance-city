@@ -4,11 +4,11 @@ import { runM2aSimulation } from "../src/sim/m2a/engine.js";
 
 /** Full blob (daily + summary) when m2b is off; summary includes m2bEnabled metadata. */
 const M2A_MIX_FULL_HASH_M2B_OFF =
-  "2acbb6e0f8db861761b0288cb74f951ae7b603979a1b8953f5b9fd66d3bd1d68";
+  "afbb7445d11935f19d8182a2e545da548f8f411d16dad745a22f5a6a68e5fc33";
 
-/** Daily metric lines only — must match merged M2a on main (no m2b fields). */
+/** Daily metric lines with M2a closed-loop settlement (landlord sweep, firm float). */
 const M2A_MIX_DAILY_HASH =
-  "94e440c40587baceff1c3c5d60d0b199f884233c66d1d063760d2a9fdc2e810a";
+  "339e162f2c5fa511085d847265734409a94ebb05b2ea9689a243f6856cf64e01";
 
 function m2aBlob(m2bEnabled: boolean): string {
   const { dailyMetrics, summary } = runM2aSimulation({

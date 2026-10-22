@@ -71,7 +71,7 @@ export function createM2aInitialBalances(world: M2aWorld): Map<AccountId, number
   }
 
   for (let ind = 0; ind < firmCount; ind++) {
-    balances.set(firmAccount(ind), payrollByFirm[ind] * 45 + 50_000);
+    balances.set(firmAccount(ind), payrollByFirm[ind] * 400 + 50_000);
   }
 
   balances.set(PRODUCER_ACCOUNT, 100_000);
