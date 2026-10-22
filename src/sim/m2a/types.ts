@@ -48,6 +48,7 @@ export interface M2bLaborState {
   queueHiresCumulative: number;
   reemploymentDelayDays: number[];
   hiresToday: number;
+  separationsToday: number;
   separationsCumulative: number;
 }
 

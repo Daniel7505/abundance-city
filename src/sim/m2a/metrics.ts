@@ -12,6 +12,7 @@ export interface DailyMetricLine {
   firmBalancesCents?: number[];
   agentCashCentsTotal?: number;
   firmRevenueCentsTotal?: number;
+  producerInflowCents?: number;
   unmetNeed: number;
   shortHouseholds: number;
   byIndustry: IndustryDayStats[];
@@ -26,6 +27,8 @@ export interface DailyMetricLine {
   moneySupply: number;
   wageSubsidyCents: number;
   payrollCents: number;
+  wagesPaidCents: number;
+  wageGapCents: number;
   totalLaborHours: number;
   ownershipDistributedCents: number;
   queued?: number;
@@ -163,11 +166,14 @@ export class M2aMetricsCollector {
       moneySupply: m2aMoneySupplyCents(world),
       wageSubsidyCents: settlement.wageSubsidyCents,
       payrollCents: settlement.payrollCents,
+      wagesPaidCents: settlement.wagesPaidCents,
+      wageGapCents: settlement.wageGapCents,
       totalLaborHours: settlement.totalLaborHours,
       ownershipDistributedCents: settlement.ownershipDistributedCents,
       firmBalancesCents: settlement.firmBalancesCents,
       agentCashCentsTotal: settlement.agentCashCentsTotal,
       firmRevenueCentsTotal: settlement.firmRevenueCentsTotal,
+      producerInflowCents: settlement.producerInflowCents,
     };
     if (this.m2bEnabled) {
       line.queued = settlement.queued;

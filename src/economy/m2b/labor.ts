@@ -195,6 +195,7 @@ export function initM2bLaborState(world: M2aWorld, referencePriceIndex: number):
     queueHiresCumulative: 0,
     reemploymentDelayDays: [],
     hiresToday: 0,
+    separationsToday: 0,
     separationsCumulative: 0,
   };
 }
