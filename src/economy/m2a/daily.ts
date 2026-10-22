@@ -13,7 +13,11 @@ import {
 import { countEmployed } from "./labor.js";
 import type { Ledger } from "../ledger.js";
 import type { Household, M2aWorld } from "../../sim/m2a/types.js";
-import { householdDailyNeedsCents } from "../../sim/m2a/needs.js";
+import {
+  householdDailyNeedsCentsFromQuantities,
+  householdDailyNeedsCentsLegacy,
+} from "../../sim/m2a/needs.js";
+import { needsPriceContext } from "../../sim/m2a/needs-prices.js";
 
 export interface IndustryDayStats {
   jobs: number;
@@ -41,6 +45,12 @@ export interface DailySettlementResult {
   payrollCents: number;
   ownershipDistributedCents: number;
   policyDistributedCents: number;
+  queued: number;
+  retired: number;
+}
+
+export interface SettleM2aDayOptions {
+  useQuantityNeeds?: boolean;
 }
 
 function payFromHousehold(
@@ -111,7 +121,9 @@ export function settleM2aDay(
   dayIndex: number,
   tick: number,
   displaced: number,
+  settleOptions: SettleM2aDayOptions = {},
 ): DailySettlementResult {
+  const useQuantityNeeds = settleOptions.useQuantityNeeds ?? false;
   const industryCount = world.industrySlotsBase.length;
   const prices = industryPricesCents(world, abundance);
   const autoShare = automatedLaborShare(abundance);
@@ -141,8 +153,12 @@ export function settleM2aDay(
   const purchaseRevenue: PurchaseRevenue = { firm: firmRevenue, producer: 0 };
   let landlordRevenue = 0;
 
+  const needsPrices = useQuantityNeeds ? needsPriceContext(world, abundance) : null;
+
   for (const hh of world.households) {
-    const needs = householdDailyNeedsCents(hh);
+    const needs = useQuantityNeeds
+      ? householdDailyNeedsCentsFromQuantities(hh, needsPrices!)
+      : householdDailyNeedsCentsLegacy(hh);
     householdNeeds.set(hh.id, needs.requiredTotal);
     let hhPaid = 0;
 
@@ -212,7 +228,7 @@ export function settleM2aDay(
   const ssPaidByAgent = new Map<number, number>();
   const ssDaily = m2aEconomy.socialSecurityDailyCentsPerNlfAgent;
   for (const a of world.agents) {
-    if (a.laborStatus !== "not_in_labor_force") continue;
+    if (a.laborStatus !== "not_in_labor_force" && a.laborStatus !== "retired") continue;
     const paid = ledger.transferUpTo(
       TREASURY_ACCOUNT,
       agentAccount(a.id),
@@ -224,7 +240,7 @@ export function settleM2aDay(
 
   const uiDaily = m2aEconomy.unemploymentDailyCentsPerAgent;
   for (const a of world.agents) {
-    if (a.laborStatus !== "unemployed") continue;
+    if (a.laborStatus !== "unemployed" && a.laborStatus !== "retraining") continue;
     const paid = ledger.transferUpTo(
       TREASURY_ACCOUNT,
       agentAccount(a.id),
@@ -349,5 +365,7 @@ export function settleM2aDay(
     payrollCents,
     ownershipDistributedCents,
     policyDistributedCents,
+    queued: world.m2b?.queue.length ?? 0,
+    retired: world.agents.filter((a) => a.laborStatus === "retired").length,
   };
 }

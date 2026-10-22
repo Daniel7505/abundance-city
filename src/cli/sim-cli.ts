@@ -13,6 +13,7 @@ function parseArgs(argv: string[]): {
   mixWeight: number;
   m1: boolean;
   m2a: boolean;
+  m2b: boolean;
   outDir: string;
 } {
   let seed = 42;
@@ -23,6 +24,7 @@ function parseArgs(argv: string[]): {
   let mixWeight = 0.5;
   let m1 = false;
   let m2a = false;
+  let m2b = false;
   let outDir = "logs";
 
   for (let i = 0; i < argv.length; i++) {
@@ -42,6 +44,9 @@ function parseArgs(argv: string[]): {
     } else if (arg === "--m1") {
       m1 = true;
     } else if (arg === "--m2a") {
+      m2a = true;
+    } else if (arg === "--m2b") {
+      m2b = true;
       m2a = true;
     } else if (arg === "--out" && argv[i + 1]) {
       outDir = argv[++i];
@@ -66,11 +71,11 @@ function parseArgs(argv: string[]): {
     process.exit(1);
   }
 
-  return { seed, ticks, days, abundance, policy, mixWeight, m1, m2a, outDir };
+  return { seed, ticks, days, abundance, policy, mixWeight, m1, m2a, m2b, outDir };
 }
 
 function main(): void {
-  const { seed, ticks, days, abundance, policy, mixWeight, m1, m2a, outDir } = parseArgs(
+  const { seed, ticks, days, abundance, policy, mixWeight, m1, m2a, m2b, outDir } = parseArgs(
     process.argv.slice(2),
   );
 
@@ -81,9 +86,11 @@ function main(): void {
       abundance,
       policyName: policy,
       mixWeight,
+      m2bEnabled: m2b,
     });
     mkdirSync(outDir, { recursive: true });
-    const tag = `m2a-seed-${seed}-a-${abundance}-policy-${policy}-days-${days}`;
+    const mode = m2b ? "m2b" : "m2a";
+    const tag = `${mode}-seed-${seed}-a-${abundance}-policy-${policy}-days-${days}`;
     const metricsPath = join(outDir, `${tag}.daily.jsonl`);
     const summaryPath = join(outDir, `${tag}.summary.json`);
     writeFileSync(

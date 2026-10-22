@@ -24,6 +24,8 @@ export interface DailyMetricLine {
   payrollCents: number;
   totalLaborHours: number;
   ownershipDistributedCents: number;
+  queued?: number;
+  retired?: number;
 }
 
 interface TrailingHouseholdWindow {
@@ -50,6 +52,11 @@ export function giniCoefficient(values: number[]): number {
 export class M2aMetricsCollector {
   private householdWindows = new Map<number, TrailingHouseholdWindow>();
   private incomeWindows = new Map<number, TrailingIncomeWindow>();
+  private readonly m2bEnabled: boolean;
+
+  constructor(options: { m2bEnabled?: boolean } = {}) {
+    this.m2bEnabled = options.m2bEnabled ?? false;
+  }
 
   record(settlement: DailySettlementResult, world: M2aWorld): DailyMetricLine {
     const trailingOptional = m2aEconomy.trailingDaysForWorkOptional;
@@ -107,7 +114,7 @@ export class M2aMetricsCollector {
         0,
       ) / world.households.length;
 
-    return {
+    const line: DailyMetricLine = {
       day: settlement.day,
       tick: settlement.tick,
       workOptionalShare,
@@ -129,5 +136,10 @@ export class M2aMetricsCollector {
       totalLaborHours: settlement.totalLaborHours,
       ownershipDistributedCents: settlement.ownershipDistributedCents,
     };
+    if (this.m2bEnabled) {
+      line.queued = settlement.queued;
+      line.retired = settlement.retired;
+    }
+    return line;
   }
 }

@@ -1,4 +1,15 @@
-export type LaborStatus = "employed" | "unemployed" | "not_in_labor_force";
+export type LaborStatus =
+  | "employed"
+  | "unemployed"
+  | "not_in_labor_force"
+  | "retraining"
+  | "retired";
+
+export interface HouseholdNeedsQuantity {
+  housingServiceUnits: number;
+  foodGoodsUnits: number;
+  electricityKwh: number;
+}
 
 export interface Household {
   id: number;
@@ -6,6 +17,7 @@ export interface Household {
   incomeAnnualUsd: number;
   isRenter: boolean;
   agentIds: number[];
+  needsQuantity: HouseholdNeedsQuantity;
 }
 
 export interface AgentState {
@@ -15,11 +27,22 @@ export interface AgentState {
   industryIndex: number | null;
   skill: number;
   dailyWageCents: number;
+  ageYears: number;
 }
 
 export interface BaselineEmploymentSlot {
   agentId: number;
   industryIndex: number;
+}
+
+export interface ReemploymentQueueEntry {
+  agentId: number;
+  enteredDay: number;
+}
+
+export interface M2bLaborState {
+  queue: ReemploymentQueueEntry[];
+  referencePriceIndex: number;
 }
 
 export interface M2aWorld {
@@ -30,4 +53,6 @@ export interface M2aWorld {
   baselineUnemployed: number[];
   baselineNotInLaborForce: number[];
   capitalShare: number[];
+  referenceGoodsCentsPerUnit: number;
+  m2b: M2bLaborState | null;
 }

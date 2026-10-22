@@ -9,6 +9,12 @@ import {
   applyLaborForAbundance,
   countDisplaced,
 } from "../../economy/m2a/labor.js";
+import { basketPriceIndex, industryPricesCents } from "../../economy/m2a/prices.js";
+import {
+  applyM2bLaborForDay,
+  countDisplacedM2b,
+  initM2bLaborState,
+} from "../../economy/m2b/labor.js";
 import {
   parseDividendPolicy,
   policyLabel,
@@ -26,6 +32,7 @@ export interface M2aSimOptions {
   policy?: DividendPolicy;
   policyName?: string;
   mixWeight?: number;
+  m2bEnabled?: boolean;
 }
 
 export interface M2aSimResult {
@@ -35,7 +42,8 @@ export interface M2aSimResult {
     days: number;
     abundance: number;
     policy: string;
-    mode: "m2a";
+    mode: "m2a" | "m2b";
+    m2bEnabled: boolean;
     moneySupplyCents: number;
     agentCount: number;
     calibrationDay0: ReturnType<typeof calibrationSnapshot>;
@@ -66,6 +74,7 @@ function resolvePolicy(options: M2aSimOptions): DividendPolicy {
 }
 
 export function runM2aSimulation(options: M2aSimOptions): M2aSimResult {
+  const m2bEnabled = options.m2bEnabled ?? false;
   const world = buildM2aWorld(options.seed);
   const firmCount = world.industrySlotsBase.length;
   const agentCount = world.agents.length;
@@ -77,19 +86,35 @@ export function runM2aSimulation(options: M2aSimOptions): M2aSimResult {
   });
 
   const policy = resolvePolicy(options);
-  applyLaborForAbundance(world, options.abundance);
+  if (m2bEnabled) {
+    const prices = industryPricesCents(world, options.abundance);
+    const refIndex = basketPriceIndex(world, options.abundance, prices);
+    initM2bLaborState(world, refIndex);
+  } else {
+    applyLaborForAbundance(world, options.abundance);
+  }
   const calibrationDay0 = calibrationSnapshot(world);
 
   const dailyMetrics: string[] = [];
-  const collector = new M2aMetricsCollector();
+  const collector = new M2aMetricsCollector({ m2bEnabled });
   let finalDayMetrics: DailyMetricLine | null = null;
   const totalTicks = options.days * m2aEconomy.ticksPerDay;
 
   for (let tick = 0; tick < totalTicks; tick++) {
     if (tick % m2aEconomy.ticksPerDay === m2aEconomy.settlementTickOfDay) {
-      applyLaborForAbundance(world, options.abundance);
-      const displaced = countDisplaced(world);
       const dayIndex = Math.floor(tick / m2aEconomy.ticksPerDay);
+      const prices = industryPricesCents(world, options.abundance);
+      const priceIndex = basketPriceIndex(world, options.abundance, prices);
+
+      let displaced: number;
+      if (m2bEnabled) {
+        applyM2bLaborForDay(world, options.abundance, dayIndex, priceIndex);
+        displaced = countDisplacedM2b(world);
+      } else {
+        applyLaborForAbundance(world, options.abundance);
+        displaced = countDisplaced(world);
+      }
+
       const settlement = settleM2aDay(
         ledger,
         world,
@@ -98,6 +123,7 @@ export function runM2aSimulation(options: M2aSimOptions): M2aSimResult {
         dayIndex,
         tick,
         displaced,
+        { useQuantityNeeds: m2bEnabled },
       );
       const line = collector.record(settlement, world);
       dailyMetrics.push(JSON.stringify(line));
@@ -118,7 +144,8 @@ export function runM2aSimulation(options: M2aSimOptions): M2aSimResult {
       days: options.days,
       abundance: options.abundance,
       policy: policyLabel(policy),
-      mode: "m2a",
+      mode: m2bEnabled ? "m2b" : "m2a",
+      m2bEnabled,
       moneySupplyCents: ledger.initialSupplyCents,
       agentCount,
       calibrationDay0,

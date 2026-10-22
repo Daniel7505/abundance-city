@@ -1,6 +1,7 @@
 import { getTown, m2aConfig } from "../../town/lindsborg.js";
 import { readNumber } from "../../town/sourced.js";
-import type { Household } from "./types.js";
+import type { Household, HouseholdNeedsQuantity } from "./types.js";
+import type { NeedsPriceContext } from "./needs-prices.js";
 
 export interface HouseholdDailyNeedsCents {
   housing: number;
@@ -9,7 +10,16 @@ export interface HouseholdDailyNeedsCents {
   requiredTotal: number;
 }
 
-export function householdDailyNeedsCents(hh: Household): HouseholdDailyNeedsCents {
+/** ACS-derived fixed physical basket (set at worldgen, not recomputed from income daily). */
+export function householdNeedsQuantities(hh: Household): HouseholdNeedsQuantity {
+  return hh.needsQuantity;
+}
+
+/**
+ * Legacy M2a: needs as fixed cent targets from income (housing/food) and fixed utility rate (electricity).
+ * Electricity kWh is fixed but priced at a frozen cents/kWh — goods are not quantity-priced.
+ */
+export function householdDailyNeedsCentsLegacy(hh: Household): HouseholdDailyNeedsCents {
   const town = getTown();
   const cfg = m2aConfig();
   const medianIncome = readNumber(town.median_household_income_usd);
@@ -35,6 +45,24 @@ export function householdDailyNeedsCents(hh: Household): HouseholdDailyNeedsCent
 
   const requiredTotal = housing + food + electricity;
   return { housing, food, electricity, requiredTotal };
+}
+
+/** M2b: fixed quantities priced at current market indices (falls with automation). */
+export function householdDailyNeedsCentsFromQuantities(
+  hh: Household,
+  prices: NeedsPriceContext,
+): HouseholdDailyNeedsCents {
+  const q = householdNeedsQuantities(hh);
+  const housing = Math.round(q.housingServiceUnits * prices.housingCentsPerUnit);
+  const food = Math.round(q.foodGoodsUnits * prices.goodsCentsPerUnit);
+  const electricity = Math.round(q.electricityKwh * prices.electricityCentsPerKwh);
+  const requiredTotal = housing + food + electricity;
+  return { housing, food, electricity, requiredTotal };
+}
+
+/** @deprecated Use legacy or quantity path explicitly. */
+export function householdDailyNeedsCents(hh: Household): HouseholdDailyNeedsCents {
+  return householdDailyNeedsCentsLegacy(hh);
 }
 
 export function agentShareOfNeed(total: number, householdSize: number): number {
