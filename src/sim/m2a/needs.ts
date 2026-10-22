@@ -62,6 +62,41 @@ export function householdDailyNeedsCentsFromQuantities(
   return { housing, food, electricity, requiredTotal };
 }
 
+/**
+ * Subsistence basket used by transition-harm shortfall.
+ *
+ * Purchase quantities are derived by dividing the legacy cent budgets by a
+ * reference goods price taken before wages are assigned. Runtime prices then
+ * include wages, so quantity-priced food lands near a full day of ACS income
+ * instead of the 12.9% food budget. Electricity collapses the other way.
+ * Settlement still buys that quantity basket. Shortfall compares disposable
+ * income to this yardstick instead: legacy food and electricity cents, scaled
+ * by the goods-price index relative to the wage-inclusive a=0 index, plus the
+ * burden-calibrated housing bill. At a=0 the scale is 1, so food and
+ * electricity match the legacy budgets (about 20–35% of ACS income together
+ * with housing).
+ */
+export function householdSubsistenceNeedsCents(
+  hh: Household,
+  prices: NeedsPriceContext,
+  baselinePrices: NeedsPriceContext,
+  abundance = 0,
+): HouseholdDailyNeedsCents {
+  const legacy = householdDailyNeedsCentsLegacy(hh);
+  const goodsScale =
+    baselinePrices.goodsCentsPerUnit > 0
+      ? prices.goodsCentsPerUnit / baselinePrices.goodsCentsPerUnit
+      : 1;
+  const electricityScale =
+    baselinePrices.electricityCentsPerKwh > 0
+      ? prices.electricityCentsPerKwh / baselinePrices.electricityCentsPerKwh
+      : 1;
+  const food = Math.round(legacy.food * goodsScale);
+  const electricity = Math.round(legacy.electricity * electricityScale);
+  const housing = householdHousingNeedsCentsAt(hh, abundance);
+  return { housing, food, electricity, requiredTotal: housing + food + electricity };
+}
+
 /** @deprecated Use legacy or quantity path explicitly. */
 export function householdDailyNeedsCents(hh: Household): HouseholdDailyNeedsCents {
   return householdDailyNeedsCentsLegacy(hh);

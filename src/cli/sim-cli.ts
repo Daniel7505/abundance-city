@@ -20,6 +20,7 @@ function parseArgs(argv: string[]): {
   humanPremiumMode: string | undefined;
   landPolicy: string | undefined;
   ownership: string | undefined;
+  ownershipLevyRate: number | undefined;
   automationPath: string | undefined;
   automationHorizon: number | undefined;
   outDir: string;
@@ -36,6 +37,7 @@ function parseArgs(argv: string[]): {
   let humanPremiumMode: string | undefined;
   let landPolicy: string | undefined;
   let ownership: string | undefined;
+  let ownershipLevyRate: number | undefined;
   let automationPath: string | undefined;
   let automationHorizon: number | undefined;
   let outDir = "logs";
@@ -67,6 +69,8 @@ function parseArgs(argv: string[]): {
       landPolicy = argv[++i];
     } else if (arg === "--ownership" && argv[i + 1]) {
       ownership = argv[++i];
+    } else if (arg === "--ownership-levy" && argv[i + 1]) {
+      ownershipLevyRate = Number(argv[++i]);
     } else if (arg === "--automation-path" && argv[i + 1]) {
       automationPath = argv[++i];
     } else if (arg === "--automation-horizon" && argv[i + 1]) {
@@ -75,7 +79,7 @@ function parseArgs(argv: string[]): {
       outDir = argv[++i];
     } else if (arg === "--help" || arg === "-h") {
       console.log(
-        "Usage: npm run sim -- [--m1|--m2a|--m2b] [--seed <n>] [--ticks <n>] [--days <n>] [--abundance <0-1>] [--policy <name>] [--land-policy <name>] [--ownership PrivateOwners|PublicFund|GradualBuyIn] [--automation-path fixed|linear|logistic] [--automation-horizon <days>] [--human-premium fixed|adaptive] [--out <dir>]",
+        "Usage: npm run sim -- [--m1|--m2a|--m2b] [--seed <n>] [--ticks <n>] [--days <n>] [--abundance <0-1>] [--policy <name>] [--land-policy <name>] [--ownership PrivateOwners|PublicFund|GradualBuyIn] [--ownership-levy <rate>] [--automation-path fixed|linear|logistic] [--automation-horizon <days>] [--human-premium fixed|adaptive] [--out <dir>]",
       );
       process.exit(0);
     }
@@ -106,6 +110,13 @@ function parseArgs(argv: string[]): {
     console.error("Invalid --automation-horizon");
     process.exit(1);
   }
+  if (
+    ownershipLevyRate !== undefined &&
+    (!Number.isFinite(ownershipLevyRate) || ownershipLevyRate < 0)
+  ) {
+    console.error("Invalid --ownership-levy");
+    process.exit(1);
+  }
   try {
     if (landPolicy !== undefined) parseLandPolicy(landPolicy);
     if (ownership !== undefined) parseProducerOwnershipMode(ownership);
@@ -128,6 +139,7 @@ function parseArgs(argv: string[]): {
     humanPremiumMode,
     landPolicy,
     ownership,
+    ownershipLevyRate,
     automationPath,
     automationHorizon,
     outDir,
@@ -148,6 +160,7 @@ function main(): void {
     humanPremiumMode,
     landPolicy,
     ownership,
+    ownershipLevyRate,
     automationPath,
     automationHorizon,
     outDir,
@@ -164,6 +177,7 @@ function main(): void {
       humanPremiumMode,
       landPolicyName: landPolicy,
       ownership,
+      ownershipLevyRate,
       automationPath:
         automationPath || automationHorizon
           ? {

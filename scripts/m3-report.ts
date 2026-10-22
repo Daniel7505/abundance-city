@@ -1,6 +1,8 @@
 /**
  * M3 transition report.
  * Mix × {PrivateLandlords, CommunityLandTrust} × {PrivateOwners, PublicFund, GradualBuyIn}.
+ * The GradualBuyIn column uses ownership levy 0.6 so the fund holds about half the
+ * producer by year 10. The coefficient default stays 0.05.
  * Logistic automation over 3650 days, seeds 42..46. Prints mean [min, max]. Does not write files.
  *
  * Usage: npx tsx scripts/m3-report.ts
@@ -12,14 +14,29 @@ import { runM2aSimulation } from "../src/sim/m2a/engine.js";
 import type { YearlyHarmRow } from "../src/sim/m2a/transition-harm.js";
 
 const LANDS = ["PrivateLandlords", "CommunityLandTrust"] as const;
-const OWNERSHIP = ["PrivateOwners", "PublicFund", "GradualBuyIn"] as const;
 const SEEDS = [42, 43, 44, 45, 46] as const;
 const YEARS = [1, 3, 5, 7, 10] as const;
+
+/**
+ * Seed 42, PrivateLandlords, logistic 3650 days: levy 0.6 ends at public share 0.506.
+ * Levy 0.5 ends at 0.438 and levy 0.7 at 0.568. Buying stops once the producer
+ * residual dries up (around year 5), so the rate sets the plateau rather than a
+ * slow crawl to year 10. The default coefficient 0.05 is unchanged.
+ */
+const COMPARISON_LEVY = 0.6;
+
+const SCENARIOS = [
+  { ownership: "PrivateOwners", label: "PrivateOwners", levy: undefined },
+  { ownership: "PublicFund", label: "PublicFund", levy: undefined },
+  { ownership: "GradualBuyIn", label: "GradualBuyIn levy 0.6", levy: COMPARISON_LEVY },
+] as const;
 
 interface Job {
   seed: number;
   landPolicyName: string;
   ownership: string;
+  label: string;
+  ownershipLevyRate?: number;
 }
 
 interface JobResult extends Job {
@@ -37,6 +54,7 @@ function runJob(job: Job): JobResult {
     policyName: "Mix",
     landPolicyName: job.landPolicyName,
     ownership: job.ownership,
+    ownershipLevyRate: job.ownershipLevyRate,
     m2bEnabled: true,
     automationPath: "logistic",
   });
@@ -71,6 +89,25 @@ function rowFor(result: JobResult, year: number): YearlyHarmRow {
   const found = result.rows.find((row) => row.year === year);
   if (!found) throw new Error(`missing year ${year} for seed ${result.seed}`);
   return found;
+}
+
+function quintilePath(results: JobResult[]): string {
+  const parts: string[] = [];
+  for (const year of YEARS) {
+    const means = [1, 2, 3, 4, 5].map((quintile) =>
+      mean(
+        results.map((result) => {
+          const group = rowFor(result, year).byQuintile.find((q) => q.quintile === quintile);
+          if (!group) throw new Error("missing quintile");
+          return group.shortfallShare;
+        }),
+      ),
+    );
+    const monotone = means.every((share, i) => i === 0 || means[i - 1] + 1e-12 >= share);
+    const order = means.map((share, i) => `Q${i + 1} ${share.toFixed(3)}`).join(", ");
+    parts.push(`y${year}${monotone ? "" : " (not monotone)"}: ${order}`);
+  }
+  return parts.join("; ");
 }
 
 function worstQuintile(results: JobResult[]): string {
@@ -134,8 +171,16 @@ function runInWorker(job: Job): Promise<JobResult> {
 async function main(): Promise<void> {
   const jobs: Job[] = [];
   for (const landPolicyName of LANDS) {
-    for (const ownership of OWNERSHIP) {
-      for (const seed of SEEDS) jobs.push({ seed, landPolicyName, ownership });
+    for (const scenario of SCENARIOS) {
+      for (const seed of SEEDS) {
+        jobs.push({
+          seed,
+          landPolicyName,
+          ownership: scenario.ownership,
+          label: scenario.label,
+          ownershipLevyRate: scenario.levy,
+        });
+      }
     }
   }
   const parallelism = Math.max(1, Math.min(4, availableParallelism()));
@@ -161,27 +206,33 @@ async function main(): Promise<void> {
     "Mix, adaptive human premium, m2b on. Logistic a(t) from 0 to 1 over 3650 days (placeholder midpoint 1825, steepness 0.005). Seeds 42–46. Each cell is mean [min, max].",
   );
   console.log(
-    "workOpt and giniDisposable are the year-end trailing windows (7-day and 30-day). Shortfall share and average depth cover every household-day in the year. Spell p90 is the nearest-rank p90 of each household's longest consecutive shortfall, in days, from day 0 through that year.",
+    "Shortfall compares same-day disposable income to the subsistence basket (legacy food and electricity scaled by the goods-price index, plus burden-calibrated housing). Purchase quantities are unchanged. Quintiles: year 1 is worldgen ACS income; later years re-rank by the previous year's total disposable income, Q1 lowest. Spells are the longest consecutive shortfall from day 0. Ever-short and chronic-short (more than half the year's days) are shares of households.",
+  );
+  console.log(
+    `GradualBuyIn in this grid sets the levy knob to ${COMPARISON_LEVY}. The coefficient default remains 0.05.`,
   );
   console.log("");
 
   for (const land of LANDS) {
-    for (const ownership of OWNERSHIP) {
+    for (const scenario of SCENARIOS) {
       const group = results.filter(
-        (result) => result.landPolicyName === land && result.ownership === ownership,
+        (result) => result.landPolicyName === land && result.label === scenario.label,
       );
-      console.log(`## Mix + ${land} + ${ownership}`);
+      console.log(`## Mix + ${land} + ${scenario.label}`);
       console.log("");
-      console.log("| year | workOpt | giniDisposable | shortfall share | avg depth | spell p90 |");
-      console.log("|---:|---:|---:|---:|---:|---:|");
+      console.log(
+        "| year | workOpt | giniDisposable | shortfall share | avg depth | spell p50 | spell p90 | spell max | ever short | chronic short |",
+      );
+      console.log("|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|");
       for (const year of YEARS) {
         const rows = group.map((result) => rowFor(result, year));
         console.log(
-          `| ${year} | ${cell(rows.map((row) => row.workOptionalShare), 4)} | ${cell(rows.map((row) => row.giniDisposable), 4)} | ${cell(rows.map((row) => row.shortfallShare), 4)} | ${cell(rows.map((row) => row.avgShortfallDepth), 4)} | ${cell(rows.map((row) => row.spellDaysP90), 1)} |`,
+          `| ${year} | ${cell(rows.map((row) => row.workOptionalShare), 4)} | ${cell(rows.map((row) => row.giniDisposable), 4)} | ${cell(rows.map((row) => row.shortfallShare), 4)} | ${cell(rows.map((row) => row.avgShortfallDepth), 4)} | ${cell(rows.map((row) => row.spellDaysP50), 1)} | ${cell(rows.map((row) => row.spellDaysP90), 1)} | ${cell(rows.map((row) => row.spellDaysMax), 1)} | ${cell(rows.map((row) => row.everShortShare), 4)} | ${cell(rows.map((row) => row.chronicShortShare), 4)} |`,
         );
       }
       console.log("");
       console.log(`Year-10 public share: ${cell(group.map((result) => result.finalPublicShare), 4)}`);
+      console.log(`Quintile shortfall path: ${quintilePath(group)}`);
       console.log(`Worst quintile shortfall: ${worstQuintile(group)}`);
       console.log(`Worst age band shortfall: ${worstAge(group)}`);
       console.log("");

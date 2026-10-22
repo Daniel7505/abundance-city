@@ -55,6 +55,20 @@ describe("M3 a=0 365d gates for every land policy and ownership", () => {
         expect(year.days).toBe(365);
         expect(year.giniDisposable).toBe(last.giniDisposable);
         expect(year.workOptionalShare).toBe(last.workOptionalShare);
+        // Subsistence is about 20–35% of ACS income and labor income is 86% of
+        // that income, so needs/disposable above 0.40 means the yardstick is
+        // still priced like a full day of income. 0.10 on the shortfall share
+        // is above the scaled unemployment count and far below the old ~0.50.
+        expect(year.shortfallShare).toBeLessThanOrEqual(0.1);
+        expect(year.needsToDisposable).toBeLessThan(0.4);
+        expect(year.quintileBasis).toBe("worldgenIncome");
+        expect(year.spellDaysP90).toBeLessThan(year.days);
+        const shares = year.byQuintile.map((q) => q.shortfallShare);
+        expect(shares).toHaveLength(5);
+        for (let i = 0; i < 4; i++) {
+          expect(shares[i]).toBeGreaterThanOrEqual(shares[i + 1]);
+        }
+        expect(shares[0]).toBe(Math.max(...shares));
         let sum = 0;
         for (const value of Object.values(result.summary.accountBalancesCents)) {
           expect(value).toBeGreaterThanOrEqual(0);

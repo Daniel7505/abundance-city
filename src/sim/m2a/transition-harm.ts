@@ -29,10 +29,16 @@ export interface GroupHarm {
   households: number;
   shortfallShare: number;
   avgShortfallDepth: number;
-  /** Cumulative longest consecutive shortfall spell, in days, through this year. */
+  /** Cumulative longest consecutive shortfall spell, in days, from day 0 through this year. */
   spellDaysP50: number;
   spellDaysP90: number;
   spellDaysMax: number;
+  /** Households in the group with at least one short day in this year. */
+  everShortShare: number;
+  /** Households short on more than half of this year's days. */
+  chronicShortShare: number;
+  /** Sum of subsistence needs over sum of disposable income for the year's household-days. */
+  needsToDisposable: number;
 }
 
 export interface QuintileHarm extends GroupHarm {
@@ -62,6 +68,18 @@ export interface YearlyHarmRow {
   spellDaysP50: number;
   spellDaysP90: number;
   spellDaysMax: number;
+  /** Households with at least one short day in this year. */
+  everShortShare: number;
+  /** Households short on more than half of this year's days. */
+  chronicShortShare: number;
+  /** Sum of subsistence needs over sum of disposable income for the year's household-days. */
+  needsToDisposable: number;
+  /**
+   * Quintile rank used for this year's shortfall.
+   * Year 1 is worldgen ACS annual income, because no disposable history exists yet.
+   * Later years are the previous year's total disposable income.
+   */
+  quintileBasis: "worldgenIncome" | "trailingDisposable";
   byQuintile: QuintileHarm[];
   byAgeBand: AgeBandHarm[];
 }
@@ -85,6 +103,8 @@ interface FlowAccum {
   householdDays: number;
   shortfallDays: number;
   depthSum: number;
+  needsSum: number;
+  disposableSum: number;
 }
 
 interface HouseholdMeta {
@@ -94,7 +114,7 @@ interface HouseholdMeta {
 }
 
 function freshAccum(): FlowAccum {
-  return { householdDays: 0, shortfallDays: 0, depthSum: 0 };
+  return { householdDays: 0, shortfallDays: 0, depthSum: 0, needsSum: 0, disposableSum: 0 };
 }
 
 function shareOf(acc: FlowAccum): number {
@@ -105,21 +125,35 @@ function depthOf(acc: FlowAccum): number {
   return acc.shortfallDays > 0 ? acc.depthSum / acc.shortfallDays : 0;
 }
 
+/** Mean subsistence needs over mean disposable income. Above 1, the group is short on average. */
+function pressureOf(acc: FlowAccum): number {
+  return acc.disposableSum > 0 ? acc.needsSum / acc.disposableSum : 0;
+}
+
 /**
  * Bounded per household: current spell, longest spell, and the open year's
  * shortfall totals. No per-day log.
+ *
+ * Quintiles are equal-count ranks, Q1 lowest.
+ * Year 1 ranks households by worldgen ACS annual income (the income wages are
+ * seeded from). Each later year re-ranks by total disposable income over the
+ * year that just ended — trailing disposable at the start of the new year.
+ * Ties break by household id. Age bands stay the mean member age at worldgen.
  */
 export class TransitionHarmTracker {
   private readonly metas: HouseholdMeta[] = [];
   private readonly spells: SpellState[] = [];
-  private readonly quintileIds: number[][];
+  private quintileIds: number[][];
   private readonly ageIds: Record<AgeBand, number[]>;
+  private readonly yearShortDays: number[];
+  private readonly disposableYear: number[];
   private rows: YearlyHarmRow[] = [];
   private yearStartDay = 0;
   private yearDays = 0;
   private yearAll = freshAccum();
   private yearQuintile: FlowAccum[];
   private yearAge: Record<AgeBand, FlowAccum>;
+  private quintileBasis: YearlyHarmRow["quintileBasis"] = "worldgenIncome";
   private pendingAbundance = 0;
   private pendingPublicShare = 0;
   private pendingWork = 0;
@@ -127,8 +161,11 @@ export class TransitionHarmTracker {
 
   constructor(world: M2aWorld) {
     const quintiles = assignHouseholdIncomeQuintiles(world.households);
+    const n = world.households.length;
     this.quintileIds = [[], [], [], [], [], []];
     this.ageIds = { "22-34": [], "35-49": [], "50-64": [], "65+": [] };
+    this.yearShortDays = Array.from({ length: n }, () => 0);
+    this.disposableYear = Array.from({ length: n }, () => 0);
     this.yearQuintile = [freshAccum(), freshAccum(), freshAccum(), freshAccum(), freshAccum(), freshAccum()];
     this.yearAge = {
       "22-34": freshAccum(),
@@ -159,10 +196,18 @@ export class TransitionHarmTracker {
       const needs = obs.householdNeedsCents.get(meta.id) ?? 0;
       const disposable = obs.householdDisposableCents.get(meta.id) ?? 0;
       const spell = this.spells[meta.id];
+      this.disposableYear[meta.id] = (this.disposableYear[meta.id] ?? 0) + disposable;
+      this.yearAll.needsSum += needs;
+      this.yearAll.disposableSum += disposable;
+      this.yearQuintile[meta.quintile].needsSum += needs;
+      this.yearQuintile[meta.quintile].disposableSum += disposable;
+      this.yearAge[meta.ageBand].needsSum += needs;
+      this.yearAge[meta.ageBand].disposableSum += disposable;
       const short = needs > 0 && disposable < needs;
       if (short) {
         spell.current += 1;
         if (spell.current > spell.longest) spell.longest = spell.current;
+        this.yearShortDays[meta.id] = (this.yearShortDays[meta.id] ?? 0) + 1;
         const depth = (needs - disposable) / needs;
         this.yearAll.shortfallDays += 1;
         this.yearAll.depthSum += depth;
@@ -196,6 +241,19 @@ export class TransitionHarmTracker {
     };
   }
 
+  private exposure(ids: readonly number[]): { everShortShare: number; chronicShortShare: number } {
+    const n = ids.length;
+    if (n === 0 || this.yearDays === 0) return { everShortShare: 0, chronicShortShare: 0 };
+    let ever = 0;
+    let chronic = 0;
+    for (const id of ids) {
+      const days = this.yearShortDays[id] ?? 0;
+      if (days > 0) ever += 1;
+      if (days * 2 > this.yearDays) chronic += 1;
+    }
+    return { everShortShare: ever / n, chronicShortShare: chronic / n };
+  }
+
   private groupFrom(acc: FlowAccum, ids: readonly number[]): GroupHarm {
     const spells = this.spellStats(ids);
     return {
@@ -205,7 +263,24 @@ export class TransitionHarmTracker {
       spellDaysP50: spells.p50,
       spellDaysP90: spells.p90,
       spellDaysMax: spells.max,
+      ...this.exposure(ids),
+      needsToDisposable: pressureOf(acc),
     };
+  }
+
+  /** Equal-count ranks of this year's disposable, lowest first. Applied to the next year. */
+  private rerankByTrailingDisposable(): void {
+    const ranked = [...this.metas].sort((a, b) => {
+      const diff = (this.disposableYear[a.id] ?? 0) - (this.disposableYear[b.id] ?? 0);
+      return diff !== 0 ? diff : a.id - b.id;
+    });
+    this.quintileIds = [[], [], [], [], [], []];
+    const n = ranked.length;
+    for (let i = 0; i < n; i++) {
+      const quintile = Math.min(5, Math.floor((i * 5) / n) + 1);
+      ranked[i].quintile = quintile;
+      this.quintileIds[quintile].push(ranked[i].id);
+    }
   }
 
   private emit(dayIndex: number, partial: boolean): void {
@@ -238,10 +313,17 @@ export class TransitionHarmTracker {
       spellDaysP50: allSpells.p50,
       spellDaysP90: allSpells.p90,
       spellDaysMax: allSpells.max,
+      ...this.exposure(allIds),
+      needsToDisposable: pressureOf(this.yearAll),
+      quintileBasis: this.quintileBasis,
       byQuintile,
       byAgeBand,
     });
 
+    this.rerankByTrailingDisposable();
+    this.quintileBasis = "trailingDisposable";
+    this.yearShortDays.fill(0);
+    this.disposableYear.fill(0);
     this.yearStartDay = dayIndex + 1;
     this.yearDays = 0;
     this.yearAll = freshAccum();

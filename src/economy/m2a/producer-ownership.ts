@@ -13,6 +13,11 @@ export interface ProducerOwnershipState {
   publicShare: number;
   /** Gradual-buy-in equity, in book cents. Unused by PrivateOwners and PublicFund. */
   publicBookCents: number;
+  /**
+   * Fraction of the producer residual levied into the fund under GradualBuyIn.
+   * Defaults to producerOwnership.profitLevyRate. A run may override it.
+   */
+  profitLevyRate: number;
 }
 
 interface ProducerOwnershipCoefficients {
@@ -50,9 +55,17 @@ export function parseProducerOwnershipMode(name: string | undefined): ProducerOw
   throw new Error(`Unknown producer ownership: ${raw}`);
 }
 
-export function createProducerOwnershipState(mode: ProducerOwnershipMode): ProducerOwnershipState {
-  const share = mode === "PublicFund" ? Math.min(1, Math.max(0, ownershipCoefficients().publicEquityShare)) : 0;
-  return { mode, publicShare: share, publicBookCents: 0 };
+export function createProducerOwnershipState(
+  mode: ProducerOwnershipMode,
+  overrides?: { profitLevyRate?: number },
+): ProducerOwnershipState {
+  const cfg = ownershipCoefficients();
+  const share = mode === "PublicFund" ? Math.min(1, Math.max(0, cfg.publicEquityShare)) : 0;
+  const profitLevyRate = overrides?.profitLevyRate ?? cfg.profitLevyRate;
+  if (!Number.isFinite(profitLevyRate) || profitLevyRate < 0) {
+    throw new Error("profitLevyRate must be a non-negative finite number");
+  }
+  return { mode, publicShare: share, publicBookCents: 0, profitLevyRate };
 }
 
 function payFundBalanceAsEqualDividend(
@@ -95,7 +108,7 @@ export function distributeAutomatedProducerResidual(
   let left = distributable;
 
   if (state.mode === "GradualBuyIn") {
-    const levy = takeBps(left, bpsCap(cfg.profitLevyRate));
+    const levy = takeBps(left, bpsCap(state.profitLevyRate));
     if (levy > 0) {
       ledger.transfer(PRODUCER_ACCOUNT, PUBLIC_FUND_ACCOUNT, levy, "producer_profit_levy");
       left -= levy;

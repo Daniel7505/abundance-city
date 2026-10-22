@@ -12,6 +12,12 @@ import {
 import { runM2aSimulation, type M2aSimResult } from "../src/sim/m2a/engine.js";
 import type { DailyMetricLine } from "../src/sim/m2a/metrics.js";
 import { assignHouseholdIncomeQuintiles } from "../src/sim/m2a/distribution.js";
+import {
+  householdDailyNeedsCentsFromQuantities,
+  householdDailyNeedsCentsLegacy,
+  householdSubsistenceNeedsCents,
+} from "../src/sim/m2a/needs.js";
+import { needsPriceContext } from "../src/sim/m2a/needs-prices.js";
 import { buildM2aWorld } from "../src/sim/m2a/worldgen.js";
 import { getTown, industryAgentSlots } from "../src/town/lindsborg.js";
 import {
@@ -210,6 +216,11 @@ describe("transition harm tracker", () => {
     expect(rows[1].partial).toBe(true);
     expect(rows[1].year).toBe(2);
     expect(rows[1].spellDaysMax).toBe(15);
+    expect(rows[0].quintileBasis).toBe("worldgenIncome");
+    expect(rows[1].quintileBasis).toBe("trailingDisposable");
+    expect(rows[0].everShortShare).toBeCloseTo(1 / world.households.length, 12);
+    expect(rows[0].chronicShortShare).toBe(0);
+    expect(rows[1].chronicShortShare).toBeCloseTo(1 / world.households.length, 12);
     expect(rows[1].byAgeBand.map((band) => band.ageBand)).toEqual([
       "22-34",
       "35-49",
@@ -243,12 +254,98 @@ describe("transition harm tracker", () => {
     const row = tracker.finish(0)[0];
     expect(row.shortfallShare).toBeCloseTo(q1 / world.households.length, 12);
     expect(row.avgShortfallDepth).toBeCloseTo(0.9, 12);
+    expect(row.quintileBasis).toBe("worldgenIncome");
     expect(row.byQuintile.find((q) => q.quintile === 1)?.shortfallShare).toBe(1);
     expect(row.byQuintile.find((q) => q.quintile === 5)?.shortfallShare).toBe(0);
+    expect(row.everShortShare).toBeCloseTo(q1 / world.households.length, 12);
+    expect(row.chronicShortShare).toBeCloseTo(q1 / world.households.length, 12);
     expect(row.workOptionalShare).toBe(0.1);
     expect(row.giniDisposable).toBe(0.4);
     const bandHouseholds = row.byAgeBand.reduce((s, band) => s + band.households, 0);
     expect(bandHouseholds).toBe(world.households.length);
+  });
+
+  it("re-ranks quintiles by the previous year's disposable income", () => {
+    const world = buildM2aWorld(42);
+    const acs = assignHouseholdIncomeQuintiles(world.households);
+    const needs = new Map<number, number>();
+    for (const hh of world.households) needs.set(hh.id, 100);
+    const tracker = new TransitionHarmTracker(world);
+    let day = 0;
+    const observeYear = (disposableOf: (householdId: number) => number) => {
+      for (let i = 0; i < 365; i++) {
+        const disposable = new Map<number, number>();
+        for (const hh of world.households) disposable.set(hh.id, disposableOf(hh.id));
+        tracker.observe({
+          dayIndex: day,
+          abundance: 0,
+          publicShare: 0,
+          workOptionalShare: 0,
+          giniDisposable: 0,
+          householdDisposableCents: disposable,
+          householdNeedsCents: needs,
+        });
+        day += 1;
+      }
+    };
+    const highAcsIsShort = (id: number) => (acs.get(id) === 5 ? 0 : 5_000);
+    observeYear(highAcsIsShort);
+    observeYear(highAcsIsShort);
+    const rows = tracker.finish(day - 1);
+    expect(rows[0].quintileBasis).toBe("worldgenIncome");
+    expect(rows[0].byQuintile.find((q) => q.quintile === 5)?.shortfallShare).toBe(1);
+    expect(rows[0].byQuintile.find((q) => q.quintile === 1)?.shortfallShare).toBe(0);
+    expect(rows[1].quintileBasis).toBe("trailingDisposable");
+    const year2Q1 = rows[1].byQuintile.find((q) => q.quintile === 1)?.shortfallShare ?? 0;
+    const year2Q2 = rows[1].byQuintile.find((q) => q.quintile === 2)?.shortfallShare ?? 0;
+    expect(year2Q1).toBeGreaterThan(0.9);
+    expect(year2Q1).toBeGreaterThan(year2Q2);
+    expect(rows[1].byQuintile.find((q) => q.quintile === 5)?.shortfallShare).toBe(0);
+  });
+});
+
+describe("subsistence shortfall yardstick", () => {
+  it("matches legacy food and electricity at a=0 and stays well below the quantity basket", () => {
+    const world = buildM2aWorld(42);
+    const baseline = needsPriceContext(world, 0);
+    const prices = needsPriceContext(world, 0);
+    let subsistence = 0;
+    let quantity = 0;
+    let acsDaily = 0;
+    for (const hh of world.households) {
+      const sub = householdSubsistenceNeedsCents(hh, prices, baseline, 0);
+      const qty = householdDailyNeedsCentsFromQuantities(hh, prices, 0);
+      const legacy = householdDailyNeedsCentsLegacy(hh);
+      subsistence += sub.requiredTotal;
+      quantity += qty.requiredTotal;
+      acsDaily += (hh.incomeAnnualUsd * 100) / 365;
+      expect(sub.food).toBe(legacy.food);
+      expect(sub.electricity).toBe(legacy.electricity);
+    }
+    const subShare = subsistence / acsDaily;
+    const qtyShare = quantity / acsDaily;
+    expect(subShare).toBeGreaterThan(0.15);
+    expect(subShare).toBeLessThan(0.45);
+    expect(qtyShare).toBeGreaterThan(0.9);
+
+    const quintiles = assignHouseholdIncomeQuintiles(world.households);
+    const byQ = new Map<number, { needs: number; wage: number }>();
+    for (const hh of world.households) {
+      const quintile = quintiles.get(hh.id) ?? 1;
+      const sub = householdSubsistenceNeedsCents(hh, prices, baseline, 0);
+      let wage = 0;
+      for (const id of hh.agentIds) wage += world.agents[id].dailyWageCents;
+      const row = byQ.get(quintile) ?? { needs: 0, wage: 0 };
+      row.needs += sub.requiredTotal;
+      row.wage += wage;
+      byQ.set(quintile, row);
+    }
+    const ratios = [1, 2, 3, 4, 5].map((q) => {
+      const row = byQ.get(q)!;
+      return row.needs / row.wage;
+    });
+    for (let i = 0; i < 4; i++) expect(ratios[i]).toBeGreaterThan(ratios[i + 1]);
+    expect(ratios[0]).toBeLessThan(0.6);
   });
 });
 
@@ -291,6 +388,10 @@ describe("producer ownership conserves money", () => {
     expect(pubA.transition.finalPublicShare).toBeCloseTo(0.5, 12);
     expect(gradualA.transition.finalPublicShare).toBeGreaterThan(0);
     expect(gradualA.transition.finalPublicShare).toBeLessThan(0.5);
+    const levied = runM2aSimulation({ ...base, ownership: "GradualBuyIn", ownershipLevyRate: 0.5 });
+    expect(levied.transition.finalPublicShare).toBeGreaterThan(gradualA.transition.finalPublicShare * 5);
+    expect(levied.dailyMetrics.join("\n")).not.toBe(gradualA.dailyMetrics.join("\n"));
+    assertConserved(levied);
     expect(pubA.summary.accountBalancesCents[PUBLIC_FUND_ACCOUNT]).toBe(0);
     expect(gradualA.summary.accountBalancesCents[PUBLIC_FUND_ACCOUNT]).toBe(0);
     assertConserved(pubA);

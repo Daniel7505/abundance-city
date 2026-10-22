@@ -24,11 +24,17 @@ function conserved(result: M2aSimResult): void {
 let privateRun: M2aSimResult;
 let privateAgain: M2aSimResult;
 let publicRun: M2aSimResult;
+let buyInRun: M2aSimResult;
 
 beforeAll(() => {
   privateRun = runM2aSimulation({ ...DECADE, ownership: "PrivateOwners" });
   privateAgain = runM2aSimulation({ ...DECADE, ownership: "PrivateOwners" });
   publicRun = runM2aSimulation({ ...DECADE, ownership: "PublicFund" });
+  buyInRun = runM2aSimulation({
+    ...DECADE,
+    ownership: "GradualBuyIn",
+    ownershipLevyRate: 0.6,
+  });
 }, 400_000);
 
 describe("M3 10-year logistic transition", () => {
@@ -53,6 +59,15 @@ describe("M3 10-year logistic transition", () => {
     expect(lines[3649].employed).toBeLessThan(lines[364].employed);
     expect(privateRun.transition.yearlyHarm[9].giniDisposable).toBe(lines[3649].giniDisposable);
     expect(privateRun.transition.yearlyHarm[9].workOptionalShare).toBe(lines[3649].workOptionalShare);
+    const year1 = privateRun.transition.yearlyHarm[0];
+    expect(year1.shortfallShare).toBeLessThanOrEqual(0.1);
+    expect(year1.needsToDisposable).toBeLessThan(0.4);
+    expect(year1.spellDaysP90).toBeLessThan(year1.days);
+    const year10Shares = privateRun.transition.yearlyHarm[9].byQuintile.map((q) => q.shortfallShare);
+    for (let i = 0; i < 4; i++) {
+      expect(year10Shares[i]).toBeGreaterThanOrEqual(year10Shares[i + 1]);
+    }
+    expect(privateRun.transition.yearlyHarm[9].spellDaysP90).toBeLessThan(3650);
   });
 
   it("PublicFund lowers year-10 giniDisposable versus PrivateOwners and conserves money", () => {
@@ -62,5 +77,12 @@ describe("M3 10-year logistic transition", () => {
     const publicGini = publicRun.transition.yearlyHarm[9].giniDisposable;
     const privateGini = privateRun.transition.yearlyHarm[9].giniDisposable;
     expect(publicGini).toBeLessThan(privateGini);
+  });
+
+  it("a levy of 0.6 buys about half the producer by year 10 and conserves money", () => {
+    conserved(buyInRun);
+    expect(buyInRun.summary.accountBalancesCents.publicFund).toBe(0);
+    expect(buyInRun.transition.finalPublicShare).toBeGreaterThan(0.45);
+    expect(buyInRun.transition.finalPublicShare).toBeLessThan(0.55);
   });
 });
