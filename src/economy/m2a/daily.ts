@@ -4,7 +4,6 @@ import { distributePoolByPolicy } from "./distribute.js";
 import { basketPriceIndex, industryPricesCents } from "./prices.js";
 import type { DividendPolicy } from "./policy.js";
 import {
-  FIRM_PAYROLL_FLOAT_DAYS,
   LANDLORD_ACCOUNT,
   PRODUCER_ACCOUNT,
   TREASURY_ACCOUNT,
