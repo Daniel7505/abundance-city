@@ -27,9 +27,8 @@ function pctChange(from: number, to: number): string {
 
 console.log("## (1) Policy-tie probe at a=1 (workOptionalShare)\n");
 console.log(
-  "Mix, CapitalShare, and TaxAndDividend share the same 7d workOptionalShare because transfer-policy differences",
-  "mostly move households within the same above/below-needs band (see deciles), not across the threshold.",
-  "EqualDividend pushes more mass above 1.0 in upper deciles.\n",
+  "After task-level automatability, transfer policies can change workOptionalShare (CapitalShare below Mix/Tax).",
+  "EqualDividend still lifts the most households above the needs threshold.\n",
 );
 console.log("| policy | workOpt 7d | workOpt 30d | workOpt 90d |");
 console.log("|--------|----------:|------------:|------------:|");
