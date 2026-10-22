@@ -2,7 +2,11 @@ import { describe, expect, it } from "vitest";
 import { runM2aSimulation } from "../src/sim/m2a/engine.js";
 import { buildM2aWorld } from "../src/sim/m2a/worldgen.js";
 import type { DailyMetricLine } from "../src/sim/m2a/metrics.js";
-import { calibrationSnapshot, targetMedianIncomeUsd } from "../src/sim/m2a/calibration.js";
+import {
+  calibrationSnapshot,
+  targetGini,
+  targetMedianIncomeUsd,
+} from "../src/sim/m2a/calibration.js";
 
 function parseRun(days: number) {
   const { dailyMetrics, summary } = runM2aSimulation({
@@ -34,8 +38,9 @@ describe("M2a a=0 one-year steady state", () => {
       const wages = line.byIndustry.reduce((s, r) => s + r.wages, 0);
       expect(wages).toBe(line.payrollCents);
     }
-    expect(last.gini).toBeGreaterThanOrEqual(0.34);
-    expect(last.gini).toBeLessThanOrEqual(0.39);
+    expect(Math.abs(last.giniFactor - targetGini())).toBeLessThanOrEqual(0.05);
+    expect(last.giniDisposable).toBeGreaterThan(0);
+    expect(Math.abs(last.giniDisposable - targetGini())).toBeLessThanOrEqual(0.05);
 
     const acsMedian = calibrationSnapshot(buildM2aWorld(42)).medianHouseholdIncomeUsd;
     const target = targetMedianIncomeUsd();

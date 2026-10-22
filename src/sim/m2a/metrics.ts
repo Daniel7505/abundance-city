@@ -7,7 +7,10 @@ export interface DailyMetricLine {
   day: number;
   tick: number;
   workOptionalShare: number;
+  /** @deprecated Use giniFactor or giniDisposable */
   gini: number;
+  giniFactor: number;
+  giniDisposable: number;
   medianAnnualizedHouseholdIncomeUsd: number;
   firmBalancesCents?: number[];
   agentCashCentsTotal?: number;
@@ -47,12 +50,13 @@ export interface DailyMetricLine {
 }
 
 interface TrailingHouseholdWindow {
-  days: Array<{ nonWage: number; needs: number; inflow: number }>;
+  days: Array<{ nonWageDisposable: number; needs: number }>;
 }
 
 interface TrailingIncomeWindow {
-  dailyFactorInflowCents: number[];
-  dailyTotalInflowCents: number[];
+  dailyWageOwnershipCents: number[];
+  dailyMedianIncomeCents: number[];
+  dailyDisposableCents: number[];
 }
 
 export function giniCoefficient(values: number[]): number {
@@ -68,46 +72,59 @@ export function giniCoefficient(values: number[]): number {
   return weighted / (n * sum);
 }
 
+function trailingMean(values: number[]): number {
+  if (values.length === 0) return 0;
+  return values.reduce((s, v) => s + v, 0) / values.length;
+}
+
 export class M2aMetricsCollector {
   private householdWindows = new Map<number, TrailingHouseholdWindow>();
   private incomeWindows = new Map<number, TrailingIncomeWindow>();
   private readonly m2bEnabled: boolean;
-  private readonly abundance: number;
 
-  constructor(options: { m2bEnabled?: boolean; abundance?: number } = {}) {
+  constructor(options: { m2bEnabled?: boolean } = {}) {
     this.m2bEnabled = options.m2bEnabled ?? false;
-    this.abundance = options.abundance ?? 0;
   }
 
   record(settlement: DailySettlementResult, world: M2aWorld): DailyMetricLine {
     const trailingOptional = m2aEconomy.trailingDaysForWorkOptional;
     const trailingGini = m2aEconomy.trailingDaysForGini;
-
     const priceIndexBase = world.referenceBasketPriceIndex;
 
     for (const hh of world.households) {
+      const wageOwnership =
+        settlement.householdWageOwnershipInflowCents.get(hh.id) ?? 0;
+      const disposable = settlement.householdDisposableInflowCents.get(hh.id) ?? 0;
+      const wages = settlement.householdWageInflowCents.get(hh.id) ?? 0;
+      const policy = settlement.householdPolicyInflowCents.get(hh.id) ?? 0;
+      const needs = settlement.householdNeedsCents.get(hh.id) ?? 0;
+      const nonWageDisposable = disposable - wages;
+
       let window = this.householdWindows.get(hh.id);
       if (!window) {
         window = { days: [] };
         this.householdWindows.set(hh.id, window);
       }
-      const nonWage = settlement.householdNonWageIncomeCents.get(hh.id) ?? 0;
-      const needs = settlement.householdNeedsCents.get(hh.id) ?? 0;
-      const inflow = settlement.householdCashInflowCents.get(hh.id) ?? 0;
-      window.days.push({ nonWage, needs, inflow });
+      window.days.push({ nonWageDisposable, needs });
       if (window.days.length > trailingOptional) window.days.shift();
 
-      const policy = settlement.householdPolicyInflowCents.get(hh.id) ?? 0;
       let incomeWindow = this.incomeWindows.get(hh.id);
       if (!incomeWindow) {
-        incomeWindow = { dailyFactorInflowCents: [], dailyTotalInflowCents: [] };
+        incomeWindow = {
+          dailyWageOwnershipCents: [],
+          dailyMedianIncomeCents: [],
+          dailyDisposableCents: [],
+        };
         this.incomeWindows.set(hh.id, incomeWindow);
       }
-      incomeWindow.dailyFactorInflowCents.push(inflow);
-      incomeWindow.dailyTotalInflowCents.push(inflow + policy);
-      if (incomeWindow.dailyFactorInflowCents.length > trailingGini) {
-        incomeWindow.dailyFactorInflowCents.shift();
-        incomeWindow.dailyTotalInflowCents.shift();
+      const medianIncomeDaily = disposable - policy;
+      incomeWindow.dailyWageOwnershipCents.push(wageOwnership);
+      incomeWindow.dailyMedianIncomeCents.push(medianIncomeDaily);
+      incomeWindow.dailyDisposableCents.push(disposable);
+      if (incomeWindow.dailyWageOwnershipCents.length > trailingGini) {
+        incomeWindow.dailyWageOwnershipCents.shift();
+        incomeWindow.dailyMedianIncomeCents.shift();
+        incomeWindow.dailyDisposableCents.shift();
       }
     }
 
@@ -119,28 +136,25 @@ export class M2aMetricsCollector {
           const a = world.agents[id];
           return a.laborStatus === "employed" && !a.demandSlotEmployment;
         });
-      const window = this.householdWindows.get(hh.id)!;
-      const sumNonWage = window.days.reduce((s, d) => s + d.nonWage, 0);
-      const sumNeeds = window.days.reduce((s, d) => s + d.needs, 0);
       if (hasAutomationEmployment) continue;
-      const sumInflow = window.days.reduce((s, d) => s + d.inflow, 0);
-      const workOptional =
-        sumNonWage >= sumNeeds || (this.m2bEnabled && sumInflow >= sumNeeds);
-      if (workOptional) optionalHouseholds += 1;
+      const window = this.householdWindows.get(hh.id)!;
+      const sumNonWageDisposable = window.days.reduce((s, d) => s + d.nonWageDisposable, 0);
+      const sumNeeds = window.days.reduce((s, d) => s + d.needs, 0);
+      if (sumNonWageDisposable >= sumNeeds) optionalHouseholds += 1;
     }
     const workOptionalShare = optionalHouseholds / world.households.length;
 
+    const annualizedFactorUsd: number[] = [];
+    const annualizedDisposableUsd: number[] = [];
     const annualizedHouseholdIncomeUsd: number[] = [];
-    const annualizedForGiniUsd: number[] = [];
     for (const hh of world.households) {
       const incomeWindow = this.incomeWindows.get(hh.id)!;
-      const days = incomeWindow.dailyFactorInflowCents.length;
-      const factorSum = incomeWindow.dailyFactorInflowCents.reduce((s, v) => s + v, 0);
-      const totalSum = incomeWindow.dailyTotalInflowCents.reduce((s, v) => s + v, 0);
-      const meanFactor = days > 0 ? factorSum / days : 0;
-      const meanTotal = days > 0 ? totalSum / days : 0;
-      annualizedHouseholdIncomeUsd.push((meanFactor / 100) * 365);
-      annualizedForGiniUsd.push((meanTotal / 100) * 365);
+      const meanWageOwnership = trailingMean(incomeWindow.dailyWageOwnershipCents);
+      const meanMedianIncome = trailingMean(incomeWindow.dailyMedianIncomeCents);
+      const meanDisposable = trailingMean(incomeWindow.dailyDisposableCents);
+      annualizedFactorUsd.push((meanWageOwnership / 100) * 365);
+      annualizedDisposableUsd.push((meanDisposable / 100) * 365);
+      annualizedHouseholdIncomeUsd.push((meanMedianIncome / 100) * 365);
     }
     const sortedAnnual = [...annualizedHouseholdIncomeUsd].sort((a, b) => a - b);
     const mid = Math.floor(sortedAnnual.length / 2);
@@ -150,6 +164,9 @@ export class M2aMetricsCollector {
         : sortedAnnual.length % 2 === 0
           ? (sortedAnnual[mid - 1] + sortedAnnual[mid]) / 2
           : sortedAnnual[mid];
+
+    const giniFactor = giniCoefficient(annualizedFactorUsd);
+    const giniDisposable = giniCoefficient(annualizedDisposableUsd);
 
     const jobs = settlement.byIndustry.reduce((s, row) => s + row.jobs, 0);
     const avgNeeds =
@@ -162,9 +179,9 @@ export class M2aMetricsCollector {
       day: settlement.day,
       tick: settlement.tick,
       workOptionalShare,
-      gini: giniCoefficient(
-        this.abundance > 0 ? annualizedForGiniUsd : annualizedHouseholdIncomeUsd,
-      ),
+      gini: giniFactor,
+      giniFactor,
+      giniDisposable,
       medianAnnualizedHouseholdIncomeUsd,
       unmetNeed: settlement.unmetNeedCents,
       shortHouseholds: settlement.shortHouseholds,

@@ -4,11 +4,11 @@ import { runM2aSimulation } from "../src/sim/m2a/engine.js";
 
 /** Full blob (daily + summary) when m2b is off; summary includes m2bEnabled metadata. */
 const M2A_MIX_FULL_HASH_M2B_OFF =
-  "ffe007d81c8690a6ada4775eb793a0d94945758eca20b019d44900decbaf90eb";
+  "e102ad77d6d4ca19a2d9ffa95a278be02d99de0b3007947cb004066454861bb7";
 
 /** Daily metric lines with discretionary spend, ACS wages, and normalized price index. */
 const M2A_MIX_DAILY_HASH =
-  "9c2d9cd040db53a293e66001dda35f21ebd351060d52c1ad470bdd4dba49e970";
+  "3f02480491247ad9166d0228d6453276c69852fc5ebf6cc93d43f1912b2d5591";
 
 function m2aBlob(m2bEnabled: boolean): string {
   const { dailyMetrics, summary } = runM2aSimulation({

@@ -44,7 +44,11 @@ export interface DailySettlementResult {
   byIndustry: IndustryDayStats[];
   householdNonWageIncomeCents: Map<number, number>;
   householdNeedsCents: Map<number, number>;
-  householdCashInflowCents: Map<number, number>;
+  householdWageInflowCents: Map<number, number>;
+  /** Wages plus ownership dividends (ACS factor-income Gini). */
+  householdWageOwnershipInflowCents: Map<number, number>;
+  /** All cash inflows: wages, ownership, SS/UI, and policy transfers. */
+  householdDisposableInflowCents: Map<number, number>;
   householdPolicyInflowCents: Map<number, number>;
   wagePaidByAgent: Map<number, number>;
   wageSubsidyCents: number;
@@ -183,7 +187,9 @@ export function settleM2aDay(
   let goodsUnitsPurchased = 0;
   const householdNonWageIncome = new Map<number, number>();
   const householdNeeds = new Map<number, number>();
-  const householdCashInflow = new Map<number, number>();
+  const householdWageInflow = new Map<number, number>();
+  const householdWageOwnershipInflow = new Map<number, number>();
+  const householdDisposableInflow = new Map<number, number>();
   const householdPolicyInflow = new Map<number, number>();
   const wagePaidByAgent = new Map<number, number>();
   const agentOwnershipDividends = new Map<number, number>();
@@ -278,15 +284,12 @@ export function settleM2aDay(
     if (hasEmployed && hhPaid < needs.requiredTotal) shortHouseholds += 1;
   }
 
-  const ownershipPolicy: DividendPolicy =
-    policy.kind === "TaxAndDividend" ? policy : { kind: "CapitalShare" };
-
   const firmPayroll = settleFirmPayroll(
     ledger,
     world,
     abundance,
     firmRevenue,
-    ownershipPolicy,
+    policy,
     wagePaidByAgent,
     agentOwnershipDividends,
   );
@@ -401,7 +404,9 @@ export function settleM2aDay(
   }
 
   for (const hh of world.households) {
-    let factorInflow = 0;
+    let wageInflow = 0;
+    let wageOwnershipInflow = 0;
+    let disposableInflow = 0;
     let policyInflow = 0;
     let nonWage = 0;
     for (const agentId of hh.agentIds) {
@@ -409,14 +414,21 @@ export function settleM2aDay(
       const ss = ssPaidByAgent.get(agentId) ?? 0;
       const ownership = agentOwnershipDividends.get(agentId) ?? 0;
       const policy = agentPolicyDividends.get(agentId) ?? 0;
-      factorInflow += wage + ss + ownership;
+      wageInflow += wage;
+      wageOwnershipInflow += wage + ownership;
+      disposableInflow += wage + ss + ownership + policy;
       policyInflow += policy;
-      nonWage += ss + ownership;
+      nonWage += ss + ownership + policy;
     }
-    householdCashInflow.set(hh.id, factorInflow);
+    householdWageInflow.set(hh.id, wageInflow);
+    householdWageOwnershipInflow.set(hh.id, wageOwnershipInflow);
+    householdDisposableInflow.set(hh.id, disposableInflow);
     householdPolicyInflow.set(hh.id, policyInflow);
     householdNonWageIncome.set(hh.id, nonWage);
-    consumptionState.recordDay(hh.id, factorInflow);
+    consumptionState.recordDay(
+      hh.id,
+      disposableInflow - policyInflow,
+    );
   }
 
   return {
@@ -433,7 +445,9 @@ export function settleM2aDay(
     byIndustry,
     householdNonWageIncomeCents: householdNonWageIncome,
     householdNeedsCents: householdNeeds,
-    householdCashInflowCents: householdCashInflow,
+    householdWageInflowCents: householdWageInflow,
+    householdWageOwnershipInflowCents: householdWageOwnershipInflow,
+    householdDisposableInflowCents: householdDisposableInflow,
     householdPolicyInflowCents: householdPolicyInflow,
     wagePaidByAgent,
     wageSubsidyCents,

@@ -106,10 +106,7 @@ export function runM2aSimulation(options: M2aSimOptions): M2aSimResult {
 
   const dailyMetrics: string[] = [];
   const consumptionState = new HouseholdConsumptionState(world);
-  const collector = new M2aMetricsCollector({
-    m2bEnabled,
-    abundance: options.abundance,
-  });
+  const collector = new M2aMetricsCollector({ m2bEnabled });
   let finalDayMetrics: DailyMetricLine | null = null;
   const totalTicks = options.days * m2aEconomy.ticksPerDay;
 

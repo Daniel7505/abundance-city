@@ -18,22 +18,30 @@ function lastLine(days: number, abundance: number, policyName: string): DailyMet
 }
 
 console.log("## 365d Mix sweep (seed 42, M2b on)\n");
-console.log("| a | workOpt | Gini | employed | hours | wageGap | priceIndex |");
-console.log("|---|--------:|-----:|---------:|------:|--------:|-----------:|");
+console.log(
+  "| a | workOpt | giniFactor | giniDisposable | employed | hours | wageGap | priceIndex |",
+);
+console.log(
+  "|---|--------:|-----------:|---------------:|---------:|------:|--------:|-----------:|",
+);
 for (let a = 0; a <= 1.0001; a += 0.1) {
   const abundance = Math.round(a * 10) / 10;
   const l = lastLine(365, abundance, "Mix");
   console.log(
-    `| ${abundance.toFixed(1)} | ${l.workOptionalShare.toFixed(4)} | ${l.gini.toFixed(4)} | ${l.employed} | ${l.totalLaborHours.toFixed(1)} | ${l.wageGapCents} | ${Math.round(l.priceIndex)} |`,
+    `| ${abundance.toFixed(1)} | ${l.workOptionalShare.toFixed(4)} | ${l.giniFactor.toFixed(4)} | ${l.giniDisposable.toFixed(4)} | ${l.employed} | ${l.totalLaborHours.toFixed(1)} | ${l.wageGapCents} | ${Math.round(l.priceIndex)} |`,
   );
 }
 
 console.log("\n## 365d policy contrast at a=1 (M2b on)\n");
-console.log("| policy | workOpt | Gini | employed | hours | wageGap | priceIndex |");
-console.log("|--------|--------:|-----:|---------:|------:|--------:|-----------:|");
+console.log(
+  "| policy | workOpt | giniFactor | giniDisposable | employed | hours | wageGap | priceIndex |",
+);
+console.log(
+  "|--------|--------:|-----------:|---------------:|---------:|------:|--------:|-----------:|",
+);
 for (const policy of policies) {
   const l = lastLine(365, 1, policy);
   console.log(
-    `| ${policy} | ${l.workOptionalShare.toFixed(4)} | ${l.gini.toFixed(4)} | ${l.employed} | ${l.totalLaborHours.toFixed(1)} | ${l.wageGapCents} | ${Math.round(l.priceIndex)} |`,
+    `| ${policy} | ${l.workOptionalShare.toFixed(4)} | ${l.giniFactor.toFixed(4)} | ${l.giniDisposable.toFixed(4)} | ${l.employed} | ${l.totalLaborHours.toFixed(1)} | ${l.wageGapCents} | ${Math.round(l.priceIndex)} |`,
   );
 }

@@ -194,7 +194,7 @@ function runDiagnostic(
     basketPriceIndex(world, abundance, industryPricesCents(world, abundance)),
   );
 
-  const collector = new M2aMetricsCollector({ m2bEnabled: true, abundance });
+  const collector = new M2aMetricsCollector({ m2bEnabled: true });
   const consumptionState = new HouseholdConsumptionState(world);
   const records: DayRecord[] = [];
   let transferCursor = 0;

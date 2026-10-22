@@ -13,11 +13,11 @@ describe("M2a steady-state mechanics", () => {
     const lines = dayMetrics(42, 60, 0);
     const last = lines[lines.length - 1];
     expect(last.employed).toBe(202);
-    expect(last.gini).toBeGreaterThanOrEqual(0.35);
-    expect(last.gini).toBeLessThanOrEqual(0.391);
+    expect(last.giniFactor).toBeGreaterThanOrEqual(0.35);
+    expect(last.giniFactor).toBeLessThanOrEqual(0.391);
     const annualizedMedian =
       lines
-        .map((l) => l.gini)
+        .map((l) => l.giniFactor)
         .slice(-30)
         .reduce((s, g) => s + g, 0) / 30;
     expect(annualizedMedian).toBeGreaterThanOrEqual(0.35);
@@ -65,8 +65,8 @@ describe("M2a policy contrast at a=1 (legacy needs)", () => {
     const equal = finalMetrics(60, 1, "EqualDividend", false);
     const tax = finalMetrics(60, 1, "TaxAndDividend", false);
     const capital = finalMetrics(60, 1, "CapitalShare", false);
-    expect(equal.gini).toBeLessThan(capital.gini);
-    expect(tax.gini).toBeLessThan(capital.gini);
+    expect(equal.giniDisposable).toBeLessThan(capital.giniDisposable);
+    expect(tax.giniDisposable).toBeLessThan(capital.giniDisposable);
   });
 });
 
@@ -74,14 +74,14 @@ describe("M2b policy contrast at a=1 (quantity needs)", () => {
   it("CapitalShare Gini exceeds EqualDividend after trailing window (365d)", () => {
     const equal = finalMetrics(365, 1, "EqualDividend", true);
     const capital = finalMetrics(365, 1, "CapitalShare", true);
-    expect(capital.gini).toBeGreaterThan(equal.gini);
+    expect(capital.giniDisposable).toBeGreaterThan(equal.giniDisposable);
   });
 
   it("TaxAndDividend is more equalizing than EqualDividend; CapitalShare exceeds Equal (365d)", () => {
     const equal = finalMetrics(365, 1, "EqualDividend", true);
     const tax = finalMetrics(365, 1, "TaxAndDividend", true);
     const capital = finalMetrics(365, 1, "CapitalShare", true);
-    expect(capital.gini).toBeGreaterThan(equal.gini);
-    expect(tax.gini).toBeLessThan(capital.gini);
+    expect(capital.giniDisposable).toBeGreaterThan(equal.giniDisposable);
+    expect(tax.giniDisposable).toBeLessThan(capital.giniDisposable);
   });
 });
