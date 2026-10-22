@@ -63,7 +63,7 @@ export function createM2aInitialBalances(world: M2aWorld): Map<AccountId, number
 
   for (const hh of world.households) {
     const perAgent = Math.ceil(
-      (householdDailyNeedsCents(hh).requiredTotal * 14) / hh.size,
+      (householdDailyNeedsCents(hh).requiredTotal * 30) / hh.size,
     );
     for (const id of hh.agentIds) {
       balances.set(agentAccount(id), perAgent);
@@ -71,7 +71,7 @@ export function createM2aInitialBalances(world: M2aWorld): Map<AccountId, number
   }
 
   for (let ind = 0; ind < firmCount; ind++) {
-    balances.set(firmAccount(ind), payrollByFirm[ind] * 400 + 50_000);
+    balances.set(firmAccount(ind), payrollByFirm[ind] * 45 + 50_000);
   }
 
   balances.set(PRODUCER_ACCOUNT, 100_000);

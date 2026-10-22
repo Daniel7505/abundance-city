@@ -4,11 +4,11 @@ import { runM2aSimulation } from "../src/sim/m2a/engine.js";
 
 /** Full blob (daily + summary) when m2b is off; summary includes m2bEnabled metadata. */
 const M2A_MIX_FULL_HASH_M2B_OFF =
-  "afbb7445d11935f19d8182a2e545da548f8f411d16dad745a22f5a6a68e5fc33";
+  "c864e0a13ee9f8836363242c4049f91bc4bd9e07b04f13ae44645a032ab65b16";
 
-/** Daily metric lines with M2a closed-loop settlement (landlord sweep, firm float). */
+/** Daily metric lines with M2a closed-loop settlement (payroll-scaled wages, firm rebalance). */
 const M2A_MIX_DAILY_HASH =
-  "339e162f2c5fa511085d847265734409a94ebb05b2ea9689a243f6856cf64e01";
+  "98fff55faf7229632db213ed810f2d2cf8bf9111cb48ed0e2a2d0fd70b74376c";
 
 function m2aBlob(m2bEnabled: boolean): string {
   const { dailyMetrics, summary } = runM2aSimulation({

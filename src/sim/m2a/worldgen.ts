@@ -12,6 +12,7 @@ import {
 import { readNumber } from "../../town/sourced.js";
 import { SeededPrng } from "../prng.js";
 import { assignHouseholdCapitalShares } from "../../economy/m2a/ownership.js";
+import { assignDailyWagesFromConsumption } from "../../economy/m2a/wages.js";
 import { needsPriceContext } from "./needs-prices.js";
 import { deriveHouseholdNeedsQuantities } from "./needs-quantities.js";
 import type { AgentState, BaselineEmploymentSlot, Household, M2aWorld } from "./types.js";
@@ -157,20 +158,6 @@ export function buildM2aWorld(seed: number): M2aWorld {
     agents[id].laborStatus = "unemployed";
   }
 
-  for (const hh of households) {
-    const earners = hh.agentIds.filter((id) => agents[id].laborStatus === "employed").length;
-    const dailyWageCents = Math.floor(
-      (hh.incomeAnnualUsd * 100 * m2aEconomy.householdLaborIncomeShare) /
-        365 /
-        Math.max(1, earners),
-    );
-    for (const id of hh.agentIds) {
-      if (agents[id].laborStatus === "employed") {
-        agents[id].dailyWageCents = dailyWageCents;
-      }
-    }
-  }
-
   const baselineEmployment: BaselineEmploymentSlot[] = [];
   const baselineUnemployed: number[] = [];
   const baselineNotInLaborForce: number[] = [];
@@ -202,6 +189,8 @@ export function buildM2aWorld(seed: number): M2aWorld {
   for (const hh of households) {
     hh.needsQuantity = deriveHouseholdNeedsQuantities(hh, refPrices);
   }
+
+  assignDailyWagesFromConsumption(worldDraft);
 
   return worldDraft;
 }

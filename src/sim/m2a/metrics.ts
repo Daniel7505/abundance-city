@@ -9,6 +9,9 @@ export interface DailyMetricLine {
   workOptionalShare: number;
   gini: number;
   medianAnnualizedHouseholdIncomeUsd: number;
+  firmBalancesCents?: number[];
+  agentCashCentsTotal?: number;
+  firmRevenueCentsTotal?: number;
   unmetNeed: number;
   shortHouseholds: number;
   byIndustry: IndustryDayStats[];
@@ -99,20 +102,20 @@ export class M2aMetricsCollector {
 
     let optionalHouseholds = 0;
     for (const hh of world.households) {
-      const hasAutomationEmployment = hh.agentIds.some((id) => {
-        const a = world.agents[id];
-        return a.laborStatus === "employed" && !a.demandSlotEmployment;
-      });
+      const hasAutomationEmployment =
+        this.m2bEnabled &&
+        hh.agentIds.some((id) => {
+          const a = world.agents[id];
+          return a.laborStatus === "employed" && !a.demandSlotEmployment;
+        });
       const window = this.householdWindows.get(hh.id)!;
       const sumNonWage = window.days.reduce((s, d) => s + d.nonWage, 0);
       const sumNeeds = window.days.reduce((s, d) => s + d.needs, 0);
       if (hasAutomationEmployment) continue;
       const sumInflow = window.days.reduce((s, d) => s + d.inflow, 0);
-      if (this.m2bEnabled) {
-        if (sumInflow >= sumNeeds || sumNonWage >= sumNeeds) optionalHouseholds += 1;
-      } else if (sumNonWage >= sumNeeds) {
-        optionalHouseholds += 1;
-      }
+      const workOptional =
+        sumNonWage >= sumNeeds || (this.m2bEnabled && sumInflow >= sumNeeds);
+      if (workOptional) optionalHouseholds += 1;
     }
     const workOptionalShare = optionalHouseholds / world.households.length;
 
@@ -162,6 +165,9 @@ export class M2aMetricsCollector {
       payrollCents: settlement.payrollCents,
       totalLaborHours: settlement.totalLaborHours,
       ownershipDistributedCents: settlement.ownershipDistributedCents,
+      firmBalancesCents: settlement.firmBalancesCents,
+      agentCashCentsTotal: settlement.agentCashCentsTotal,
+      firmRevenueCentsTotal: settlement.firmRevenueCentsTotal,
     };
     if (this.m2bEnabled) {
       line.queued = settlement.queued;

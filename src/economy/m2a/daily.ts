@@ -53,6 +53,9 @@ export interface DailySettlementResult {
   queueHiresToday: number;
   separationsToday: number;
   laborPartition: ReturnType<typeof laborPartitionCounts> | null;
+  firmBalancesCents: number[];
+  agentCashCentsTotal: number;
+  firmRevenueCentsTotal: number;
 }
 
 export interface SettleM2aDayOptions {
@@ -81,17 +84,33 @@ interface PurchaseRevenue {
   producer: number;
 }
 
+function allocateByWeight(total: number, weights: number[]): number[] {
+  if (total <= 0) return weights.map(() => 0);
+  const wsum = weights.reduce((s, n) => s + n, 0);
+  if (wsum <= 0) return weights.map(() => 0);
+  const raw = weights.map((w) => (total * w) / wsum);
+  const floors = raw.map((r) => Math.floor(r));
+  let remainder = total - floors.reduce((s, v) => s + v, 0);
+  const order = weights
+    .map((w, i) => ({ i, frac: raw[i] - floors[i] }))
+    .sort((a, b) => b.frac - a.frac);
+  for (let k = 0; k < remainder; k++) {
+    floors[order[k % order.length].i] += 1;
+  }
+  return floors;
+}
+
 function routePurchase(
   ledger: Ledger,
   agentId: number,
   amount: number,
-  jobsByIndustry: number[],
+  payrollByIndustry: number[],
   industryCount: number,
   autoShare: number,
   reason: string,
   revenue?: PurchaseRevenue,
 ): number {
-  const totalJobs = jobsByIndustry.reduce((s, n) => s + n, 0) || 1;
+  const totalPayroll = payrollByIndustry.reduce((s, n) => s + n, 0) || 1;
   let remaining = amount;
   let paid = 0;
   const toAuto = Math.round(amount * autoShare);
@@ -107,13 +126,13 @@ function routePurchase(
     paid += slice;
     remaining -= slice;
   }
-  let humanLeft = toHuman;
-  for (let ind = 0; ind < industryCount && humanLeft > 0; ind++) {
-    const share = Math.ceil((humanLeft * jobsByIndustry[ind]) / totalJobs);
+  const firmShares = allocateByWeight(toHuman, payrollByIndustry);
+  for (let ind = 0; ind < industryCount; ind++) {
+    const share = firmShares[ind];
+    if (share <= 0) continue;
     const slice = ledger.transferUpTo(agentAccount(agentId), firmAccount(ind), share, reason);
     if (revenue) revenue.firm[ind] += slice;
     paid += slice;
-    humanLeft -= slice;
     remaining -= slice;
   }
   return paid;
@@ -134,9 +153,11 @@ export function settleM2aDay(
   const prices = industryPricesCents(world, abundance);
   const autoShare = automatedLaborShare(abundance);
   const jobsByIndustry = Array.from({ length: industryCount }, () => 0);
+  const payrollByIndustry = Array.from({ length: industryCount }, () => 0);
   for (const a of world.agents) {
     if (a.laborStatus === "employed" && a.industryIndex !== null) {
       jobsByIndustry[a.industryIndex] += 1;
+      payrollByIndustry[a.industryIndex] += a.dailyWageCents;
     }
   }
   const byIndustry: IndustryDayStats[] = jobsByIndustry.map((jobs) => ({
@@ -157,7 +178,6 @@ export function settleM2aDay(
   let payrollCents = 0;
   const firmRevenue = Array.from({ length: industryCount }, () => 0);
   const purchaseRevenue: PurchaseRevenue = { firm: firmRevenue, producer: 0 };
-  let landlordRevenue = 0;
 
   const needsPrices = useQuantityNeeds ? needsPriceContext(world, abundance) : null;
 
@@ -168,11 +188,18 @@ export function settleM2aDay(
     householdNeeds.set(hh.id, needs.requiredTotal);
     let hhPaid = 0;
 
-    const housingPaid = payFromHousehold(ledger, hh, needs.housing, (agentId, max) => {
-      const paid = ledger.transferUpTo(agentAccount(agentId), LANDLORD_ACCOUNT, max, "housing");
-      landlordRevenue += paid;
-      return paid;
-    });
+    const housingPaid = payFromHousehold(ledger, hh, needs.housing, (agentId, max) =>
+      routePurchase(
+        ledger,
+        agentId,
+        max,
+        payrollByIndustry,
+        industryCount,
+        autoShare,
+        "housing_purchase",
+        purchaseRevenue,
+      ),
+    );
     hhPaid += housingPaid;
     if (housingPaid < needs.housing) unmetNeedCents += needs.housing - housingPaid;
 
@@ -181,7 +208,7 @@ export function settleM2aDay(
         ledger,
         agentId,
         max,
-        jobsByIndustry,
+        payrollByIndustry,
         industryCount,
         autoShare,
         "food_purchase",
@@ -196,7 +223,7 @@ export function settleM2aDay(
         ledger,
         agentId,
         max,
-        jobsByIndustry,
+        payrollByIndustry,
         industryCount,
         autoShare,
         "electricity_purchase",
@@ -215,6 +242,23 @@ export function settleM2aDay(
     if (hasEmployed && hhPaid < needs.requiredTotal) shortHouseholds += 1;
   }
 
+  for (let ind = 0; ind < industryCount; ind++) {
+    const balance = ledger.getBalance(firmAccount(ind));
+    const payrollNeed = payrollByIndustry[ind];
+    const excess = balance - payrollNeed;
+    if (excess > 0) {
+      ledger.transfer(firmAccount(ind), TREASURY_ACCOUNT, excess, "firm_payroll_rebalance");
+    }
+  }
+  for (let ind = 0; ind < industryCount; ind++) {
+    const balance = ledger.getBalance(firmAccount(ind));
+    const payrollNeed = payrollByIndustry[ind];
+    const shortfall = payrollNeed - balance;
+    if (shortfall > 0) {
+      ledger.transferUpTo(TREASURY_ACCOUNT, firmAccount(ind), shortfall, "firm_payroll_rebalance");
+    }
+  }
+
   for (const a of world.agents) {
     if (a.laborStatus === "employed" && a.industryIndex !== null) {
       const firm = firmAccount(a.industryIndex);
@@ -229,6 +273,71 @@ export function settleM2aDay(
         ledger.transferUpTo(agentAccount(a.id), TREASURY_ACCOUNT, tax, "payroll_tax");
       }
     }
+  }
+
+  let ownershipDistributedCents = 0;
+  let policyDistributedCents = 0;
+
+  const ownershipPolicy: DividendPolicy =
+    policy.kind === "TaxAndDividend" ? policy : { kind: "CapitalShare" };
+
+  const markup = m2aEconomy.firmMarkup;
+  const profitFromRevenue = (revenue: number, balance: number): number => {
+    if (revenue <= 0 || markup <= 0) return 0;
+    return Math.min(balance, Math.floor(revenue * markup));
+  };
+
+  for (let ind = 0; ind < industryCount; ind++) {
+    const from = firmAccount(ind);
+    const firmReserve = payrollByIndustry[ind] * 45 + 50_000;
+    const firmBalance = ledger.getBalance(from);
+    const profit = Math.min(
+      profitFromRevenue(firmRevenue[ind], firmBalance),
+      Math.max(0, firmBalance - firmReserve),
+    );
+    if (profit > 0) {
+      const moved = distributePoolByPolicy(
+        ledger,
+        from,
+        profit,
+        ownershipPolicy,
+        world.households,
+        world.capitalShare,
+        world.agents.length,
+        "ownership_income",
+        agentDividends,
+      );
+      ownershipDistributedCents += moved;
+    }
+  }
+
+  const landlordResidual = ledger.getBalance(LANDLORD_ACCOUNT);
+  if (landlordResidual > 0) {
+    ledger.transfer(
+      LANDLORD_ACCOUNT,
+      TREASURY_ACCOUNT,
+      landlordResidual,
+      "landlord_operating_surplus_sweep",
+    );
+  }
+
+  const producerProfit = profitFromRevenue(
+    purchaseRevenue.producer,
+    ledger.getBalance(PRODUCER_ACCOUNT),
+  );
+  if (producerProfit > 0) {
+    const moved = distributePoolByPolicy(
+      ledger,
+      PRODUCER_ACCOUNT,
+      producerProfit,
+      policy,
+      world.households,
+      world.capitalShare,
+      world.agents.length,
+      "automated_producer_dividend",
+      agentDividends,
+    );
+    policyDistributedCents += moved;
   }
 
   const ssPaidByAgent = new Map<number, number>();
@@ -262,80 +371,6 @@ export function settleM2aDay(
       "unemployment_insurance",
     );
     ssPaidByAgent.set(a.id, (ssPaidByAgent.get(a.id) ?? 0) + paid);
-  }
-
-  let ownershipDistributedCents = 0;
-  let policyDistributedCents = 0;
-
-  const ownershipPolicy: DividendPolicy =
-    policy.kind === "TaxAndDividend" ? policy : { kind: "CapitalShare" };
-
-  const markup = m2aEconomy.firmMarkup;
-  const profitFromRevenue = (revenue: number, balance: number): number => {
-    if (revenue <= 0 || markup <= 0) return 0;
-    return Math.min(balance, Math.floor(revenue * markup));
-  };
-
-  for (let ind = 0; ind < industryCount; ind++) {
-    const from = firmAccount(ind);
-    const profit = profitFromRevenue(firmRevenue[ind], ledger.getBalance(from));
-    if (profit <= 0) continue;
-    const moved = distributePoolByPolicy(
-      ledger,
-      from,
-      profit,
-      ownershipPolicy,
-      world.households,
-      world.capitalShare,
-      world.agents.length,
-      "ownership_income",
-      agentDividends,
-    );
-    ownershipDistributedCents += moved;
-  }
-
-  const landlordProfit = profitFromRevenue(landlordRevenue, ledger.getBalance(LANDLORD_ACCOUNT));
-  if (landlordProfit > 0) {
-    const moved = distributePoolByPolicy(
-      ledger,
-      LANDLORD_ACCOUNT,
-      landlordProfit,
-      ownershipPolicy,
-      world.households,
-      world.capitalShare,
-      world.agents.length,
-      "ownership_income",
-      agentDividends,
-    );
-    ownershipDistributedCents += moved;
-  }
-  const landlordResidual = ledger.getBalance(LANDLORD_ACCOUNT);
-  if (landlordResidual > 0) {
-    ledger.transfer(
-      LANDLORD_ACCOUNT,
-      TREASURY_ACCOUNT,
-      landlordResidual,
-      "landlord_operating_surplus_sweep",
-    );
-  }
-
-  const producerProfit = profitFromRevenue(
-    purchaseRevenue.producer,
-    ledger.getBalance(PRODUCER_ACCOUNT),
-  );
-  if (producerProfit > 0) {
-    const moved = distributePoolByPolicy(
-      ledger,
-      PRODUCER_ACCOUNT,
-      producerProfit,
-      policy,
-      world.households,
-      world.capitalShare,
-      world.agents.length,
-      "automated_producer_dividend",
-      agentDividends,
-    );
-    policyDistributedCents += moved;
   }
 
   const treasuryPool = ledger.getBalance(TREASURY_ACCOUNT);
@@ -395,5 +430,13 @@ export function settleM2aDay(
     queueHiresToday: world.m2b?.hiresToday ?? 0,
     separationsToday: world.m2b?.separationsToday ?? 0,
     laborPartition: world.m2b ? laborPartitionCounts(world) : null,
+    firmBalancesCents: Array.from({ length: industryCount }, (_, ind) =>
+      ledger.getBalance(firmAccount(ind)),
+    ),
+    agentCashCentsTotal: world.agents.reduce(
+      (s, a) => s + ledger.getBalance(agentAccount(a.id)),
+      0,
+    ),
+    firmRevenueCentsTotal: firmRevenue.reduce((s, n) => s + n, 0),
   };
 }
