@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { runM2aSimulation } from "../src/sim/m2a/engine.js";
-import { buildM2aWorld } from "../src/sim/m2a/worldgen.js";
-import type { DailyMetricLine } from "../src/sim/m2a/metrics.js";
+import { runM2aSimulation } from "../../src/sim/m2a/engine.js";
+import { buildM2aWorld } from "../../src/sim/m2a/worldgen.js";
+import type { DailyMetricLine } from "../../src/sim/m2a/metrics.js";
 import {
   calibrationSnapshot,
   targetGini,
   targetMedianIncomeUsd,
-} from "../src/sim/m2a/calibration.js";
+} from "../../src/sim/m2a/calibration.js";
 
 function parseRun(days: number) {
   const { dailyMetrics, summary } = runM2aSimulation({

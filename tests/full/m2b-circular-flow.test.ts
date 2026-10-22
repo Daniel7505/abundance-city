@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { runM2aSimulation } from "../src/sim/m2a/engine.js";
-import { PRODUCER_WORKING_FLOAT_CENTS } from "../src/economy/m2a/producer-settlement.js";
-import type { DailyMetricLine } from "../src/sim/m2a/metrics.js";
+import { runM2aSimulation } from "../../src/sim/m2a/engine.js";
+import { PRODUCER_WORKING_FLOAT_CENTS } from "../../src/economy/m2a/producer-settlement.js";
+import type { DailyMetricLine } from "../../src/sim/m2a/metrics.js";
 
 function lines(days: number, abundance: number): DailyMetricLine[] {
   const { dailyMetrics } = runM2aSimulation({

@@ -22,6 +22,8 @@ export interface TransferRecord {
 export interface LedgerOptions {
   initialSupplyCents?: number;
   knownAccounts?: ReadonlySet<AccountId>;
+  /** When false, balances still move but the transfer log is not retained. */
+  recordTransfers?: boolean;
 }
 
 function sumBalances(map: Map<AccountId, number>): number {
@@ -35,10 +37,12 @@ export class Ledger {
   readonly initialSupplyCents: number;
   private transfers: TransferRecord[] = [];
   private readonly knownAccounts: ReadonlySet<AccountId> | null;
+  private readonly recordTransfers: boolean;
 
   constructor(initial?: Map<AccountId, number>, options?: LedgerOptions) {
     this.balances = initial ?? createInitialBalances();
     this.knownAccounts = options?.knownAccounts ?? null;
+    this.recordTransfers = options?.recordTransfers ?? true;
     this.initialSupplyCents =
       options?.initialSupplyCents ?? sumBalances(this.balances);
   }
@@ -72,7 +76,7 @@ export class Ledger {
     }
     this.balances.set(from, fromBal - cents);
     this.balances.set(to, (this.balances.get(to) ?? 0) + cents);
-    this.transfers.push({ from, to, cents, reason });
+    if (this.recordTransfers) this.transfers.push({ from, to, cents, reason });
   }
 
   /** Transfer up to `maxCents` without overdraft; returns amount moved. */

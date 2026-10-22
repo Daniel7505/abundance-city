@@ -14,6 +14,7 @@ function parseArgs(argv: string[]): {
   m1: boolean;
   m2a: boolean;
   m2b: boolean;
+  humanPremiumMode: string | undefined;
   outDir: string;
 } {
   let seed = 42;
@@ -25,6 +26,7 @@ function parseArgs(argv: string[]): {
   let m1 = false;
   let m2a = false;
   let m2b = false;
+  let humanPremiumMode: string | undefined;
   let outDir = "logs";
 
   for (let i = 0; i < argv.length; i++) {
@@ -48,11 +50,13 @@ function parseArgs(argv: string[]): {
     } else if (arg === "--m2b") {
       m2b = true;
       m2a = true;
+    } else if (arg === "--human-premium" && argv[i + 1]) {
+      humanPremiumMode = argv[++i];
     } else if (arg === "--out" && argv[i + 1]) {
       outDir = argv[++i];
     } else if (arg === "--help" || arg === "-h") {
       console.log(
-        "Usage: npm run sim -- [--m1|--m2a] [--seed <n>] [--ticks <n>] [--days <n>] [--abundance <0-1>] [--out <dir>]",
+        "Usage: npm run sim -- [--m1|--m2a|--m2b] [--seed <n>] [--ticks <n>] [--days <n>] [--abundance <0-1>] [--policy <name>] [--human-premium fixed|adaptive] [--out <dir>]",
       );
       process.exit(0);
     }
@@ -71,13 +75,21 @@ function parseArgs(argv: string[]): {
     process.exit(1);
   }
 
-  return { seed, ticks, days, abundance, policy, mixWeight, m1, m2a, m2b, outDir };
+  if (
+    humanPremiumMode !== undefined &&
+    humanPremiumMode !== "fixed" &&
+    humanPremiumMode !== "adaptive"
+  ) {
+    console.error("Invalid --human-premium (expected fixed or adaptive)");
+    process.exit(1);
+  }
+
+  return { seed, ticks, days, abundance, policy, mixWeight, m1, m2a, m2b, humanPremiumMode, outDir };
 }
 
 function main(): void {
-  const { seed, ticks, days, abundance, policy, mixWeight, m1, m2a, m2b, outDir } = parseArgs(
-    process.argv.slice(2),
-  );
+  const { seed, ticks, days, abundance, policy, mixWeight, m1, m2a, m2b, humanPremiumMode, outDir } =
+    parseArgs(process.argv.slice(2));
 
   if (m2a) {
     const { dailyMetrics, summary } = runM2aSimulation({
@@ -87,6 +99,7 @@ function main(): void {
       policyName: policy,
       mixWeight,
       m2bEnabled: m2b,
+      humanPremiumMode,
     });
     mkdirSync(outDir, { recursive: true });
     const mode = m2b ? "m2b" : "m2a";

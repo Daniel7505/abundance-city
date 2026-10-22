@@ -26,8 +26,44 @@
     "sourceNote": "Placeholder CES split between automated and human-made goods per industry; higher taste keeps human variant demand when auto is cheap.",
     "substitutionElasticity": 2
   },
+  "humanPremium": {
+    "sourceNote": "Placeholder M2f adaptive human premium. Not curve-fit. fixed keeps humanMadeVarietyTaste constant. adaptive starts from that taste and decays it each day: a trailing relative-cost signal (pHuman-pAuto)/pHuman updates as an EMA with memory humanPremiumTrustInertiaDays, then taste is multiplied by (1 - trailingAdvantage * humanPremiumQualityProof / inertia). Higher inertia slows both the signal and the decay. Health inertia is higher than education. At abundance 0 the human share stays 1 and state does not update.",
+    "defaultMode": "adaptive"
+  },
+  "humanPremiumQualityProof": {
+    "sourceNote": "Placeholder in [0, 1]. Fraction of the trailing relative-cost advantage that counts as evidence the automated variant matches human quality. Health is lower than education. Industries omitted from this map use 0.5.",
+    "educ": 0.8,
+    "mfg": 0.95,
+    "retail": 0.7,
+    "health": 0.4,
+    "prof": 0.55,
+    "arts": 0.5,
+    "constr": 0.75,
+    "ag": 0.9,
+    "fire": 0.6,
+    "other": 0.7,
+    "transp": 0.85,
+    "pubadmin": 0.45,
+    "info": 0.65
+  },
+  "humanPremiumTrustInertiaDays": {
+    "sourceNote": "Placeholder EMA memory in days. Higher trust inertia means slower evidence and slower taste decay. Health (160) is slower than education (40). Industries omitted from this map use 90.",
+    "educ": 40,
+    "mfg": 25,
+    "retail": 50,
+    "health": 160,
+    "prof": 90,
+    "arts": 100,
+    "constr": 45,
+    "ag": 30,
+    "fire": 80,
+    "other": 55,
+    "transp": 35,
+    "pubadmin": 120,
+    "info": 60
+  },
   "humanMadeVarietyTaste": {
-    "sourceNote": "Placeholder human-premium taste by industry (educ/health/care high; mfg/ag low).",
+    "sourceNote": "Placeholder human-premium taste by industry (educ/health/care high; mfg/ag low). Adaptive mode uses these as the day-0 taste.",
     "educ": 2.4,
     "mfg": 0.35,
     "retail": 0.9,

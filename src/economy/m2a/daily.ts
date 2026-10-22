@@ -1,6 +1,12 @@
 import m2aEconomy from "../../../config/m2a-economy.json" with { type: "json" };
 import { distributePoolByPolicy } from "./distribute.js";
-import { humanVariantExpenditureShare } from "./human-variant.js";
+import {
+  createHumanPremiumState,
+  humanVariantSharesForDay,
+  parseHumanPremiumMode,
+  type HumanPremiumMode,
+  type HumanPremiumState,
+} from "./human-variant.js";
 import { settleLandRentPolicy, type LandPolicy } from "./land-policy.js";
 import { basketPriceIndex, industryPricesCents } from "./prices.js";
 import type { DividendPolicy } from "./policy.js";
@@ -83,6 +89,9 @@ export interface DailySettlementResult {
 export interface SettleM2aDayOptions {
   useQuantityNeeds?: boolean;
   consumptionState?: HouseholdConsumptionState;
+  /** Persisted across days. A fresh state each call only applies one day of evidence. */
+  humanPremiumState?: HumanPremiumState;
+  humanPremiumMode?: HumanPremiumMode;
 }
 
 function payFromHousehold(
@@ -127,13 +136,12 @@ function allocateByWeight(total: number, weights: number[]): number[] {
 
 function routeGoodsPurchase(
   ledger: Ledger,
-  world: M2aWorld,
   agentId: number,
   amount: number,
   payrollByIndustry: number[],
   industryCount: number,
-  abundance: number,
   reason: string,
+  humanShares: number[],
   revenue?: PurchaseRevenue,
 ): number {
   if (amount <= 0) return 0;
@@ -142,7 +150,7 @@ function routeGoodsPurchase(
   for (let ind = 0; ind < industryCount; ind++) {
     const share = firmShares[ind];
     if (share <= 0) continue;
-    const humanShare = humanVariantExpenditureShare(world, ind, abundance);
+    const humanShare = humanShares[ind] ?? 1;
     const humanCents = Math.round(share * humanShare);
     const autoCents = share - humanCents;
     if (humanCents > 0) {
@@ -242,6 +250,14 @@ export function settleM2aDay(
   const agentLandDividends = new Map<number, number>();
 
   const needsPrices = useQuantityNeeds ? needsPriceContext(world, abundance) : null;
+  const humanPremiumState =
+    settleOptions.humanPremiumState ?? createHumanPremiumState(industryCount);
+  const humanShares = humanVariantSharesForDay(
+    world,
+    abundance,
+    humanPremiumState,
+    settleOptions.humanPremiumMode ?? parseHumanPremiumMode(undefined),
+  );
 
   for (const hh of world.households) {
     const needs = useQuantityNeeds
@@ -267,13 +283,12 @@ export function settleM2aDay(
     const maintPaid = payFromHousehold(ledger, hh, maintDue, (agentId, max) =>
       routeGoodsPurchase(
         ledger,
-        world,
         agentId,
         max,
         payrollByIndustry,
         industryCount,
-        abundance,
         "housing_maintenance",
+        humanShares,
         purchaseRevenue,
       ),
     );
@@ -284,13 +299,12 @@ export function settleM2aDay(
     const foodPaid = payFromHousehold(ledger, hh, needs.food, (agentId, max) =>
       routeGoodsPurchase(
         ledger,
-        world,
         agentId,
         max,
         payrollByIndustry,
         industryCount,
-        abundance,
         "food_purchase",
+        humanShares,
         purchaseRevenue,
       ),
     );
@@ -300,13 +314,12 @@ export function settleM2aDay(
     const elecPaid = payFromHousehold(ledger, hh, needs.electricity, (agentId, max) =>
       routeGoodsPurchase(
         ledger,
-        world,
         agentId,
         max,
         payrollByIndustry,
         industryCount,
-        abundance,
         "electricity_purchase",
+        humanShares,
         purchaseRevenue,
       ),
     );
@@ -324,13 +337,12 @@ export function settleM2aDay(
       (agentId, max) =>
         routeGoodsPurchase(
           ledger,
-          world,
           agentId,
           max,
           payrollByIndustry,
           industryCount,
-          abundance,
           "discretionary_goods",
+          humanShares,
           purchaseRevenue,
         ),
     );

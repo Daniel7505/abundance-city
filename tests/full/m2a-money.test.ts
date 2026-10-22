@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { runM2aSimulation } from "../src/sim/m2a/engine.js";
+import { runM2aSimulation } from "../../src/sim/m2a/engine.js";
 import {
   allM2aAccountIds,
   m2aMoneySupplyCents,
-} from "../src/economy/m2a/accounts.js";
-import { buildM2aWorld } from "../src/sim/m2a/worldgen.js";
-import { industryAgentSlots } from "../src/town/lindsborg.js";
+} from "../../src/economy/m2a/accounts.js";
+import { buildM2aWorld } from "../../src/sim/m2a/worldgen.js";
+import { industryAgentSlots } from "../../src/town/lindsborg.js";
 
 const SEEDS = [1, 2, 3, 4, 5];
 const ABUNDANCE_LEVELS = [0, 0.5, 1];
