@@ -68,7 +68,6 @@ export function runM2aSimulation(options: M2aSimOptions): M2aSimResult {
     if (tick % m2aEconomy.ticksPerDay === m2aEconomy.settlementTickOfDay) {
       applyAbundanceLayoffs(world, options.abundance);
       const dayIndex = Math.floor(tick / m2aEconomy.ticksPerDay);
-      const wageIncomeByAgent = new Map<number, number>();
       const settlement = settleM2aDay(
         ledger,
         world,
@@ -76,12 +75,7 @@ export function runM2aSimulation(options: M2aSimOptions): M2aSimResult {
         dayIndex,
         tick,
       );
-      for (const a of world.agents) {
-        if (a.laborStatus === "employed") {
-          wageIncomeByAgent.set(a.id, a.dailyWageCents);
-        }
-      }
-      const line = collector.record(settlement, world, wageIncomeByAgent);
+      const line = collector.record(settlement, world, settlement.wagePaidByAgent);
       dailyMetrics.push(JSON.stringify(line));
       finalDayMetrics = line;
     }

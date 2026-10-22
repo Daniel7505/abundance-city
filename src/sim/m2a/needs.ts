@@ -19,11 +19,12 @@ export function householdDailyNeedsCents(hh: Household): HouseholdDailyNeedsCent
   const incomeTier = incomeUsd / medianIncome;
 
   let housingMonthlyUsd: number;
+  const ownerMonthlyUsd =
+    (medianHomeUsd * cfg.ownerHousingCostAnnualFractionOfValue) / 12;
   if (hh.isRenter) {
     housingMonthlyUsd = medianRentUsd * incomeTier;
   } else {
-    housingMonthlyUsd =
-      (medianHomeUsd * cfg.ownerHousingCostAnnualFractionOfValue) / 12;
+    housingMonthlyUsd = ownerMonthlyUsd * incomeTier;
   }
   const housing = Math.round((housingMonthlyUsd * 100) / 30);
 

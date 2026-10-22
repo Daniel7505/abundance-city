@@ -89,10 +89,6 @@ export function buildM2aWorld(seed: number): M2aWorld {
 
   const agents: AgentState[] = [];
   for (const hh of households) {
-    const workersInHh = hh.agentIds.length;
-    const dailyWageCents = Math.floor(
-      (hh.incomeAnnualUsd * 100) / 365 / Math.max(1, workersInHh),
-    );
     for (const id of hh.agentIds) {
       agents.push({
         id,
@@ -100,7 +96,7 @@ export function buildM2aWorld(seed: number): M2aWorld {
         laborStatus: "not_in_labor_force",
         industryIndex: null,
         skill: prng.next(),
-        dailyWageCents,
+        dailyWageCents: 0,
       });
     }
   }
@@ -126,6 +122,18 @@ export function buildM2aWorld(seed: number): M2aWorld {
   }
   for (const id of unemployedIds) {
     agents[id].laborStatus = "unemployed";
+  }
+
+  for (const hh of households) {
+    const earners = hh.agentIds.filter((id) => agents[id].laborStatus === "employed").length;
+    const dailyWageCents = Math.floor(
+      (hh.incomeAnnualUsd * 100) / 365 / Math.max(1, earners),
+    );
+    for (const id of hh.agentIds) {
+      if (agents[id].laborStatus === "employed") {
+        agents[id].dailyWageCents = dailyWageCents;
+      }
+    }
   }
 
   return {

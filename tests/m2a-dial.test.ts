@@ -9,7 +9,7 @@ function lastShare(abundance: number): number {
 }
 
 describe("M2a abundance dial", () => {
-  it("workOptionalShare is non-binary across dial and non-decreasing in a", () => {
+  it("workOptionalShare is non-binary across dial and rises meaningfully with a", () => {
     const shares: number[] = [];
     for (let step = 0; step <= 10; step++) {
       const a = step / 10;
@@ -17,6 +17,7 @@ describe("M2a abundance dial", () => {
     }
     const interior = shares.filter((s) => s > 0.05 && s < 0.95);
     expect(interior.length).toBeGreaterThanOrEqual(3);
+    expect(shares[shares.length - 1] - shares[0]).toBeGreaterThanOrEqual(0.3);
     for (let i = 1; i < shares.length; i++) {
       expect(shares[i]).toBeGreaterThanOrEqual(shares[i - 1]);
     }

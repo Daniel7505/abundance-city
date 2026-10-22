@@ -7,11 +7,16 @@
   "paretoAlphaAbove200k": 2,
   "ownerHousingCostAnnualFractionOfValue": 0.02,
   "renterIncomeTierWeights": [3, 2, 1],
+  "socialSecurityDailyCentsPerNlfAgent": 420,
+  "abundanceDividendTreasuryShare": 0.55,
+  "abundanceDividendMultiplier": 1,
+  "firmPayrollReserveDays": 1,
+  "treasuryLandlordTaxShare": 0.05,
   "initialBalancesCents": {
-    "agent": 15000,
-    "firm": 250000,
-    "producer": 50000,
+    "agent": 500,
+    "firm": 800000,
+    "producer": 10000,
     "landlord": 0,
-    "treasury": 500000
+    "treasury": 800000
   }
 }

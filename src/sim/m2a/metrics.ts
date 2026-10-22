@@ -59,20 +59,25 @@ export class M2aMetricsCollector {
       if (window.days.length > maxLen) window.days.shift();
     }
 
-    let optionalHouseholds = 0;
+    let optionalScore = 0;
     for (const hh of world.households) {
+      const hasEmployed = hh.agentIds.some(
+        (id) => world.agents[id].laborStatus === "employed",
+      );
+      if (hasEmployed) continue;
       const window = this.householdWindows.get(hh.id)!;
       const sumNonWage = window.days.reduce((s, d) => s + d.nonWage, 0);
       const sumNeeds = window.days.reduce((s, d) => s + d.needs, 0);
-      if (sumNonWage >= sumNeeds) optionalHouseholds += 1;
+      const coverage = sumNeeds > 0 ? Math.min(1, sumNonWage / sumNeeds) : 1;
+      optionalScore += coverage;
     }
-    const workOptionalShare = optionalHouseholds / world.households.length;
+    const workOptionalShare = optionalScore / world.households.length;
 
     const incomes: number[] = [];
     for (const a of world.agents) {
-      const wage = wageIncomeByAgent.get(a.id) ?? 0;
-      const div = settlement.agentIncomeCents.get(a.id) ?? 0;
-      incomes.push(wage + div);
+      const wage = settlement.wagePaidByAgent.get(a.id) ?? wageIncomeByAgent.get(a.id) ?? 0;
+      const nonWage = settlement.agentIncomeCents.get(a.id) ?? 0;
+      incomes.push(wage + nonWage);
     }
 
     const jobs = settlement.byIndustry.reduce((s, row) => s + row.jobs, 0);
