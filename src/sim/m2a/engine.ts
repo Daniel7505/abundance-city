@@ -16,8 +16,6 @@ import {
   parseProducerOwnershipMode,
   type ProducerOwnershipMode,
 } from "../../economy/m2a/producer-ownership.js";
-import { householdSubsistenceNeedsCents } from "./needs.js";
-import { needsPriceContext, type NeedsPriceContext } from "./needs-prices.js";
 import { HouseholdConsumptionState } from "../../economy/m2a/consumption.js";
 import { settleM2aDay } from "../../economy/m2a/daily.js";
 import {
@@ -41,6 +39,7 @@ import {
   parseLandPolicy,
   type LandPolicy,
 } from "../../economy/m2a/land-policy.js";
+import { parseWagePolicy, type WagePolicyName } from "../../economy/m2a/wage-policy.js";
 import {
   createHumanPremiumState,
   parseHumanPremiumMode,
@@ -77,6 +76,11 @@ export interface M2aSimOptions {
    */
   ownershipLevyRate?: number;
   /**
+   * MarketWages (default) fits each human firm's payroll to its own receipts.
+   * WageGuarantee tops payroll up from the automated producer.
+   */
+  wagePolicy?: WagePolicyName | string;
+  /**
    * Throw if one run exceeds this many wall-clock milliseconds.
    * Under Vitest, defaults to VITEST_SIM_BUDGET_MS or 180_000 so a hung run fails
    * instead of stalling the worker. Unset outside tests. 0 disables the guard.
@@ -102,6 +106,7 @@ export interface M2aSimResult {
     abundance: number;
     policy: string;
     landPolicy: string;
+    wagePolicy: WagePolicyName;
     humanPremiumMode: HumanPremiumMode;
     mode: "m2a" | "m2b";
     m2bEnabled: boolean;
@@ -164,6 +169,9 @@ export function runM2aSimulation(options: M2aSimOptions): M2aSimResult {
   const agentCount = world.agents.length;
   const policy = resolvePolicy(options);
   const landPolicy = resolveLandPolicy(options);
+  const wagePolicy = parseWagePolicy(
+    typeof options.wagePolicy === "string" ? options.wagePolicy : undefined,
+  );
   const humanPremiumMode = resolveHumanPremiumMode(options);
   const automationPath = resolveAutomationPath(options.abundance, options.automationPath);
   const ownershipMode = parseProducerOwnershipMode(options.ownership);
@@ -205,10 +213,6 @@ export function runM2aSimulation(options: M2aSimOptions): M2aSimResult {
   const collector = new M2aMetricsCollector({ m2bEnabled });
   collector.bindWorld(world);
   const harm = new TransitionHarmTracker(world);
-  // Wage-inclusive a=0 prices. Quantity needs were scaled off the pre-wage index.
-  const subsistenceBaseline: NeedsPriceContext | null = m2bEnabled
-    ? needsPriceContext(world, 0)
-    : null;
   let finalDayMetrics: DailyMetricLine | null = null;
   let distributionProbe: DistributionProbeSnapshot | null = null;
   const totalTicks = options.days * m2aEconomy.ticksPerDay;
@@ -253,21 +257,10 @@ export function runM2aSimulation(options: M2aSimOptions): M2aSimResult {
           humanPremiumState,
           humanPremiumMode,
           producerOwnership: ownershipState,
+          wagePolicy,
         },
       );
       const line = collector.record(settlement, world);
-      const householdNeedsCents = new Map<number, number>();
-      if (subsistenceBaseline) {
-        const prices = needsPriceContext(world, abundance);
-        for (const hh of world.households) {
-          householdNeedsCents.set(
-            hh.id,
-            householdSubsistenceNeedsCents(hh, prices, subsistenceBaseline, abundance).requiredTotal,
-          );
-        }
-      } else {
-        for (const [id, cents] of settlement.householdNeedsCents) householdNeedsCents.set(id, cents);
-      }
       harm.observe({
         dayIndex,
         abundance,
@@ -275,7 +268,7 @@ export function runM2aSimulation(options: M2aSimOptions): M2aSimResult {
         workOptionalShare: line.workOptionalShare,
         giniDisposable: line.giniDisposable,
         householdDisposableCents: settlement.householdDisposableInflowCents,
-        householdNeedsCents,
+        householdNeedsCents: settlement.householdNeedsCents,
       });
       dailyMetrics.push(JSON.stringify(line));
       finalDayMetrics = line;
@@ -313,6 +306,7 @@ export function runM2aSimulation(options: M2aSimOptions): M2aSimResult {
       abundance: options.abundance,
       policy: policyLabel(policy),
       landPolicy: landPolicyLabel(landPolicy),
+      wagePolicy,
       humanPremiumMode,
       mode: m2bEnabled ? "m2b" : "m2a",
       m2bEnabled,

@@ -96,17 +96,21 @@ describe("adaptive human premium in the sim", () => {
     expect(adaptiveA1.dailyMetrics.join("\n")).toBe(adaptiveA1Again);
   });
 
-  it("a=1 adaptive human share in educ and health ends below fixed mode", () => {
+  it("a=1 adaptive taste cannot buy a smaller human share than the jobs still done by people", () => {
     const fixedLast = linesOf(fixedA1).at(-1)!;
     const adaptiveLast = linesOf(adaptiveA1).at(-1)!;
-    expect(shareOf(adaptiveLast, "educ")).toBeLessThan(shareOf(fixedLast, "educ"));
-    expect(shareOf(adaptiveLast, "health")).toBeLessThan(shareOf(fixedLast, "health"));
+    // Education keeps 85% of its jobs at a=1 (intensity 0.15) and health keeps
+    // 75% (intensity 0.25). Taste can sit on that floor, so adaptive mode
+    // matches fixed mode instead of undercutting it.
+    expect(shareOf(adaptiveLast, "educ")).toBe(shareOf(fixedLast, "educ"));
+    expect(shareOf(adaptiveLast, "health")).toBe(shareOf(fixedLast, "health"));
+    expect(shareOf(adaptiveLast, "educ")).toBeGreaterThan(shareOf(adaptiveLast, "health"));
   });
 
-  it("a=1 adaptive health share stays above education at mid-run", () => {
+  it("a=1 education's human share stays above health once the job floor binds", () => {
     const mid = linesOf(adaptiveA1).find((line) => line.day === 182);
     expect(mid).toBeDefined();
-    expect(shareOf(mid!, "health")).toBeGreaterThan(shareOf(mid!, "educ"));
+    expect(shareOf(mid!, "educ")).toBeGreaterThan(shareOf(mid!, "health"));
   });
 
   it("a=1 adaptive Mix conserves money", () => {

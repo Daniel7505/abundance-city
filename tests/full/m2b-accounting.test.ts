@@ -36,10 +36,16 @@ describe("M2b labor accounting", () => {
     }
   });
 
-  it("demand-slot hires raise employed above baseline-only headcount at a=1", () => {
+  it("demand slots still rehire while MarketWages keeps employment under the automation cap", () => {
     const last = lines365a1.at(-1)!;
     expect(last.queueHiresCumulative).toBeGreaterThan(0);
-    expect(last.employed).toBeGreaterThan(135);
+    expect(last.humanWageClaimCents ?? 0).toBe(0);
+    expect(last.wageGapCents).toBe(0);
+    // 135 is the a=1 structural headcount before market layoffs. Human-variant
+    // receipts do not cover that bill, so the firm cuts jobs instead of taking
+    // a producer transfer, and employment finishes below the cap.
+    expect(last.employed).toBeLessThan(135);
+    expect(last.employed).toBeGreaterThan(0);
   });
 
   it("workOptionalShare rises with abundance under quantity needs", () => {

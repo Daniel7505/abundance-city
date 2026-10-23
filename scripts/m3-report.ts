@@ -1,8 +1,10 @@
 /**
  * M3 transition report.
- * Mix × {PrivateLandlords, CommunityLandTrust} × {PrivateOwners, PublicFund, GradualBuyIn}.
- * The GradualBuyIn column uses ownership levy 0.6 so the fund holds about half the
- * producer by year 10. The coefficient default stays 0.05.
+ * Mix × {PrivateLandlords, CommunityLandTrust} × {PrivateOwners, PublicFund, GradualBuyIn}
+ * under MarketWages, plus WageGuarantee on the PrivateOwners rows only.
+ * The GradualBuyIn column uses ownership levy 0.6. The placeholder book is
+ * $4,000,000 so that levy finishes near half by year 10 under MarketWages.
+ * The coefficient default levy stays 0.05.
  * Logistic automation over 3650 days, seeds 42..46. Prints mean [min, max]. Does not write files.
  *
  * Usage: npx tsx scripts/m3-report.ts
@@ -18,10 +20,9 @@ const SEEDS = [42, 43, 44, 45, 46] as const;
 const YEARS = [1, 3, 5, 7, 10] as const;
 
 /**
- * Seed 42, PrivateLandlords, logistic 3650 days: levy 0.6 ends at public share 0.506.
- * Levy 0.5 ends at 0.438 and levy 0.7 at 0.568. Buying stops once the producer
- * residual dries up (around year 5), so the rate sets the plateau rather than a
- * slow crawl to year 10. The default coefficient 0.05 is unchanged.
+ * The grid default is MarketWages: human firms are not topped up from the
+ * producer. WageGuarantee is reported only on the private-owner rows.
+ * GradualBuyIn uses levy 0.6. The coefficient default levy 0.05 is unchanged.
  */
 const COMPARISON_LEVY = 0.6;
 
@@ -37,6 +38,7 @@ interface Job {
   ownership: string;
   label: string;
   ownershipLevyRate?: number;
+  wagePolicy: "MarketWages" | "WageGuarantee";
 }
 
 interface JobResult extends Job {
@@ -55,6 +57,7 @@ function runJob(job: Job): JobResult {
     landPolicyName: job.landPolicyName,
     ownership: job.ownership,
     ownershipLevyRate: job.ownershipLevyRate,
+    wagePolicy: job.wagePolicy,
     m2bEnabled: true,
     automationPath: "logistic",
   });
@@ -179,8 +182,18 @@ async function main(): Promise<void> {
           ownership: scenario.ownership,
           label: scenario.label,
           ownershipLevyRate: scenario.levy,
+          wagePolicy: "MarketWages",
         });
       }
+    }
+    for (const seed of SEEDS) {
+      jobs.push({
+        seed,
+        landPolicyName,
+        ownership: "PrivateOwners",
+        label: "PrivateOwners + WageGuarantee",
+        wagePolicy: "WageGuarantee",
+      });
     }
   }
   const parallelism = Math.max(1, Math.min(4, availableParallelism()));
@@ -194,7 +207,7 @@ async function main(): Promise<void> {
       const result = await runInWorker(job);
       results.push(result);
       console.error(
-        `done ${result.ownership} ${result.landPolicyName} seed ${result.seed} ${(result.ms / 1000).toFixed(1)}s`,
+        `done ${result.wagePolicy} ${result.ownership} ${result.landPolicyName} seed ${result.seed} ${(result.ms / 1000).toFixed(1)}s`,
       );
     }
   }
@@ -203,22 +216,26 @@ async function main(): Promise<void> {
   console.log("# M3 transition report");
   console.log("");
   console.log(
-    "Mix, adaptive human premium, m2b on. Logistic a(t) from 0 to 1 over 3650 days (placeholder midpoint 1825, steepness 0.005). Seeds 42–46. Each cell is mean [min, max].",
+    "Mix, adaptive human premium, m2b on, MarketWages unless the heading says WageGuarantee. Logistic a(t) from 0 to 1 over 3650 days (placeholder midpoint 1825, steepness 0.005). Seeds 42–46. Each cell is mean [min, max].",
   );
   console.log(
-    "Shortfall compares same-day disposable income to the subsistence basket (legacy food and electricity scaled by the goods-price index, plus burden-calibrated housing). Purchase quantities are unchanged. Quintiles: year 1 is worldgen ACS income; later years re-rank by the previous year's total disposable income, Q1 lowest. Spells are the longest consecutive shortfall from day 0. Ever-short and chronic-short (more than half the year's days) are shares of households.",
+    "Shortfall compares same-day disposable income to the settlement bill (food, electricity, and housing quantities priced on that day's goods price). Quintiles: year 1 is worldgen ACS income; later years re-rank by the previous year's total disposable income, Q1 lowest. Spells are the longest consecutive shortfall from day 0. Ever-short and chronic-short (more than half the year's days) are shares of households.",
   );
   console.log(
-    `GradualBuyIn in this grid sets the levy knob to ${COMPARISON_LEVY}. The coefficient default remains 0.05.`,
+    `GradualBuyIn in this grid sets the levy knob to ${COMPARISON_LEVY}. The coefficient default remains 0.05. MarketWages fits payroll to human-variant receipts. WageGuarantee tops the firm up from the producer and is reported only for private owners.`,
   );
   console.log("");
 
+  const columns = [
+    ...SCENARIOS.map((scenario) => scenario.label),
+    "PrivateOwners + WageGuarantee",
+  ];
   for (const land of LANDS) {
-    for (const scenario of SCENARIOS) {
+    for (const label of columns) {
       const group = results.filter(
-        (result) => result.landPolicyName === land && result.label === scenario.label,
+        (result) => result.landPolicyName === land && result.label === label,
       );
-      console.log(`## Mix + ${land} + ${scenario.label}`);
+      console.log(`## Mix + ${land} + ${label}`);
       console.log("");
       console.log(
         "| year | workOpt | giniDisposable | shortfall share | avg depth | spell p50 | spell p90 | spell max | ever short | chronic short |",

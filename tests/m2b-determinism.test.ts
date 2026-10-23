@@ -3,16 +3,18 @@ import { describe, expect, it } from "vitest";
 import { runM2aSimulation } from "../src/sim/m2a/engine.js";
 
 /**
- * Full blob (daily + summary) when m2b is off and human premium is fixed.
- * Summary includes humanPremiumMode, so this is not the pre-M2f metadata hash.
- * Daily lines under fixed mode stay the M2e hash below.
+ * m2b-off, seed 42, a=0.5, 30 days, Mix, fixed human premium.
+ * The legacy bill and 0.9 propensity are unchanged. The hashes moved because
+ * MarketWages does not top a human firm up from the producer, and the daily
+ * line records that wage-claim transfer (zero on this path). Summary includes
+ * wagePolicy.
  */
 const M2A_MIX_FULL_HASH_M2B_OFF =
-  "bc11afa8cbcdfb4a971ec75c2a8dc247808deaaed017c85f5a07bab8cfb0bafe";
+  "ab4dc1f31696ece0227c81fcf50e6bd75a28deac41fc123dd447a44812d4134e";
 
-/** Daily metric lines with discretionary spend, ACS wages, and normalized price index. */
+/** Daily metric lines for that same m2b-off run. */
 const M2A_MIX_DAILY_HASH =
-  "906029bcb6d77dcffcb22b64065b357a7db6ffec775d51af5bbd0503b4acf4a4";
+  "8696d9a70b51688d86c73af483d5aa9d2f3c8008e0919680ca26cde2fd7beeab";
 
 function m2aBlob(
   m2bEnabled: boolean,

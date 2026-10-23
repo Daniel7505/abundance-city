@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { parseAutomationPathMode } from "../economy/m2a/automation-path.js";
 import { parseLandPolicy } from "../economy/m2a/land-policy.js";
 import { parseProducerOwnershipMode } from "../economy/m2a/producer-ownership.js";
+import { parseWagePolicy } from "../economy/m2a/wage-policy.js";
 import { runM1Simulation } from "../sim/m1/engine.js";
 import { runM2aSimulation } from "../sim/m2a/engine.js";
 import { runSimulation } from "../sim/engine.js";
@@ -21,6 +22,7 @@ function parseArgs(argv: string[]): {
   landPolicy: string | undefined;
   ownership: string | undefined;
   ownershipLevyRate: number | undefined;
+  wagePolicy: string | undefined;
   automationPath: string | undefined;
   automationHorizon: number | undefined;
   outDir: string;
@@ -38,6 +40,7 @@ function parseArgs(argv: string[]): {
   let landPolicy: string | undefined;
   let ownership: string | undefined;
   let ownershipLevyRate: number | undefined;
+  let wagePolicy: string | undefined;
   let automationPath: string | undefined;
   let automationHorizon: number | undefined;
   let outDir = "logs";
@@ -71,6 +74,8 @@ function parseArgs(argv: string[]): {
       ownership = argv[++i];
     } else if (arg === "--ownership-levy" && argv[i + 1]) {
       ownershipLevyRate = Number(argv[++i]);
+    } else if (arg === "--wage-policy" && argv[i + 1]) {
+      wagePolicy = argv[++i];
     } else if (arg === "--automation-path" && argv[i + 1]) {
       automationPath = argv[++i];
     } else if (arg === "--automation-horizon" && argv[i + 1]) {
@@ -79,7 +84,7 @@ function parseArgs(argv: string[]): {
       outDir = argv[++i];
     } else if (arg === "--help" || arg === "-h") {
       console.log(
-        "Usage: npm run sim -- [--m1|--m2a|--m2b] [--seed <n>] [--ticks <n>] [--days <n>] [--abundance <0-1>] [--policy <name>] [--land-policy <name>] [--ownership PrivateOwners|PublicFund|GradualBuyIn] [--ownership-levy <rate>] [--automation-path fixed|linear|logistic] [--automation-horizon <days>] [--human-premium fixed|adaptive] [--out <dir>]",
+        "Usage: npm run sim -- [--m1|--m2a|--m2b] [--seed <n>] [--ticks <n>] [--days <n>] [--abundance <0-1>] [--policy <name>] [--land-policy <name>] [--ownership PrivateOwners|PublicFund|GradualBuyIn] [--ownership-levy <rate>] [--wage-policy MarketWages|WageGuarantee] [--automation-path fixed|linear|logistic] [--automation-horizon <days>] [--human-premium fixed|adaptive] [--out <dir>]",
       );
       process.exit(0);
     }
@@ -120,6 +125,7 @@ function parseArgs(argv: string[]): {
   try {
     if (landPolicy !== undefined) parseLandPolicy(landPolicy);
     if (ownership !== undefined) parseProducerOwnershipMode(ownership);
+    if (wagePolicy !== undefined) parseWagePolicy(wagePolicy);
     if (automationPath !== undefined) parseAutomationPathMode(automationPath);
   } catch (err) {
     console.error(err instanceof Error ? err.message : String(err));
@@ -140,6 +146,7 @@ function parseArgs(argv: string[]): {
     landPolicy,
     ownership,
     ownershipLevyRate,
+    wagePolicy,
     automationPath,
     automationHorizon,
     outDir,
@@ -161,6 +168,7 @@ function main(): void {
     landPolicy,
     ownership,
     ownershipLevyRate,
+    wagePolicy,
     automationPath,
     automationHorizon,
     outDir,
@@ -178,6 +186,7 @@ function main(): void {
       landPolicyName: landPolicy,
       ownership,
       ownershipLevyRate,
+      wagePolicy,
       automationPath:
         automationPath || automationHorizon
           ? {

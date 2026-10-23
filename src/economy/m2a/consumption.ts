@@ -9,6 +9,29 @@ export function marginalPropensityToConsume(): number {
   return cfg.marginalPropensityToConsume;
 }
 
+/**
+ * Quantity-path MPC. Receipts settle at mpc*payroll/(1-mpc*markup). That
+ * covers the wage bill payroll/(1-markup) only when mpc is 1. A lower value
+ * leaves sales short of payroll and the float drains. The spend base is the
+ * cash the household keeps, not the pre-tax wage. Households on this path
+ * do not save; that is the simplification the identity forces.
+ */
+export function quantityPathMarginalPropensityToConsume(): number {
+  const cfg = coefficients.discretionaryConsumption as {
+    quantityPathMarginalPropensityToConsume?: number;
+  };
+  return cfg.quantityPathMarginalPropensityToConsume ?? 1;
+}
+
+export function discretionarySpendCents(
+  trailingIncomeCents: number,
+  needsCents: number,
+  mpc: number,
+): number {
+  const surplus = Math.max(0, trailingIncomeCents - needsCents);
+  return Math.floor(mpc * surplus);
+}
+
 /** Trailing mean daily household cash inflow (cents) for discretionary spending. */
 export class HouseholdConsumptionState {
   private readonly trailingDays = m2aEconomy.trailingDaysForGini;
@@ -28,9 +51,11 @@ export class HouseholdConsumptionState {
   }
 
   discretionaryBudgetCents(householdId: number, needsCents: number): number {
-    const trailing = this.meanTrailingIncomeCents(householdId);
-    const surplus = Math.max(0, trailing - needsCents);
-    return Math.floor(marginalPropensityToConsume() * surplus);
+    return discretionarySpendCents(
+      this.meanTrailingIncomeCents(householdId),
+      needsCents,
+      marginalPropensityToConsume(),
+    );
   }
 
   recordDay(householdId: number, cashInflowCents: number): void {

@@ -14,10 +14,14 @@ function lastLine(seed: number, days: number, abundance: number, m2bEnabled: boo
 }
 
 describe("M2b labor mechanics", () => {
-  it("displaced at a=1 with queue is at most M2a displaced", () => {
+  it("quantity-path MarketWages displaces jobs the human-variant sales do not cover", () => {
     const m2a = lastLine(42, 60, 1, false);
     const m2b = lastLine(42, 60, 1, true);
-    expect(m2b.displaced).toBeLessThanOrEqual(m2a.displaced);
+    expect(m2b.humanWageClaimCents ?? 0).toBe(0);
+    expect(m2b.wageGapCents).toBe(0);
+    // The legacy path still pays a short human firm from its float. The
+    // quantity path lays that job off, so baseline displacement runs higher.
+    expect(m2b.displaced).toBeGreaterThan(m2a.displaced);
   });
 
   it("quantity-priced needs fall with abundance under M2b", () => {
