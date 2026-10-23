@@ -26,20 +26,21 @@ import {
 } from "../src/sim/m2a/transition-harm.js";
 
 /**
- * Fixed-a output, seed 42, 30 days, Mix, PrivateLandlords, m2b on, adaptive premium.
- * Purchase quantities are anchored on the wage-inclusive a=0 goods price. The
- * quantity path spends post-tax cash income (mpc 1), human wages are a claim
- * on pooled receipts up to payroll, and the margin above that payroll stays
- * with the producer. Those flows are why these are not the M2f hashes.
+ * Fixed-a output, seed 42, 30 days, Mix, PrivateLandlords, m2b on, adaptive
+ * premium, MarketWages. Purchase quantities are anchored on the wage-inclusive
+ * a=0 goods price. The quantity path spends post-tax cash income (mpc 1).
+ * A human firm whose receipts fall short lays off or cuts the marginal wage.
+ * The producer does not top payroll up. Markup is cash above the 45-day float.
+ * Those flows are why these are not the M2f hashes.
  */
 const M2F_DAILY_A0 =
-  "738e52e9485ba7f3716aa924f4f88ba7ce11ebee1e5e0bfb7447fc467c684ddd";
+  "88c49241f26178b185bb53405dc955fb1f0d6f466d0c5581e0389c3bad3141d2";
 const M2F_SUMMARY_A0 =
-  "3e7549d5263e97e27ba289c1713d73badebbfda6ed8c64c192c478ebc41b9034";
+  "b66588af7810f476c5ae5413f750516cd14af57b999e5829fa3d6cbbbe25e775";
 const M2F_DAILY_A05 =
-  "35fed55fc3d5118040113f110713151965dee28580edb5decd5948346a2c73d6";
+  "1c43f591ac007359c83eaf4dc862a570b9a17765fa6220c9ac5a35cfa1260c10";
 const M2F_SUMMARY_A05 =
-  "7b0d0067db3a71472fc9a717a12d0c191944df664ac28e9ca2e4505ca6f82f35";
+  "c8b5346bf6677aaddbde1e9d1d125917e0404379f151878941f71e8ecf26f0f7";
 
 function sha(text: string): string {
   return createHash("sha256").update(text).digest("hex");
@@ -124,7 +125,7 @@ describe("automation schedule", () => {
 });
 
 describe("fixed path reproduces M2f", () => {
-  it("implicit fixed a=0 and a=0.5 match the post-purchase-fix hashes", () => {
+  it("implicit fixed a=0 and a=0.5 match the MarketWages hashes", () => {
     const a0 = fixedRun(0);
     const a05 = fixedRun(0.5);
     expect(sha(a0.dailyMetrics.join("\n"))).toBe(M2F_DAILY_A0);

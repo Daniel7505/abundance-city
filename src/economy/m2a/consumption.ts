@@ -10,10 +10,11 @@ export function marginalPropensityToConsume(): number {
 }
 
 /**
- * Quantity-path MPC. Receipts settle at mpc*payroll/(1-mpc*markup), which
- * matches the wage claim payroll/(1-markup) only when mpc is 1. A lower
- * value drains the firm float. The spend base is the cash the household
- * keeps, not the pre-tax wage.
+ * Quantity-path MPC. Receipts settle at mpc*payroll/(1-mpc*markup). That
+ * covers the wage bill payroll/(1-markup) only when mpc is 1. A lower value
+ * leaves sales short of payroll and the float drains. The spend base is the
+ * cash the household keeps, not the pre-tax wage. Households on this path
+ * do not save; that is the simplification the identity forces.
  */
 export function quantityPathMarginalPropensityToConsume(): number {
   const cfg = coefficients.discretionaryConsumption as {

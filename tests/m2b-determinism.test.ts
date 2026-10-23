@@ -5,16 +5,16 @@ import { runM2aSimulation } from "../src/sim/m2a/engine.js";
 /**
  * m2b-off, seed 42, a=0.5, 30 days, Mix, fixed human premium.
  * The legacy bill and 0.9 propensity are unchanged. The hashes moved because
- * a human-share floor keeps automated purchases from exceeding the jobs
- * automation has actually removed, and human wages are topped up from pooled
- * receipts to payroll. Summary includes humanPremiumMode.
+ * MarketWages does not top a human firm up from the producer, and the daily
+ * line records that wage-claim transfer (zero on this path). Summary includes
+ * wagePolicy.
  */
 const M2A_MIX_FULL_HASH_M2B_OFF =
-  "837e169420eea6f4eee1ff486d26623d7cb08e0d5f9d8e99c52a135aa0a0d6e7";
+  "ab4dc1f31696ece0227c81fcf50e6bd75a28deac41fc123dd447a44812d4134e";
 
 /** Daily metric lines for that same m2b-off run. */
 const M2A_MIX_DAILY_HASH =
-  "71e11a5edd816900ab43d1910d05440389a29e6c26351c18999e5ea8624327ad";
+  "8696d9a70b51688d86c73af483d5aa9d2f3c8008e0919680ca26cde2fd7beeab";
 
 function m2aBlob(
   m2bEnabled: boolean,

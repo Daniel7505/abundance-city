@@ -46,6 +46,8 @@ export interface DailyMetricLine {
   payrollCents: number;
   wagesPaidCents: number;
   wageGapCents: number;
+  /** Producer-to-firm wage top-up. Zero under MarketWages. */
+  humanWageClaimCents?: number;
   totalLaborHours: number;
   ownershipDistributedCents: number;
   queued?: number;
@@ -290,6 +292,7 @@ export class M2aMetricsCollector {
       payrollCents: settlement.payrollCents,
       wagesPaidCents: settlement.wagesPaidCents,
       wageGapCents: settlement.wageGapCents,
+      humanWageClaimCents: settlement.humanWageClaimCents,
       totalLaborHours: settlement.totalLaborHours,
       ownershipDistributedCents: settlement.ownershipDistributedCents,
       firmBalancesCents: settlement.firmBalancesCents,

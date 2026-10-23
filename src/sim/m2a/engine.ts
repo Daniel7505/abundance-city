@@ -39,6 +39,7 @@ import {
   parseLandPolicy,
   type LandPolicy,
 } from "../../economy/m2a/land-policy.js";
+import { parseWagePolicy, type WagePolicyName } from "../../economy/m2a/wage-policy.js";
 import {
   createHumanPremiumState,
   parseHumanPremiumMode,
@@ -75,6 +76,11 @@ export interface M2aSimOptions {
    */
   ownershipLevyRate?: number;
   /**
+   * MarketWages (default) fits each human firm's payroll to its own receipts.
+   * WageGuarantee tops payroll up from the automated producer.
+   */
+  wagePolicy?: WagePolicyName | string;
+  /**
    * Throw if one run exceeds this many wall-clock milliseconds.
    * Under Vitest, defaults to VITEST_SIM_BUDGET_MS or 180_000 so a hung run fails
    * instead of stalling the worker. Unset outside tests. 0 disables the guard.
@@ -100,6 +106,7 @@ export interface M2aSimResult {
     abundance: number;
     policy: string;
     landPolicy: string;
+    wagePolicy: WagePolicyName;
     humanPremiumMode: HumanPremiumMode;
     mode: "m2a" | "m2b";
     m2bEnabled: boolean;
@@ -162,6 +169,9 @@ export function runM2aSimulation(options: M2aSimOptions): M2aSimResult {
   const agentCount = world.agents.length;
   const policy = resolvePolicy(options);
   const landPolicy = resolveLandPolicy(options);
+  const wagePolicy = parseWagePolicy(
+    typeof options.wagePolicy === "string" ? options.wagePolicy : undefined,
+  );
   const humanPremiumMode = resolveHumanPremiumMode(options);
   const automationPath = resolveAutomationPath(options.abundance, options.automationPath);
   const ownershipMode = parseProducerOwnershipMode(options.ownership);
@@ -247,6 +257,7 @@ export function runM2aSimulation(options: M2aSimOptions): M2aSimResult {
           humanPremiumState,
           humanPremiumMode,
           producerOwnership: ownershipState,
+          wagePolicy,
         },
       );
       const line = collector.record(settlement, world);
@@ -295,6 +306,7 @@ export function runM2aSimulation(options: M2aSimOptions): M2aSimResult {
       abundance: options.abundance,
       policy: policyLabel(policy),
       landPolicy: landPolicyLabel(landPolicy),
+      wagePolicy,
       humanPremiumMode,
       mode: m2bEnabled ? "m2b" : "m2a",
       m2bEnabled,

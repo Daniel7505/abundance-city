@@ -37,6 +37,7 @@ import {
   discretionarySpendCents,
   quantityPathMarginalPropensityToConsume,
 } from "./consumption.js";
+import { parseWagePolicy, type WagePolicyName } from "./wage-policy.js";
 
 export interface IndustryDayStats {
   jobs: number;
@@ -75,6 +76,8 @@ export interface DailySettlementResult {
   payrollCents: number;
   wagesPaidCents: number;
   wageGapCents: number;
+  /** Producer cash moved onto human firms. Zero under MarketWages. */
+  humanWageClaimCents: number;
   producerInflowCents: number;
   ownershipDistributedCents: number;
   policyDistributedCents: number;
@@ -100,6 +103,8 @@ export interface SettleM2aDayOptions {
   humanPremiumMode?: HumanPremiumMode;
   /** Persisted across days. PrivateOwners keeps the historical producer residual path. */
   producerOwnership?: ProducerOwnershipState;
+  /** MarketWages (default) fits payroll to receipts. WageGuarantee tops up from the producer. */
+  wagePolicy?: WagePolicyName;
 }
 
 function payFromHousehold(
@@ -253,22 +258,19 @@ function payGoodsBill(
 }
 
 /**
- * Human wages are a claim on pooled goods receipts. The variant split can
- * leave a firm with less human-variant cash than its payroll, and the float
- * then drains. Top the firm up to payroll and no further: the margin above
- * payroll is the automated producer's residual, which public ownership
- * distributes. Demand-slot wages change the bill's industry weights, so one
- * industry can be short while another's surplus is already at the producer.
- * The recorded human-variant share is the variant that was bought; this
- * transfer is funding.
+ * WageGuarantee only. Top each human firm up to its non-demand payroll from
+ * the automated producer's receipts, and no further. The transfer is a
+ * redistribution from machine owners to human wages. It is not a sale, so it
+ * does not earn markup. Demand-slot wages are paid by the producer directly.
  */
 function fundHumanWageClaim(
   ledger: Ledger,
   world: M2aWorld,
   industryCount: number,
   revenue: PurchaseRevenue,
-): void {
+): number {
   let available = Math.max(0, revenue.producer);
+  let claimed = 0;
   const firmPayroll = Array.from({ length: industryCount }, () => 0);
   for (const a of world.agents) {
     if (
@@ -291,10 +293,11 @@ function fundHumanWageClaim(
       "human_wage_claim",
     );
     if (moved <= 0) continue;
-    // The top-up funds wages. It is not a sale, so it does not earn markup.
     revenue.producer -= moved;
     available -= moved;
+    claimed += moved;
   }
+  return claimed;
 }
 
 function payLandRentComponent(
@@ -318,6 +321,7 @@ export function settleM2aDay(
   settleOptions: SettleM2aDayOptions = {},
 ): DailySettlementResult {
   const useQuantityNeeds = settleOptions.useQuantityNeeds ?? false;
+  const wagePolicy = settleOptions.wagePolicy ?? parseWagePolicy(undefined);
   const consumptionState =
     settleOptions.consumptionState ?? new HouseholdConsumptionState(world);
   const industryCount = world.industrySlotsBase.length;
@@ -454,7 +458,10 @@ export function settleM2aDay(
     if (hasEmployed && hhPaid < needs.requiredTotal) shortHouseholds += 1;
   }
 
-  fundHumanWageClaim(ledger, world, industryCount, purchaseRevenue);
+  const humanWageClaimCents =
+    wagePolicy === "WageGuarantee"
+      ? fundHumanWageClaim(ledger, world, industryCount, purchaseRevenue)
+      : 0;
 
   settleLandRentPolicy(ledger, world, landPolicy, policy, agentLandDividends);
 
@@ -466,6 +473,8 @@ export function settleM2aDay(
     policy,
     wagePaidByAgent,
     agentOwnershipDividends,
+    wagePolicy,
+    useQuantityNeeds,
   );
 
   for (let ind = 0; ind < industryCount; ind++) {
@@ -645,10 +654,9 @@ export function settleM2aDay(
     }
     // Quantity path spends cash the household keeps. Pre-tax wages would
     // also spend the payroll tax already paid out as social security, and
-    // that second copy comes out of the initial buffer until the goods bill
-    // falls through the wage claim. The goods rebate is the overpayment
-    // coming back, so it is not income. Treasury transfers stay out too:
-    // spending a swept residual recreates it.
+    // that second copy comes out of the initial buffer. The goods rebate is
+    // the overpayment coming back, so it is not income. Treasury transfers
+    // stay out too: spending a swept residual recreates it.
     let spendBase = 0;
     for (const agentId of hh.agentIds) {
       const wage = wagePaidByAgent.get(agentId) ?? 0;
@@ -690,6 +698,7 @@ export function settleM2aDay(
     payrollCents,
     wagesPaidCents,
     wageGapCents,
+    humanWageClaimCents,
     producerInflowCents: purchaseRevenue.producer,
     ownershipDistributedCents,
     policyDistributedCents,

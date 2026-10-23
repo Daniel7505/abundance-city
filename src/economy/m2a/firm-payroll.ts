@@ -1,6 +1,8 @@
 import m2aEconomy from "../../../config/m2a-economy.json" with { type: "json" };
 import { distributePoolByPolicy } from "./distribute.js";
+import { fitHumanPayrollToReceipts } from "./market-wages.js";
 import type { DividendPolicy } from "./policy.js";
+import type { WagePolicyName } from "./wage-policy.js";
 import {
   FIRM_PAYROLL_FLOAT_DAYS,
   TREASURY_ACCOUNT,
@@ -30,9 +32,20 @@ function settleFirmPayrollNoAutomation(
   ownershipPolicy: DividendPolicy,
   wagePaidByAgent: Map<number, number>,
   agentDividends: Map<number, number>,
+  wagePolicy: WagePolicyName,
+  coverUncoveredBill: boolean,
 ): FirmPayrollResult {
   const industryCount = firmRevenue.length;
   const markup = m2aEconomy.firmMarkup;
+
+  // Quantity-path MarketWages shrinks the bill to human-variant receipts
+  // before anyone is paid. WageGuarantee leaves the staff in place.
+  if (wagePolicy === "MarketWages" && coverUncoveredBill) {
+    for (let ind = 0; ind < industryCount; ind++) {
+      fitHumanPayrollToReceipts(world, ind, firmRevenue[ind] ?? 0);
+    }
+  }
+
   const payrollByIndustry = Array.from({ length: industryCount }, () => 0);
   const workersByIndustry: WageWorker[][] = Array.from({ length: industryCount }, () => []);
 
@@ -49,12 +62,18 @@ function settleFirmPayrollNoAutomation(
 
   const payrollTargetCents = payrollByIndustry.reduce((s, n) => s + n, 0);
 
-  for (let ind = 0; ind < industryCount; ind++) {
-    const balance = ledger.getBalance(firmAccount(ind));
-    const floatTarget = payrollByIndustry[ind] * FIRM_PAYROLL_FLOAT_DAYS;
-    const excess = balance - floatTarget;
-    if (excess > 0) {
-      ledger.transfer(firmAccount(ind), TREASURY_ACCOUNT, excess, "firm_payroll_rebalance");
+  // The legacy 0.9 path does not satisfy the receipts identity, so its excess
+  // float is still swept to the treasury and a short firm is topped up from
+  // that pool. The quantity path leaves receipts in the firm until wages and
+  // markup are paid; MarketWages has already fitted the bill to those receipts.
+  if (!coverUncoveredBill) {
+    for (let ind = 0; ind < industryCount; ind++) {
+      const balance = ledger.getBalance(firmAccount(ind));
+      const floatTarget = payrollByIndustry[ind] * FIRM_PAYROLL_FLOAT_DAYS;
+      const excess = balance - floatTarget;
+      if (excess > 0) {
+        ledger.transfer(firmAccount(ind), TREASURY_ACCOUNT, excess, "firm_payroll_rebalance");
+      }
     }
   }
   for (let ind = 0; ind < industryCount; ind++) {
@@ -92,13 +111,15 @@ function settleFirmPayrollNoAutomation(
     const payroll = payrollByIndustry[ind];
     const markupCents = revenue > 0 ? Math.floor(revenue * markup) : 0;
     const floatTarget = payroll * FIRM_PAYROLL_FLOAT_DAYS;
-    // At abundance 0, markup may draw the float down to a 15-day floor.
-    // That draw starts the ownership circuit, and receipts then cover wages
-    // plus markup so the float stops falling. Once any production is
-    // automated, markup comes only from cash already above the float: the
-    // producer holds the automated margin, and drawing the human float on
-    // top of that empties it.
-    const markupFloor = abundance <= 0 ? payroll * 15 : floatTarget;
+    // Quantity path: profit is cash above the payroll float after wages, at
+    // every abundance. The float is working capital, and households spend the
+    // markup that is already in the price, so no abundance-0 draw is required.
+    // Legacy path: receipts are swept to the float target before wages, so the
+    // markup has to come from working capital. At abundance 0 that draw stops
+    // at 15 days, which is what keeps the legacy ownership circuit alive.
+    // Once any production is automated the legacy draw stops at the float.
+    const markupFloor =
+      coverUncoveredBill || abundance > 0 ? floatTarget : payroll * 15;
     const markupPool = Math.min(
       markupCents,
       Math.max(0, ledger.getBalance(firmAccount(ind)) - markupFloor),
@@ -142,11 +163,12 @@ export function settleFirmPayroll(
   ownershipPolicy: DividendPolicy,
   wagePaidByAgent: Map<number, number>,
   agentDividends: Map<number, number>,
+  wagePolicy: WagePolicyName,
+  coverUncoveredBill: boolean,
 ): FirmPayrollResult {
-  // Human wages are paid from firm cash (receipts plus the payroll float) at
-  // every abundance. Capping them at today's revenue minus markup left wages
-  // unpaid once quantities matched the calibrated basket, and that shortfall
-  // compounded. The automated share of a purchase already went to the producer.
+  // Human wages are paid from firm cash at every abundance. Under MarketWages
+  // the uncovered quantity-path bill is cut before payment. Under WageGuarantee
+  // the producer has already topped receipts up to payroll.
   return settleFirmPayrollNoAutomation(
     ledger,
     world,
@@ -155,5 +177,7 @@ export function settleFirmPayroll(
     ownershipPolicy,
     wagePaidByAgent,
     agentDividends,
+    wagePolicy,
+    coverUncoveredBill,
   );
 }

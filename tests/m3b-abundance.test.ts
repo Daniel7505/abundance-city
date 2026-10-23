@@ -3,12 +3,13 @@ import { runM2aSimulation } from "../src/sim/m2a/engine.js";
 
 /**
  * Fixed a=1, 50 days, m2b on, adaptive premium, private landlords, private owners.
+ * Wage policy is the default, MarketWages: no producer top-up of human payroll.
  * Productive capacity covers the needs basket: needs are about 3% of disposable
  * income on every seed. EqualDividend routes the producer margin to each
  * household. CapitalShare pays that same margin in proportion to ownership
  * and does not route it. Both pay the basket, so the unmet-needs shortfall is
  * 0 either way. The gap that remains is distribution: disposable-income Gini
- * is about 0.27 with equal dividends and about 0.50 when the margin follows
+ * is about 0.33 with equal dividends and about 0.60 when the margin follows
  * ownership.
  */
 const SEEDS = [42, 43, 44, 45, 46] as const;
