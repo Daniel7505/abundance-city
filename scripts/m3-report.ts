@@ -206,7 +206,7 @@ async function main(): Promise<void> {
     "Mix, adaptive human premium, m2b on. Logistic a(t) from 0 to 1 over 3650 days (placeholder midpoint 1825, steepness 0.005). Seeds 42–46. Each cell is mean [min, max].",
   );
   console.log(
-    "Shortfall compares same-day disposable income to the subsistence basket (legacy food and electricity scaled by the goods-price index, plus burden-calibrated housing). Purchase quantities are unchanged. Quintiles: year 1 is worldgen ACS income; later years re-rank by the previous year's total disposable income, Q1 lowest. Spells are the longest consecutive shortfall from day 0. Ever-short and chronic-short (more than half the year's days) are shares of households.",
+    "Shortfall compares same-day disposable income to the settlement bill (food, electricity, and housing quantities priced on that day's goods price). Quintiles: year 1 is worldgen ACS income; later years re-rank by the previous year's total disposable income, Q1 lowest. Spells are the longest consecutive shortfall from day 0. Ever-short and chronic-short (more than half the year's days) are shares of households.",
   );
   console.log(
     `GradualBuyIn in this grid sets the levy knob to ${COMPARISON_LEVY}. The coefficient default remains 0.05.`,
