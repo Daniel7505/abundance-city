@@ -26,17 +26,20 @@ import {
 } from "../src/sim/m2a/transition-harm.js";
 
 /**
- * M2f fixed-a output, seed 42, 30 days, Mix, PrivateLandlords, m2b on, adaptive premium.
- * Daily lines and the summary object. A fixed path must reproduce both.
+ * Fixed-a output, seed 42, 30 days, Mix, PrivateLandlords, m2b on, adaptive premium.
+ * These are not the pre-M3b M2f hashes. Purchase quantities are now anchored on
+ * the wage-inclusive a=0 goods price, and the quantity path spends 0.98 of
+ * factor income above that basket, so the daily flows changed. m2b-off hashes
+ * are unchanged: that path still uses the legacy cent bill and the 0.9 MPC.
  */
 const M2F_DAILY_A0 =
-  "a7ec45f93fcca49120f87f356e5eed73c6615c58dd7eeddd71b42fd483de4c9f";
+  "6a6982cd4ea86daaedeec8668730af1493d1999aed814a65df9761fc48e538ef";
 const M2F_SUMMARY_A0 =
-  "e02cec4b8790e43a01b8eaac7fb7f1094fb4775ab48efbe543cd67ed24c25ca4";
+  "62160a49ffd6de0a5f3143a79f41fdfe51304d3fd00f39ae8c8ca25a2f4408f5";
 const M2F_DAILY_A05 =
-  "26d3800888c0eb22a96783a05e1d8de8a259fb817421a151dd5b085a1d2e86ee";
+  "8e3d7bb24c4c5f747c51b1f7d209bee3738609de50747d58105b90fd2c37e384";
 const M2F_SUMMARY_A05 =
-  "ffb2ef99fc97c6156d1c7e6a7bab0fec48601c76512e07aa2c6e4c025c7493a4";
+  "eaaffd249d26348f6a62fa80a94560e7cb24612386f00cfa2b6357e64cb09830";
 
 function sha(text: string): string {
   return createHash("sha256").update(text).digest("hex");
@@ -121,7 +124,7 @@ describe("automation schedule", () => {
 });
 
 describe("fixed path reproduces M2f", () => {
-  it("implicit fixed a=0 and a=0.5 match the M2f hashes", () => {
+  it("implicit fixed a=0 and a=0.5 match the post-purchase-fix hashes", () => {
     const a0 = fixedRun(0);
     const a05 = fixedRun(0.5);
     expect(sha(a0.dailyMetrics.join("\n"))).toBe(M2F_DAILY_A0);
@@ -305,7 +308,7 @@ describe("transition harm tracker", () => {
 });
 
 describe("subsistence shortfall yardstick", () => {
-  it("matches legacy food and electricity at a=0 and stays well below the quantity basket", () => {
+  it("matches the quantity bill at a=0, and that bill is a fraction of ACS income", () => {
     const world = buildM2aWorld(42);
     const baseline = needsPriceContext(world, 0);
     const prices = needsPriceContext(world, 0);
@@ -326,7 +329,7 @@ describe("subsistence shortfall yardstick", () => {
     const qtyShare = quantity / acsDaily;
     expect(subShare).toBeGreaterThan(0.15);
     expect(subShare).toBeLessThan(0.45);
-    expect(qtyShare).toBeGreaterThan(0.9);
+    expect(Math.abs(qtyShare - subShare)).toBeLessThan(0.01);
 
     const quintiles = assignHouseholdIncomeQuintiles(world.households);
     const byQ = new Map<number, { needs: number; wage: number }>();

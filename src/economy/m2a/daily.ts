@@ -31,7 +31,11 @@ import { settleFirmPayroll } from "./firm-payroll.js";
 import { laborHoursFromPaid } from "./wage-pool.js";
 import type { ProducerOwnershipState } from "./producer-ownership.js";
 import { settleProducerAccount } from "./producer-settlement.js";
-import { HouseholdConsumptionState } from "./consumption.js";
+import {
+  HouseholdConsumptionState,
+  discretionarySpendCents,
+  quantityPathMarginalPropensityToConsume,
+} from "./consumption.js";
 
 export interface IndustryDayStats {
   jobs: number;
@@ -187,6 +191,66 @@ function routeGoodsPurchase(
   return paid;
 }
 
+/**
+ * Split one household bill across industries by payroll, then collect it from
+ * members. Doing the split per member restarts at industry 0 each time an
+ * agent runs out, so early industries collect the cash and later ones miss
+ * their wage bill even when the household paid in full.
+ */
+function payGoodsBill(
+  ledger: Ledger,
+  hh: Household,
+  amount: number,
+  payrollByIndustry: number[],
+  industryCount: number,
+  reason: string,
+  humanShares: number[],
+  revenue: PurchaseRevenue,
+): number {
+  if (amount <= 0) return 0;
+  const firmShares = allocateByWeight(amount, payrollByIndustry);
+  let paid = 0;
+  let agentCursor = 0;
+
+  const paySlice = (ind: number, cents: number, auto: boolean): void => {
+    let left = cents;
+    while (left > 0 && agentCursor < hh.agentIds.length) {
+      const agentId = hh.agentIds[agentCursor];
+      const slice = ledger.transferUpTo(
+        agentAccount(agentId),
+        auto ? PRODUCER_ACCOUNT : firmAccount(ind),
+        left,
+        auto ? `${reason}_auto` : `${reason}_human`,
+      );
+      if (slice <= 0) {
+        agentCursor += 1;
+        continue;
+      }
+      left -= slice;
+      paid += slice;
+      if (auto) {
+        revenue.producer += slice;
+      } else {
+        revenue.firm[ind] += slice;
+        revenue.humanVariantSpendByIndustry[ind] += slice;
+      }
+      revenue.goodsSpendByIndustry[ind] += slice;
+      if (ledger.getBalance(agentAccount(agentId)) === 0) agentCursor += 1;
+    }
+  };
+
+  for (let ind = 0; ind < industryCount; ind++) {
+    const share = firmShares[ind];
+    if (share <= 0) continue;
+    const humanShare = humanShares[ind] ?? 1;
+    const humanCents = Math.round(share * humanShare);
+    const autoCents = share - humanCents;
+    paySlice(ind, humanCents, false);
+    paySlice(ind, autoCents, true);
+  }
+  return paid;
+}
+
 function payLandRentComponent(
   ledger: Ledger,
   agentId: number,
@@ -261,6 +325,30 @@ export function settleM2aDay(
     humanPremiumState,
     settleOptions.humanPremiumMode ?? parseHumanPremiumMode(undefined),
   );
+  const payGoods = (hh: Household, amount: number, reason: string): number =>
+    useQuantityNeeds
+      ? payGoodsBill(
+          ledger,
+          hh,
+          amount,
+          payrollByIndustry,
+          industryCount,
+          reason,
+          humanShares,
+          purchaseRevenue,
+        )
+      : payFromHousehold(ledger, hh, amount, (agentId, max) =>
+          routeGoodsPurchase(
+            ledger,
+            agentId,
+            max,
+            payrollByIndustry,
+            industryCount,
+            reason,
+            humanShares,
+            purchaseRevenue,
+          ),
+        );
 
   for (const hh of world.households) {
     const needs = useQuantityNeeds
@@ -283,72 +371,27 @@ export function settleM2aDay(
     const landPaid = payFromHousehold(ledger, hh, landDue, (agentId, max) =>
       payLandRentComponent(ledger, agentId, max),
     );
-    const maintPaid = payFromHousehold(ledger, hh, maintDue, (agentId, max) =>
-      routeGoodsPurchase(
-        ledger,
-        agentId,
-        max,
-        payrollByIndustry,
-        industryCount,
-        "housing_maintenance",
-        humanShares,
-        purchaseRevenue,
-      ),
-    );
+    const maintPaid = payGoods(hh, maintDue, "housing_maintenance");
     const housingPaid = landPaid + maintPaid;
     hhPaid += housingPaid;
     if (housingPaid < needs.housing) unmetNeedCents += needs.housing - housingPaid;
 
-    const foodPaid = payFromHousehold(ledger, hh, needs.food, (agentId, max) =>
-      routeGoodsPurchase(
-        ledger,
-        agentId,
-        max,
-        payrollByIndustry,
-        industryCount,
-        "food_purchase",
-        humanShares,
-        purchaseRevenue,
-      ),
-    );
+    const foodPaid = payGoods(hh, needs.food, "food_purchase");
     hhPaid += foodPaid;
     if (foodPaid < needs.food) unmetNeedCents += needs.food - foodPaid;
 
-    const elecPaid = payFromHousehold(ledger, hh, needs.electricity, (agentId, max) =>
-      routeGoodsPurchase(
-        ledger,
-        agentId,
-        max,
-        payrollByIndustry,
-        industryCount,
-        "electricity_purchase",
-        humanShares,
-        purchaseRevenue,
-      ),
-    );
+    const elecPaid = payGoods(hh, needs.electricity, "electricity_purchase");
     hhPaid += elecPaid;
     if (elecPaid < needs.electricity) unmetNeedCents += needs.electricity - elecPaid;
 
-    const discretionaryTarget = consumptionState.discretionaryBudgetCents(
-      hh.id,
-      needs.requiredTotal,
-    );
-    const discretionaryPaid = payFromHousehold(
-      ledger,
-      hh,
-      discretionaryTarget,
-      (agentId, max) =>
-        routeGoodsPurchase(
-          ledger,
-          agentId,
-          max,
-          payrollByIndustry,
-          industryCount,
-          "discretionary_goods",
-          humanShares,
-          purchaseRevenue,
-        ),
-    );
+    const discretionaryTarget = useQuantityNeeds
+      ? discretionarySpendCents(
+          consumptionState.meanTrailingIncomeCents(hh.id),
+          needs.requiredTotal,
+          quantityPathMarginalPropensityToConsume(),
+        )
+      : consumptionState.discretionaryBudgetCents(hh.id, needs.requiredTotal);
+    const discretionaryPaid = payGoods(hh, discretionaryTarget, "discretionary_goods");
     hhPaid += discretionaryPaid;
 
     const avgPrice = basketPriceIndex(world, abundance, prices);

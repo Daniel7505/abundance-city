@@ -1,7 +1,8 @@
 {
   "discretionaryConsumption": {
-    "sourceNote": "Placeholder MPC on income above subsistence needs; replace with sourced estimate.",
-    "marginalPropensityToConsume": 0.9
+    "sourceNote": "Legacy path keeps the placeholder 0.9. The quantity path spends 0.98 of factor income above needs. Spending the whole surplus funds wages, but it also pushes the median about 5% above the ACS anchor. 0.98 keeps that median inside the band and keeps every industry on the payroll float. Policy transfers are not part of this spend.",
+    "marginalPropensityToConsume": 0.9,
+    "quantityPathMarginalPropensityToConsume": 0.98
   },
   "energyWhPerGoodsUnit": {
     "human": 0.42,

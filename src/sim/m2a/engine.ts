@@ -16,8 +16,6 @@ import {
   parseProducerOwnershipMode,
   type ProducerOwnershipMode,
 } from "../../economy/m2a/producer-ownership.js";
-import { householdSubsistenceNeedsCents } from "./needs.js";
-import { needsPriceContext, type NeedsPriceContext } from "./needs-prices.js";
 import { HouseholdConsumptionState } from "../../economy/m2a/consumption.js";
 import { settleM2aDay } from "../../economy/m2a/daily.js";
 import {
@@ -205,10 +203,6 @@ export function runM2aSimulation(options: M2aSimOptions): M2aSimResult {
   const collector = new M2aMetricsCollector({ m2bEnabled });
   collector.bindWorld(world);
   const harm = new TransitionHarmTracker(world);
-  // Wage-inclusive a=0 prices. Quantity needs were scaled off the pre-wage index.
-  const subsistenceBaseline: NeedsPriceContext | null = m2bEnabled
-    ? needsPriceContext(world, 0)
-    : null;
   let finalDayMetrics: DailyMetricLine | null = null;
   let distributionProbe: DistributionProbeSnapshot | null = null;
   const totalTicks = options.days * m2aEconomy.ticksPerDay;
@@ -256,18 +250,6 @@ export function runM2aSimulation(options: M2aSimOptions): M2aSimResult {
         },
       );
       const line = collector.record(settlement, world);
-      const householdNeedsCents = new Map<number, number>();
-      if (subsistenceBaseline) {
-        const prices = needsPriceContext(world, abundance);
-        for (const hh of world.households) {
-          householdNeedsCents.set(
-            hh.id,
-            householdSubsistenceNeedsCents(hh, prices, subsistenceBaseline, abundance).requiredTotal,
-          );
-        }
-      } else {
-        for (const [id, cents] of settlement.householdNeedsCents) householdNeedsCents.set(id, cents);
-      }
       harm.observe({
         dayIndex,
         abundance,
@@ -275,7 +257,7 @@ export function runM2aSimulation(options: M2aSimOptions): M2aSimResult {
         workOptionalShare: line.workOptionalShare,
         giniDisposable: line.giniDisposable,
         householdDisposableCents: settlement.householdDisposableInflowCents,
-        householdNeedsCents,
+        householdNeedsCents: settlement.householdNeedsCents,
       });
       dailyMetrics.push(JSON.stringify(line));
       finalDayMetrics = line;

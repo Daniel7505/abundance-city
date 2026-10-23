@@ -188,17 +188,22 @@ export function buildM2aWorld(seed: number): M2aWorld {
     referenceBasketPriceIndex: 1,
     m2b: null,
   };
+  // Wages come from ACS income. They have to be on the world before the
+  // reference goods price is taken, because that price is a wage-inclusive
+  // basket index. Quantities are legacy cent budgets divided by this price.
+  // Runtime pricing multiplies by the same index, so at a=0 each category
+  // costs its calibrated budget. Taking the reference first, while wages are
+  // still zero, inflates food by about 7x and collapses electricity.
+  assignDailyWagesFromConsumption(worldDraft);
+  const abundanceZeroPrices = industryPricesCents(worldDraft, 0);
+  const basket = basketPriceIndex(worldDraft, 0, abundanceZeroPrices);
+  worldDraft.referenceBasketPriceIndex = basket;
+  worldDraft.referenceGoodsCentsPerUnit = Math.max(1, Math.round(basket));
   const refPrices = needsPriceContext(worldDraft, 0);
-  worldDraft.referenceGoodsCentsPerUnit = refPrices.goodsCentsPerUnit;
   for (const hh of households) {
     hh.needsQuantity = deriveHouseholdNeedsQuantities(hh, refPrices);
   }
   calibrateHouseholdHousingBurden(worldDraft, refPrices);
-
-  assignDailyWagesFromConsumption(worldDraft);
-  const abundanceZeroPrices = industryPricesCents(worldDraft, 0);
-  worldDraft.referenceBasketPriceIndex = basketPriceIndex(worldDraft, 0, abundanceZeroPrices);
-  worldDraft.referenceGoodsCentsPerUnit = refPrices.goodsCentsPerUnit;
 
   return worldDraft;
 }
