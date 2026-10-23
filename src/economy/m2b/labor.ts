@@ -181,7 +181,8 @@ export function applyM2bLaborForDay(
     trimAutomationWorkersToCap(world, ind, automationCaps[ind]);
   }
 
-  const extraTarget = extraQueueSlotCount(world, abundance, currentPriceIndex);
+  const signaled = extraQueueSlotCount(world, abundance, currentPriceIndex);
+  const extraTarget = Math.min(signaled, m2b.fundableDemandSlots);
   trimDemandEmployedToCount(world, extraTarget);
 
   for (const agentId of baselineEmployed) {
@@ -203,6 +204,7 @@ export function initM2bLaborState(world: M2aWorld, referencePriceIndex: number):
     hiresToday: 0,
     separationsToday: 0,
     separationsCumulative: 0,
+    fundableDemandSlots: 0,
   };
 }
 

@@ -1,5 +1,6 @@
 import coefficients from "../../../data/coefficients.json" with { type: "json" };
 import { getTown } from "../../town/lindsborg.js";
+import { automatabilityForIndustry, requiredSlots } from "./labor.js";
 import { industryPricesCents } from "./prices.js";
 import type { M2aWorld } from "../../sim/m2a/types.js";
 
@@ -154,6 +155,18 @@ export function humanVariantSharesForDay(
       taste = stepped.taste;
     }
     shares[ind] = cesHumanExpenditureShare(taste, auto, human, sigma);
+  }
+  // Don't route more spend to the producer than the fraction of that
+  // industry's jobs automation has actually removed. Otherwise a day with
+  // a just above 0 buys the automated variant while every wage is still human,
+  // and the human payroll goes unpaid. Taste can still keep a higher human share.
+  for (let ind = 0; ind < industryCount; ind++) {
+    const base = world.industrySlotsBase[ind] ?? 0;
+    if (base <= 0) continue;
+    const industryId = town.industry_employment_c24030[ind]?.id ?? "other";
+    const cap = requiredSlots(base, abundance, automatabilityForIndustry(industryId));
+    const stillHuman = cap / base;
+    if (shares[ind] < stillHuman) shares[ind] = stillHuman;
   }
   return shares;
 }

@@ -1,8 +1,8 @@
 {
   "discretionaryConsumption": {
-    "sourceNote": "Legacy path keeps the placeholder 0.9. The quantity path spends 0.98 of factor income above needs. Spending the whole surplus funds wages, but it also pushes the median about 5% above the ACS anchor. 0.98 keeps that median inside the band and keeps every industry on the payroll float. Policy transfers are not part of this spend.",
+    "sourceNote": "Legacy path keeps the placeholder 0.9. The quantity path spends the whole cash surplus above needs (mpc 1). Goods receipts settle at mpc*payroll/(1-mpc*markup), which equals the wage claim only at mpc 1; anything lower drains the firm float. The spend base is post-tax wages plus the social security and unemployment that tax funds, plus ownership and land dividends. Spending the pre-tax wage as well spends the payroll tax twice and the initial cash buffer runs out. Policy transfers and the goods rebate stay out of the base. On this base the a=0 median is about 4.7% above the $81,250 ACS anchor.",
     "marginalPropensityToConsume": 0.9,
-    "quantityPathMarginalPropensityToConsume": 0.98
+    "quantityPathMarginalPropensityToConsume": 1
   },
   "energyWhPerGoodsUnit": {
     "human": 0.42,
@@ -93,12 +93,12 @@
     "logisticSteepness": 0.005
   },
   "producerOwnership": {
-    "sourceNote": "PLACEHOLDER M3 ownership of the automated producer. Not curve-fit. PrivateOwners distributes the producer residual with the dividend policy and does not open a public-fund account (current behavior). PublicFund assigns publicEquityShare of that residual to a city fund from day 0; the fund pays its slice as an equal per-household dividend and the private remainder follows the dividend policy. GradualBuyIn starts the fund share at 0. Each day fund income is a profit levy (profitLevyRate of the residual) plus the dividend on book equity it already holds. It spends reinvestFraction of that income to buy equity from private owners at bookValueCents (placeholder price of 100% of producer equity). Purchase cash is paid to private owners in capital-share proportion and the fund share rises, capped at 1. Unspent fund cash is paid as an equal per-household dividend. profitLevyRate is the default; a run may pass a different levy without changing this file.",
+    "sourceNote": "PLACEHOLDER M3 ownership of the automated producer. Not curve-fit. PrivateOwners distributes the producer residual with the dividend policy and does not open a public-fund account (current behavior). PublicFund assigns publicEquityShare of that residual to a city fund from day 0; the fund pays its slice as an equal per-household dividend and the private remainder follows the dividend policy. GradualBuyIn starts the fund share at 0. Each day fund income is a profit levy (profitLevyRate of the residual) plus the dividend on book equity it already holds. It spends reinvestFraction of that income to buy equity from private owners at bookValueCents (placeholder price of 100% of producer equity). The book was repriced from $1,000,000 to $5,700,000 after the purchase fix: the producer margin is the cash above human payroll, and a 0.6 levy of that margin buys about half the book by year 10 of the logistic path. The default levy stays 0.05. Purchase cash is paid to private owners in capital-share proportion and the fund share rises, capped at 1. Unspent fund cash is paid as an equal per-household dividend. profitLevyRate is the default; a run may pass a different levy without changing this file.",
     "defaultMode": "PrivateOwners",
     "publicEquityShare": 0.5,
     "profitLevyRate": 0.05,
     "reinvestFraction": 0.5,
-    "bookValueCents": 100000000
+    "bookValueCents": 570000000
   },
   "taskAutomatability": {
     "sourceNote": "Placeholder: per-job automatability = industry intensity × (1 - skill×weight); lowest skill tasks lose hours first when revenue falls.",

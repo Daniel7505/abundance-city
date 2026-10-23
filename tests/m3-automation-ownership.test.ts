@@ -27,19 +27,19 @@ import {
 
 /**
  * Fixed-a output, seed 42, 30 days, Mix, PrivateLandlords, m2b on, adaptive premium.
- * These are not the pre-M3b M2f hashes. Purchase quantities are now anchored on
- * the wage-inclusive a=0 goods price, and the quantity path spends 0.98 of
- * factor income above that basket, so the daily flows changed. m2b-off hashes
- * are unchanged: that path still uses the legacy cent bill and the 0.9 MPC.
+ * Purchase quantities are anchored on the wage-inclusive a=0 goods price. The
+ * quantity path spends post-tax cash income (mpc 1), human wages are a claim
+ * on pooled receipts up to payroll, and the margin above that payroll stays
+ * with the producer. Those flows are why these are not the M2f hashes.
  */
 const M2F_DAILY_A0 =
-  "6a6982cd4ea86daaedeec8668730af1493d1999aed814a65df9761fc48e538ef";
+  "738e52e9485ba7f3716aa924f4f88ba7ce11ebee1e5e0bfb7447fc467c684ddd";
 const M2F_SUMMARY_A0 =
-  "62160a49ffd6de0a5f3143a79f41fdfe51304d3fd00f39ae8c8ca25a2f4408f5";
+  "3e7549d5263e97e27ba289c1713d73badebbfda6ed8c64c192c478ebc41b9034";
 const M2F_DAILY_A05 =
-  "8e3d7bb24c4c5f747c51b1f7d209bee3738609de50747d58105b90fd2c37e384";
+  "35fed55fc3d5118040113f110713151965dee28580edb5decd5948346a2c73d6";
 const M2F_SUMMARY_A05 =
-  "eaaffd249d26348f6a62fa80a94560e7cb24612386f00cfa2b6357e64cb09830";
+  "7b0d0067db3a71472fc9a717a12d0c191944df664ac28e9ca2e4505ca6f82f35";
 
 function sha(text: string): string {
   return createHash("sha256").update(text).digest("hex");

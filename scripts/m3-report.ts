@@ -18,10 +18,10 @@ const SEEDS = [42, 43, 44, 45, 46] as const;
 const YEARS = [1, 3, 5, 7, 10] as const;
 
 /**
- * Seed 42, PrivateLandlords, logistic 3650 days: levy 0.6 ends at public share 0.506.
- * Levy 0.5 ends at 0.438 and levy 0.7 at 0.568. Buying stops once the producer
- * residual dries up (around year 5), so the rate sets the plateau rather than a
- * slow crawl to year 10. The default coefficient 0.05 is unchanged.
+ * Seed 42, PrivateLandlords, logistic 3650 days, book $5,700,000: levy 0.6
+ * ends at public share 0.486. The producer margin persists after the wage
+ * claim, so the levy keeps buying through year 10. The default coefficient
+ * levy 0.05 is unchanged.
  */
 const COMPARISON_LEVY = 0.6;
 

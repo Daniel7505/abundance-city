@@ -52,6 +52,12 @@ export interface M2bLaborState {
   hiresToday: number;
   separationsToday: number;
   separationsCumulative: number;
+  /**
+   * Rebound jobs the producer can pay in full from the post-cost residual.
+   * Labor uses this as a cap so a price drop cannot hire a wage bill the
+   * producer cannot meet. Updated at the end of each producer settlement.
+   */
+  fundableDemandSlots: number;
 }
 
 export interface M2aWorld {

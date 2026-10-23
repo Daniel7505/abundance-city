@@ -12,6 +12,7 @@ import { basketPriceIndex, industryPricesCents } from "./prices.js";
 import type { DividendPolicy } from "./policy.js";
 import { dwellingRentCentsPerDay } from "../../sim/m2a/housing-rent.js";
 import {
+  FIRM_PAYROLL_FLOAT_DAYS,
   LANDLORD_ACCOUNT,
   PRODUCER_ACCOUNT,
   TREASURY_ACCOUNT,
@@ -251,6 +252,51 @@ function payGoodsBill(
   return paid;
 }
 
+/**
+ * Human wages are a claim on pooled goods receipts. The variant split can
+ * leave a firm with less human-variant cash than its payroll, and the float
+ * then drains. Top the firm up to payroll and no further: the margin above
+ * payroll is the automated producer's residual, which public ownership
+ * distributes. Demand-slot wages change the bill's industry weights, so one
+ * industry can be short while another's surplus is already at the producer.
+ * The recorded human-variant share is the variant that was bought; this
+ * transfer is funding.
+ */
+function fundHumanWageClaim(
+  ledger: Ledger,
+  world: M2aWorld,
+  industryCount: number,
+  revenue: PurchaseRevenue,
+): void {
+  let available = Math.max(0, revenue.producer);
+  const firmPayroll = Array.from({ length: industryCount }, () => 0);
+  for (const a of world.agents) {
+    if (
+      a.laborStatus === "employed" &&
+      a.industryIndex !== null &&
+      !a.demandSlotEmployment
+    ) {
+      firmPayroll[a.industryIndex] += a.dailyWageCents;
+    }
+  }
+  for (let ind = 0; ind < industryCount; ind++) {
+    const payroll = firmPayroll[ind];
+    if (payroll <= 0) continue;
+    const short = Math.min(Math.max(0, payroll - revenue.firm[ind]), available);
+    if (short <= 0) continue;
+    const moved = ledger.transferUpTo(
+      PRODUCER_ACCOUNT,
+      firmAccount(ind),
+      short,
+      "human_wage_claim",
+    );
+    if (moved <= 0) continue;
+    // The top-up funds wages. It is not a sale, so it does not earn markup.
+    revenue.producer -= moved;
+    available -= moved;
+  }
+}
+
 function payLandRentComponent(
   ledger: Ledger,
   agentId: number,
@@ -325,8 +371,9 @@ export function settleM2aDay(
     humanPremiumState,
     settleOptions.humanPremiumMode ?? parseHumanPremiumMode(undefined),
   );
-  const payGoods = (hh: Household, amount: number, reason: string): number =>
-    useQuantityNeeds
+  const goodsPaidByHousehold = new Map<number, number>();
+  const payGoods = (hh: Household, amount: number, reason: string): number => {
+    const paid = useQuantityNeeds
       ? payGoodsBill(
           ledger,
           hh,
@@ -349,6 +396,9 @@ export function settleM2aDay(
             purchaseRevenue,
           ),
         );
+    goodsPaidByHousehold.set(hh.id, (goodsPaidByHousehold.get(hh.id) ?? 0) + paid);
+    return paid;
+  };
 
   for (const hh of world.households) {
     const needs = useQuantityNeeds
@@ -404,6 +454,8 @@ export function settleM2aDay(
     if (hasEmployed && hhPaid < needs.requiredTotal) shortHouseholds += 1;
   }
 
+  fundHumanWageClaim(ledger, world, industryCount, purchaseRevenue);
+
   settleLandRentPolicy(ledger, world, landPolicy, policy, agentLandDividends);
 
   const firmPayroll = settleFirmPayroll(
@@ -432,6 +484,39 @@ export function settleM2aDay(
     agentOwnershipDividends,
     settleOptions.producerOwnership,
   );
+  if (firmPayroll.residualRebateCents > 0) {
+    for (let ind = 0; ind < industryCount; ind++) {
+      let payroll = 0;
+      for (const a of world.agents) {
+        if (
+          a.laborStatus === "employed" &&
+          a.industryIndex === ind &&
+          !a.demandSlotEmployment
+        ) {
+          payroll += a.dailyWageCents;
+        }
+      }
+      const residual = ledger.getBalance(firmAccount(ind)) - payroll * FIRM_PAYROLL_FLOAT_DAYS;
+      if (residual > 0) {
+        ledger.transfer(firmAccount(ind), PRODUCER_ACCOUNT, residual, "firm_residual_rebate");
+      }
+    }
+  }
+  const rebateCents = producerResult.rebateCents + firmPayroll.residualRebateCents;
+  if (rebateCents > 0) {
+    const weights = world.households.map((hh) => goodsPaidByHousehold.get(hh.id) ?? 0);
+    const shares = allocateByWeight(rebateCents, weights);
+    world.households.forEach((hh, i) => {
+      const share = shares[i] ?? 0;
+      if (share <= 0 || hh.agentIds.length === 0) return;
+      ledger.transfer(
+        PRODUCER_ACCOUNT,
+        agentAccount(hh.agentIds[0]),
+        share,
+        "goods_rebate",
+      );
+    });
+  }
   policyDistributedCents += producerResult.producerDistributedCents;
 
   let producerPayrollTarget = 0;
@@ -554,11 +639,29 @@ export function settleM2aDay(
     householdPolicyInflow.set(hh.id, policyInflow);
     householdTransferInflow.set(hh.id, transferInflow);
     householdNonWageIncome.set(hh.id, nonWage);
-    consumptionState.recordDay(
-      hh.id,
-      disposableInflow - policyInflow,
-    );
+    if (!useQuantityNeeds) {
+      consumptionState.recordDay(hh.id, disposableInflow - policyInflow);
+      continue;
+    }
+    // Quantity path spends cash the household keeps. Pre-tax wages would
+    // also spend the payroll tax already paid out as social security, and
+    // that second copy comes out of the initial buffer until the goods bill
+    // falls through the wage claim. The goods rebate is the overpayment
+    // coming back, so it is not income. Treasury transfers stay out too:
+    // spending a swept residual recreates it.
+    let spendBase = 0;
+    for (const agentId of hh.agentIds) {
+      const wage = wagePaidByAgent.get(agentId) ?? 0;
+      const tax = Math.floor(wage * m2aEconomy.payrollTaxRate);
+      spendBase += wage - tax;
+      spendBase += ssPaidByAgent.get(agentId) ?? 0;
+      spendBase += uiPaidByAgent.get(agentId) ?? 0;
+      spendBase += agentOwnershipDividends.get(agentId) ?? 0;
+      spendBase += agentLandDividends.get(agentId) ?? 0;
+    }
+    consumptionState.recordDay(hh.id, spendBase);
   }
+
 
   return {
     day: dayIndex,

@@ -10,11 +10,10 @@ export function marginalPropensityToConsume(): number {
 }
 
 /**
- * Quantity-path MPC. The legacy 0.9 leaves a tenth of factor income unspent,
- * and that cash does not come back to firms. Spending the whole surplus funds
- * the wage bill, and it also pushes the median just past 5% above the ACS
- * anchor. 0.98 stays inside that band. Policy transfers stay outside the
- * trailing window: spending them multiplies markup.
+ * Quantity-path MPC. Receipts settle at mpc*payroll/(1-mpc*markup), which
+ * matches the wage claim payroll/(1-markup) only when mpc is 1. A lower
+ * value drains the firm float. The spend base is the cash the household
+ * keeps, not the pre-tax wage.
  */
 export function quantityPathMarginalPropensityToConsume(): number {
   const cfg = coefficients.discretionaryConsumption as {

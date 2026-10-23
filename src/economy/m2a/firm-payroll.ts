@@ -1,5 +1,4 @@
 import m2aEconomy from "../../../config/m2a-economy.json" with { type: "json" };
-import { automatedLaborShare } from "./dial.js";
 import { distributePoolByPolicy } from "./distribute.js";
 import type { DividendPolicy } from "./policy.js";
 import {
@@ -8,7 +7,7 @@ import {
   agentAccount,
   firmAccount,
 } from "./accounts.js";
-import { laborHoursFromPaid, payWagePoolProRata, type WageWorker } from "./wage-pool.js";
+import { laborHoursFromPaid, type WageWorker } from "./wage-pool.js";
 import type { Ledger } from "../ledger.js";
 import type { M2aWorld } from "../../sim/m2a/types.js";
 
@@ -19,11 +18,14 @@ export interface FirmPayrollResult {
   wagesPaidByIndustry: number[];
   laborHoursByIndustry: number[];
   ownershipDistributedCents: number;
+  /** Cash above the payroll float after wages and markup. Returned to payers. */
+  residualRebateCents: number;
 }
 
 function settleFirmPayrollNoAutomation(
   ledger: Ledger,
   world: M2aWorld,
+  abundance: number,
   firmRevenue: number[],
   ownershipPolicy: DividendPolicy,
   wagePaidByAgent: Map<number, number>,
@@ -67,6 +69,7 @@ function settleFirmPayrollNoAutomation(
   let wagesPaidCents = 0;
   let totalLaborHours = 0;
   let ownershipDistributedCents = 0;
+  let residualRebateCents = 0;
   const laborHoursByIndustry = Array.from({ length: industryCount }, () => 0);
 
   for (let ind = 0; ind < industryCount; ind++) {
@@ -86,8 +89,20 @@ function settleFirmPayrollNoAutomation(
     }
 
     const revenue = firmRevenue[ind];
+    const payroll = payrollByIndustry[ind];
     const markupCents = revenue > 0 ? Math.floor(revenue * markup) : 0;
-    const markupPool = Math.min(markupCents, ledger.getBalance(firmAccount(ind)));
+    const floatTarget = payroll * FIRM_PAYROLL_FLOAT_DAYS;
+    // At abundance 0, markup may draw the float down to a 15-day floor.
+    // That draw starts the ownership circuit, and receipts then cover wages
+    // plus markup so the float stops falling. Once any production is
+    // automated, markup comes only from cash already above the float: the
+    // producer holds the automated margin, and drawing the human float on
+    // top of that empties it.
+    const markupFloor = abundance <= 0 ? payroll * 15 : floatTarget;
+    const markupPool = Math.min(
+      markupCents,
+      Math.max(0, ledger.getBalance(firmAccount(ind)) - markupFloor),
+    );
     if (markupPool > 0) {
       ownershipDistributedCents += distributePoolByPolicy(
         ledger,
@@ -101,11 +116,11 @@ function settleFirmPayrollNoAutomation(
         agentDividends,
       );
     }
-    const floatTarget = payrollByIndustry[ind] * FIRM_PAYROLL_FLOAT_DAYS;
     const residual = ledger.getBalance(firmAccount(ind)) - floatTarget;
-    if (residual > 0) {
-      ledger.transfer(firmAccount(ind), TREASURY_ACCOUNT, residual, "firm_residual_sweep");
-    }
+    // Above-float cash is the part of the goods bill that was not wages or
+    // markup. It is rebated to payers after producer settlement so it is
+    // not counted as ownership income and is not swept into the treasury.
+    if (residual > 0) residualRebateCents += residual;
   }
 
   return {
@@ -115,6 +130,7 @@ function settleFirmPayrollNoAutomation(
     wagesPaidByIndustry,
     laborHoursByIndustry,
     ownershipDistributedCents,
+    residualRebateCents,
   };
 }
 
@@ -127,104 +143,17 @@ export function settleFirmPayroll(
   wagePaidByAgent: Map<number, number>,
   agentDividends: Map<number, number>,
 ): FirmPayrollResult {
-  if (automatedLaborShare(abundance) === 0) {
-    return settleFirmPayrollNoAutomation(
-      ledger,
-      world,
-      firmRevenue,
-      ownershipPolicy,
-      wagePaidByAgent,
-      agentDividends,
-    );
-  }
-
-  const industryCount = firmRevenue.length;
-  const markup = m2aEconomy.firmMarkup;
-  const wagesPaidByIndustry = Array.from({ length: industryCount }, () => 0);
-
-  let payrollTargetCents = 0;
-  let wagesPaidCents = 0;
-  let totalLaborHours = 0;
-  let ownershipDistributedCents = 0;
-  const laborHoursByIndustry = Array.from({ length: industryCount }, () => 0);
-
-  for (let ind = 0; ind < industryCount; ind++) {
-    const revenue = firmRevenue[ind];
-    const markupCents = revenue > 0 ? Math.floor(revenue * markup) : 0;
-    const costPortion = Math.max(0, revenue - markupCents);
-
-    const workers: WageWorker[] = [];
-    let industryPayrollTarget = 0;
-    for (const a of world.agents) {
-      if (
-        a.laborStatus === "employed" &&
-        a.industryIndex === ind &&
-        !a.demandSlotEmployment
-      ) {
-        workers.push({ id: a.id, industryIndex: ind, targetCents: a.dailyWageCents });
-        industryPayrollTarget += a.dailyWageCents;
-        payrollTargetCents += a.dailyWageCents;
-      }
-    }
-
-    const wagePool = Math.min(industryPayrollTarget, costPortion);
-    const paid = payWagePoolProRata(
-      ledger,
-      firmAccount(ind),
-      workers,
-      wagePool,
-      "wage",
-      wagePaidByAgent,
-      world.agents,
-    );
-    wagesPaidByIndustry[ind] = paid;
-    wagesPaidCents += paid;
-
-    const nonLabor = Math.max(0, costPortion - wagePool);
-    if (nonLabor > 0) {
-      ledger.transferUpTo(
-        firmAccount(ind),
-        TREASURY_ACCOUNT,
-        nonLabor,
-        "firm_operating_cost",
-      );
-    }
-
-    let indHours = 0;
-    for (const w of workers) {
-      const h = laborHoursFromPaid(w.targetCents, wagePaidByAgent.get(w.id) ?? 0);
-      indHours += h;
-      totalLaborHours += h;
-    }
-    laborHoursByIndustry[ind] = indHours;
-
-    const markupPool = Math.min(markupCents, ledger.getBalance(firmAccount(ind)));
-    if (markupPool > 0) {
-      ownershipDistributedCents += distributePoolByPolicy(
-        ledger,
-        firmAccount(ind),
-        markupPool,
-        ownershipPolicy,
-        world.households,
-        world.capitalShare,
-        world.agents.length,
-        "ownership_income",
-        agentDividends,
-      );
-    }
-
-    const residual = ledger.getBalance(firmAccount(ind));
-    if (residual > 0) {
-      ledger.transfer(firmAccount(ind), TREASURY_ACCOUNT, residual, "firm_residual_sweep");
-    }
-  }
-
-  return {
-    payrollTargetCents,
-    wagesPaidCents,
-    totalLaborHours,
-    wagesPaidByIndustry,
-    laborHoursByIndustry,
-    ownershipDistributedCents,
-  };
+  // Human wages are paid from firm cash (receipts plus the payroll float) at
+  // every abundance. Capping them at today's revenue minus markup left wages
+  // unpaid once quantities matched the calibrated basket, and that shortfall
+  // compounded. The automated share of a purchase already went to the producer.
+  return settleFirmPayrollNoAutomation(
+    ledger,
+    world,
+    abundance,
+    firmRevenue,
+    ownershipPolicy,
+    wagePaidByAgent,
+    agentDividends,
+  );
 }
