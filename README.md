@@ -49,7 +49,11 @@ npm run test:full
 npm run dev
 ```
 
-Open the URL Vite prints (default `http://localhost:5173`). The view is read-only: it advances the simulation with a fixed seed and draws citizens on the grid.
+Open the URL Vite prints (default `http://localhost:5173`). The page is a top-down Three.js view. It keeps the fixed-seed commute sim, drawn as dots, and adds one square per Lindsborg household from that same seed.
+
+A year slider runs from 0 through 10. Next to it, a toggle switches `MarketWages` and `WageGuarantee`. Both controls read `data/sector-roadmap.json`, the published series. Each residence is colored by that household's cost-of-living index versus year 0: the income fifth's basket in the selected year, divided by the same fifth's year-0 basket. Households take income fifths the way the town sim already ranks them, equal counts of ACS annual income, lowest fifth first. The side panel lists price indexes for housing, food, utilities, transport, insurance, and healthcare, and the basket cost for each income fifth. Click a residence for that household's basket over the ten years, with both wage policies on one chart.
+
+The page opens at year 0 and MarketWages. `?year=10&policy=WageGuarantee` sets those controls. `household` is a household id and opens its chart.
 
 ### Build
 
@@ -112,7 +116,7 @@ That script is the 5-seed sweep. It prints to stdout and does not write run arti
 
 ## Sector roadmap
 
-A yearly sector account sits beside the daily sim. It does not change the price dial or the wage settlement. Housing, food, utilities, transport, insurance, and healthcare each have a 10-year P&L under `MarketWages` (the default) and `WageGuarantee`. Logistics has a P&L and no household weight: Table 1101 does not publish one. Cost of living for each income fifth is the verified 2024 basket repriced along that path. The series a later time slider can read is `data/sector-roadmap.json`. The table and the assumptions are in [docs/sectors.md](docs/sectors.md).
+A yearly sector account sits beside the daily sim. It does not change the price dial or the wage settlement. Housing, food, utilities, transport, insurance, and healthcare each have a 10-year P&L under `MarketWages` (the default) and `WageGuarantee`. Logistics has a P&L and no household weight: Table 1101 does not publish one. Cost of living for each income fifth is the verified 2024 basket repriced along that path. The town view reads `data/sector-roadmap.json` (`npm run dev`). The table and the assumptions are in [docs/sectors.md](docs/sectors.md).
 
 The 2024 Table 1101 housing shares of spending are 41.6 percent for the lowest fifth and 29.3 percent for the highest. Food is 15.7 percent and 11.3 percent. The 41.3 and 15.6 figures are the 2023 table. By year 10 the modeled basket is about 36 percent cheaper under MarketWages and about 18 percent cheaper under WageGuarantee, for every income fifth. The lowest fifth's basket starts at $28,785 and the highest at $97,510.
 

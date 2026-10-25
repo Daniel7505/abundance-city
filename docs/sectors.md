@@ -1,6 +1,6 @@
 # Sector roadmap
 
-This is the first cut of the sector accounts. It is a yearly price-and-cost model for ten years. It does not replace the daily settlement, and it does not move the abundance price dial. A later time slider can read `data/sector-roadmap.json` (`schema` `abundance-city.sector-roadmap.v1`). Each cost-of-living row is one year, one wage policy, and one income fifth.
+This is the first cut of the sector accounts. It is a yearly price-and-cost model for ten years. It does not replace the daily settlement, and it does not move the abundance price dial. The town view year slider reads `data/sector-roadmap.json` (`schema` `abundance-city.sector-roadmap.v1`). Run it with `npm run dev`. Each cost-of-living row is one year, one wage policy, and one income fifth.
 
 ## What is verified
 

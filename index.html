@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Abundance City — M0</title>
+    <title>Abundance City</title>
     <style>
       html,
       body {
@@ -13,23 +13,223 @@
         color: #c9d1d9;
         font-family: system-ui, sans-serif;
       }
-      #hud {
+      #hud,
+      #side-panel,
+      #household-panel,
+      #hover-label {
         position: fixed;
-        top: 8px;
-        left: 8px;
         z-index: 1;
         font-size: 13px;
-        background: rgba(0, 0, 0, 0.55);
-        padding: 8px 12px;
+        line-height: 1.35;
+        background: rgba(13, 17, 23, 0.82);
+        border: 1px solid #30363d;
         border-radius: 6px;
+      }
+      #hud {
+        top: 8px;
+        left: 8px;
+        width: 280px;
+        padding: 8px 12px;
+      }
+      #hud-status {
+        margin: 0 0 8px;
+      }
+      .year-label {
+        display: block;
+        margin-bottom: 4px;
+      }
+      #year-slider {
+        width: 100%;
+        margin: 0 0 8px;
+      }
+      .policy {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 8px;
+      }
+      button {
+        font: inherit;
+        color: inherit;
+        background: transparent;
+        border: 1px solid #30363d;
+        border-radius: 4px;
+        padding: 4px 8px;
+        cursor: pointer;
+      }
+      button[aria-pressed="true"] {
+        border-color: #c9d1d9;
+        background: rgba(255, 255, 255, 0.08);
+      }
+      #col-legend,
+      .quiet,
+      .kicker,
+      .panel-title,
+      #household-meta,
+      #household-basket {
+        margin: 0;
+      }
+      #col-legend,
+      .quiet {
+        color: #8b949e;
+      }
+      .quiet {
+        margin-top: 6px;
+      }
+      #color-scale {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 6px;
+        color: #8b949e;
+      }
+      #color-scale-bar {
+        flex: 1;
+        height: 8px;
+        border-radius: 4px;
+      }
+      #side-panel {
+        top: 8px;
+        right: 8px;
+        width: 260px;
+        max-height: calc(100vh - 16px);
+        overflow: auto;
+        padding: 8px 12px 12px;
+      }
+      .panel-title {
+        font-weight: 600;
+        margin-bottom: 8px;
+      }
+      .kicker {
+        margin: 10px 0 4px;
+        color: #8b949e;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        padding: 2px 0;
+        text-align: left;
+        font-weight: 400;
+      }
+      th {
+        color: #8b949e;
+        font-size: 12px;
+      }
+      .num {
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+      }
+      #household-panel {
+        left: 8px;
+        bottom: 8px;
+        width: 340px;
+        max-height: 48vh;
+        overflow: auto;
+        padding: 8px 12px 12px;
+      }
+      .panel-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin-bottom: 4px;
+      }
+      #household-title {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 600;
+      }
+      #household-meta,
+      #household-basket {
+        margin-top: 2px;
+      }
+      #household-chart {
+        margin-top: 8px;
+      }
+      .legend {
+        display: flex;
+        gap: 12px;
+        margin: 4px 0 0;
+        color: #8b949e;
+      }
+      .swatch {
+        display: inline-block;
+        width: 12px;
+        height: 3px;
+        margin-right: 4px;
+        vertical-align: middle;
+      }
+      #hover-label {
+        padding: 4px 8px;
+        pointer-events: none;
       }
       canvas {
         display: block;
       }
+      @media (max-width: 720px) {
+        #side-panel {
+          top: auto;
+          bottom: 8px;
+          left: 8px;
+          right: 8px;
+          width: auto;
+          max-height: 38vh;
+        }
+        #household-panel {
+          width: auto;
+          right: 8px;
+          bottom: auto;
+          top: 8px;
+        }
+      }
     </style>
   </head>
   <body>
-    <div id="hud">Abundance City M0 — read-only sim view</div>
+    <div id="hud">
+      <p id="hud-status">Abundance City</p>
+      <label class="year-label" for="year-slider">Year <span id="year-readout">0</span></label>
+      <input
+        id="year-slider"
+        type="range"
+        min="0"
+        max="10"
+        step="1"
+        value="0"
+        aria-valuemin="0"
+        aria-valuemax="10"
+        aria-valuenow="0"
+        aria-valuetext="Year 0"
+      />
+      <div class="policy" role="group" aria-label="Wage policy">
+        <button type="button" id="policy-market" aria-pressed="true">MarketWages</button>
+        <button type="button" id="policy-guarantee" aria-pressed="false">WageGuarantee</button>
+      </div>
+      <p id="col-legend">Residence color is that household's basket divided by its year-0 basket.</p>
+      <div id="color-scale">
+        <span>1.00</span>
+        <span id="color-scale-bar"></span>
+        <span>0.60</span>
+      </div>
+      <p class="quiet">Squares are households. Dots are the commute sim.</p>
+    </div>
+    <aside id="side-panel" aria-live="polite"></aside>
+    <aside id="household-panel" hidden>
+      <div class="panel-head">
+        <h2 id="household-title"></h2>
+        <button type="button" id="household-close">Close</button>
+      </div>
+      <p id="household-meta"></p>
+      <p id="household-basket"></p>
+      <div id="household-chart"></div>
+      <p class="legend">
+        <span><i class="swatch" data-policy-swatch="MarketWages"></i>MarketWages</span>
+        <span><i class="swatch" data-policy-swatch="WageGuarantee"></i>WageGuarantee</span>
+      </p>
+      <p class="quiet">Households in a fifth share that fifth's basket.</p>
+    </aside>
+    <div id="hover-label" hidden></div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
