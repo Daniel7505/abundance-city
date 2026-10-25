@@ -110,6 +110,12 @@ npx tsx scripts/m3-report.ts
 
 That script is the 5-seed sweep. It prints to stdout and does not write run artifacts.
 
+## Sector roadmap
+
+A yearly sector account sits beside the daily sim. It does not change the price dial or the wage settlement. Housing, food, utilities, transport, insurance, and healthcare each have a 10-year P&L under `MarketWages` (the default) and `WageGuarantee`. Logistics has a P&L and no household weight: Table 1101 does not publish one. Cost of living for each income fifth is the verified 2024 basket repriced along that path. The series a later time slider can read is `data/sector-roadmap.json`. The table and the assumptions are in [docs/sectors.md](docs/sectors.md).
+
+The 2024 Table 1101 housing shares of spending are 41.6 percent for the lowest fifth and 29.3 percent for the highest. Food is 15.7 percent and 11.3 percent. The 41.3 and 15.6 figures are the 2023 table. By year 10 the modeled basket is about 36 percent cheaper under MarketWages and about 18 percent cheaper under WageGuarantee, for every income fifth. The lowest fifth's basket starts at $28,785 and the highest at $97,510.
+
 ## Limitations
 
 The quantity path spends its whole cash surplus above the needs basket. The marginal propensity is 1. That is a stated simplification, not a measured saving rate, and it is forced by the receipts identity. Goods receipts settle at `mpc × payroll / (1 − mpc × markup)`. That covers the wage bill `payroll / (1 − markup)` only when the propensity is 1. Anything lower leaves sales short of payroll, and the payroll float drains. Households on this path do not save. The legacy cent path still uses the placeholder propensity of 0.9.
@@ -124,8 +130,8 @@ Libraries and public data used in this project:
 - [TypeScript](https://www.typescriptlang.org/) — language tooling
 - [tsx](https://github.com/privatenumber/tsx) — TypeScript execution for the headless CLI
 - [U.S. Census Bureau / ACS](https://www.census.gov/programs-surveys/acs) — Lindsborg place profile via Census Reporter API
-- [U.S. Bureau of Labor Statistics](https://www.bls.gov/) — Consumer Expenditure category shares
-- [U.S. Energy Information Administration](https://www.eia.gov/) — Kansas residential electricity price
+- [U.S. Bureau of Labor Statistics](https://www.bls.gov/) — Consumer Expenditure Surveys, 2024. All-consumer-unit shares are Table B of the [Consumer Expenditures — 2024](https://www.bls.gov/news.release/cesan.nr0.htm) news release (19 December 2025), also shown in the [12 February 2026 Economics Daily](https://www.bls.gov/opub/ted/2026/housing-and-transportation-accounted-for-50-percent-of-household-spending-in-2024.htm). Quintile means are [Table 1101, quintiles of income before taxes](https://www.bls.gov/cex/tables/calendar-year/mean-item-share-average-standard-error/cu-income-quintiles-before-taxes-2024.xlsx), read from the CE LABSTAT series that fill that table. Figures and URLs are recorded in `data/sources.json`.
+- [U.S. Energy Information Administration](https://www.eia.gov/) — [Table 5.6.A](https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_6_a), average retail electricity price by state (August 2026 release), and [Table 5A](https://www.eia.gov/electricity/sales_revenue_price/xls/table_5A.xlsx), 2024 average monthly residential bill. The town file's 15.27 cents/kWh is marked unverified against the current Table 5.6.A.
 
 ## License
 

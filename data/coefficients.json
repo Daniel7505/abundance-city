@@ -20,7 +20,7 @@
     "maintenanceMaterialsAutomationSensitivity": 0.85
   },
   "housingNeedsShareByIncomeQuintile": {
-    "sourceNote": "Placeholder ACS-style housing share of subsistence needs (housing+food+electricity) at a=0; Q1 highest burden, Q5 lowest.",
+    "sourceNote": "UNVERIFIED model targets for housing as a share of the simulated subsistence basket (housing+food+electricity) at abundance 0. Not Table 1101 shares of total expenditures. Checked against BLS Consumer Expenditure Surveys 2024 and left unchanged; the verified expenditure shares live in data/sources.json.",
     "quintileShares": [0.42, 0.38, 0.34, 0.31, 0.28]
   },
   "humanMadeVariety": {

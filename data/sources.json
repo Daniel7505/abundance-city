@@ -1,0 +1,91 @@
+{
+  "consumerExpenditure": {
+    "quintilesOfIncomeBeforeTaxes": {
+      "status": "verified",
+      "table": "Table 1101. Quintiles of income before taxes: Annual expenditure means, shares, standard errors, and relative standard errors, Consumer Expenditure Surveys, 2024",
+      "year": 2024,
+      "url": "https://www.bls.gov/cex/tables/calendar-year/mean-item-share-average-standard-error/cu-income-quintiles-before-taxes-2024.xlsx",
+      "meansRetrievedFrom": "BLS Consumer Expenditure Surveys LABSTAT annual series, https://api.bls.gov/publicAPI/v2/timeseries/data/, retrieved 2026-10-25. These series are the means published in Table 1101.",
+      "shareDefinition": "A Table 1101 share is the quintile's mean expenditure on the item divided by that quintile's average annual expenditures, in percent rounded half up to one decimal. This file stores the dollar means. Shares are computed from them.",
+      "crossCheck": "2024 quintile average annual expenditures match Table C of the Consumer Expenditures — 2024 news release (19 December 2025), https://www.bls.gov/news.release/cesan.nr0.htm. All-consumer-unit category totals match Table A of that release and the table in the 12 February 2026 Economics Daily, https://www.bls.gov/opub/ted/2026/housing-and-transportation-accounted-for-50-percent-of-household-spending-in-2024.htm.",
+      "quintileLabels": ["lowest", "second", "third", "fourth", "highest"],
+      "characteristicsCodes": ["02", "03", "04", "05", "06"],
+      "incomeBeforeTaxesUsd": [16658, 42925, 74474, 121548, 264510],
+      "incomeBeforeTaxesSeries": "CXUINCBEFTXLB01",
+      "averageAnnualExpendituresUsd": [35046, 50054, 66900, 89972, 150342],
+      "averageAnnualExpendituresSeries": "CXUTOTALEXPLB01",
+      "itemsUsd": {
+        "housing": { "series": "CXUHOUSINGLB01", "usd": [14563, 19174, 24093, 29374, 44033] },
+        "utilities": { "series": "CXUUTILSLB01", "usd": [2934, 4065, 4635, 5431, 6607] },
+        "electricity": { "series": "CXUELECTRICLB01", "usd": [1276, 1674, 1813, 2023, 2376] },
+        "food": { "series": "CXUFOODTOTLLB01", "usd": [5498, 7400, 9097, 11845, 16989] },
+        "foodAtHome": { "series": "CXUFOODHOMELB01", "usd": [3843, 4952, 5820, 7162, 9336] },
+        "foodAwayFromHome": { "series": "CXUFOODAWAYLB01", "usd": [1655, 2448, 3277, 4682, 7652] },
+        "transportation": { "series": "CXUTRANSLB01", "usd": [5105, 8430, 11657, 15952, 25378] },
+        "vehicleInsurance": { "series": "CXU500110LB01", "usd": [895, 1679, 2028, 2518, 2840] },
+        "healthcare": { "series": "CXUHEALTHLB01", "usd": [3445, 4826, 5676, 7247, 9771] },
+        "healthInsurance": { "series": "CXUHLTHINSRLB01", "usd": [2153, 3194, 3842, 4913, 6160] },
+        "lifeInsurance": { "series": "CXULIFEINSRLB01", "usd": [174, 305, 435, 618, 1339] }
+      },
+      "logisticsHouseholdShare": {
+        "status": "unverified",
+        "usd": null,
+        "note": "Table 1101 does not publish a household logistics or freight line. Freight is inside the retail prices of goods. No share is guessed."
+      }
+    },
+    "allConsumerUnits": {
+      "status": "verified",
+      "table": "Table B. Percent distribution of total annual expenditures by major components for all consumer units, Consumer Expenditure Surveys, 2024",
+      "year": 2024,
+      "url": "https://www.bls.gov/news.release/cesan.nr0.htm",
+      "economicsDailyUrl": "https://www.bls.gov/opub/ted/2026/housing-and-transportation-accounted-for-50-percent-of-household-spending-in-2024.htm",
+      "averageAnnualExpendituresUsd": 78535,
+      "sharesOfExpenditures": {
+        "housing": 0.334,
+        "transportation": 0.17,
+        "food": 0.129,
+        "healthcare": 0.079
+      },
+      "note": "These match the values already stored on data/towns/lindsborg-ks.json. They are shares of expenditures for all consumer units, not shares of income, and not quintile shares. The daily model still applies the food share to ACS income; that application is a model choice and was not changed."
+    }
+  },
+  "electricity": {
+    "kansasResidentialPriceCentsPerKwhInModel": {
+      "status": "unverified",
+      "value": 15.27,
+      "claimedVintage": "2026-07 KS residential",
+      "sourceUrl": "https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_6_a",
+      "table": "Table 5.6.A. Average Price of Electricity to Ultimate Customers by End-Use Sector, by State",
+      "note": "The cited table's current release (August 2026, published 23 October 2026) shows Kansas residential at 15.47 cents/kWh, not 15.27. The July 2026 release that the 15.27 vintage names was not available to re-read. The model value is left at 15.27 so the daily electricity bill does not change. 15.47 is not substituted for a different month."
+    },
+    "kansasResidentialPriceAugust2026CentsPerKwh": {
+      "status": "verified",
+      "value": 15.47,
+      "table": "Table 5.6.A. Average Price of Electricity to Ultimate Customers by End-Use Sector, by State, August 2026 and 2025",
+      "year": 2026,
+      "month": "August",
+      "url": "https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_6_a",
+      "usedInModel": false
+    },
+    "kansasResidentialMonthlyBill2024": {
+      "status": "verified",
+      "table": "Table 5A. 2024 Average Monthly Bill — Residential",
+      "year": 2024,
+      "url": "https://www.eia.gov/electricity/sales_revenue_price/xls/table_5A.xlsx",
+      "customers": 1317095,
+      "averageMonthlyConsumptionKwh": 875.6638,
+      "averagePriceCentsPerKwh": 14.14946,
+      "averageMonthlyBillUsd": 123.9017,
+      "modelKwhPerMonth": 875,
+      "note": "The town file keeps 875 kWh/month, the whole-number figure already in the model. The official Table 5A consumption is 875.66 kWh. The previous source URL (electricrates.org) is replaced by this table. The 2024 annual average price, 14.15 cents/kWh, is a different series from the monthly Table 5.6.A price the model uses."
+    }
+  },
+  "unverifiedModelParameters": {
+    "housingNeedsShareByIncomeQuintile": {
+      "status": "unverified",
+      "values": [0.42, 0.38, 0.34, 0.31, 0.28],
+      "where": "data/coefficients.json housingNeedsShareByIncomeQuintile.quintileShares",
+      "note": "These are model targets for housing as a share of the simulated subsistence basket (housing + food + electricity) at abundance 0. They are not Table 1101 shares of total expenditures, and they were not found in a BLS or EIA table. Left unchanged so the daily simulation does not move. The 2024 housing shares of total expenditures are 41.6, 38.3, 36.0, 32.6, and 29.3 percent."
+    }
+  }
+}

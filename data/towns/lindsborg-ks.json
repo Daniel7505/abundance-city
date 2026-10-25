@@ -99,12 +99,14 @@
   "electricity_cents_per_kwh": {
     "value": 15.27,
     "source_url": "https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_6_a",
-    "vintage": "2026-07 KS residential"
+    "vintage": "claimed 2026-07 KS residential; UNVERIFIED. Table 5.6.A August 2026 shows Kansas residential 15.47 cents/kWh. Value kept so the daily bill does not change.",
+    "verification": "unverified"
   },
   "electricity_kwh_per_month": {
     "value": 875,
-    "source_url": "https://electricrates.org/states/rates.csv",
-    "vintage": "2024"
+    "source_url": "https://www.eia.gov/electricity/sales_revenue_price/xls/table_5A.xlsx",
+    "vintage": "EIA Table 5A, 2024 residential, Kansas. Official average monthly consumption is 875.66 kWh; the model keeps 875.",
+    "verification": "verified-rounded"
   },
   "ce_housing_share": {
     "value": 0.334,

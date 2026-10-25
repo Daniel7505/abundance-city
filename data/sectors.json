@@ -1,0 +1,115 @@
+{
+  "sourceNote": "Sector roadmap assumptions. Baseline dollars are the verified Table 1101 means in data/sources.json, composed so sectors do not overlap. Labor shares, automatability, nonlabor cost decline, output growth, and price pass-through are explicit assumptions, not estimated from a survey. Housing is the exception: its cost shares are the existing housingDwellingRent coefficients. Logistics has no verified household expenditure line and is omitted from cost of living.",
+  "horizonYears": 10,
+  "abundanceSchedule": "linear",
+  "scheduleNote": "Abundance is year / horizonYears. Year 0 is the 2024 baseline (abundance 0). Year 10 is full automation (abundance 1). This linear schedule is the roadmap's own. The daily sim still uses the logistic automation path in coefficients.json when a run asks for it.",
+  "wagePolicyNote": "MarketWages is the default, as in the daily sim. The wage bill is the year-0 labor bill times the labor that automation has not shed. WageGuarantee keeps that year-0 wage bill (staff stay). Consumer prices pass through each policy's own unit cost. That is a roadmap assumption. The daily sim's goods price dial does not depend on wage policy; there the producer pays the top-up and the price dial is unchanged. This roadmap does not change that dial.",
+  "costIdentity": "Output index = 1 + abundance * outputGrowthAtFullAutomation. MarketWages unit labor cost = laborShare0 * (1 - abundance * automatability) / outputIndex. WageGuarantee unit labor cost = laborShare0 / outputIndex. Unit nonlabor cost = (1 - laborShare0) * (1 - abundance * nonlaborCostDeclineAtFullAutomation). Price index = 1 - pricePassThrough * (1 - unitCostIndex). The wage bill does not scale with output: extra supply comes from automation, not from a larger crew.",
+  "sectors": [
+    {
+      "id": "housing",
+      "label": "Housing",
+      "inCostOfLiving": true,
+      "composition": [
+        { "item": "housing", "sign": 1 },
+        { "item": "utilities", "sign": -1 }
+      ],
+      "compositionNote": "CE housing includes utilities. Utilities are their own sector, so this weight is housing minus utilities (shelter, operations, furnishings, and supplies).",
+      "costModel": "housingDwellingRent"
+    },
+    {
+      "id": "food",
+      "label": "Groceries and food",
+      "inCostOfLiving": true,
+      "composition": [{ "item": "food", "sign": 1 }],
+      "compositionNote": "Total food, food at home plus food away from home. Food at home is the grocery component and is not priced separately in this first cut.",
+      "parameters": {
+        "laborShare0": 0.2,
+        "automatability": 0.7,
+        "nonlaborCostDeclineAtFullAutomation": 0.35,
+        "outputGrowthAtFullAutomation": 0.25,
+        "pricePassThrough": 0.85
+      }
+    },
+    {
+      "id": "utilities",
+      "label": "Utilities and electricity",
+      "inCostOfLiving": true,
+      "composition": [{ "item": "utilities", "sign": 1 }],
+      "compositionNote": "CE utilities, fuels, and public services, which include electricity. Electricity is recorded in the sources file and is not added a second time.",
+      "parameters": {
+        "laborShare0": 0.12,
+        "automatability": 0.6,
+        "nonlaborCostDeclineAtFullAutomation": 0.2,
+        "outputGrowthAtFullAutomation": 0.3,
+        "pricePassThrough": 0.9
+      }
+    },
+    {
+      "id": "transport",
+      "label": "Roads and transport",
+      "inCostOfLiving": true,
+      "composition": [
+        { "item": "transportation", "sign": 1 },
+        { "item": "vehicleInsurance", "sign": -1 }
+      ],
+      "compositionNote": "Household transportation spending minus vehicle insurance, which sits in the insurance sector. This is not a public roads budget. No separate roads-budget share is published in Table 1101.",
+      "parameters": {
+        "laborShare0": 0.35,
+        "automatability": 0.75,
+        "nonlaborCostDeclineAtFullAutomation": 0.25,
+        "outputGrowthAtFullAutomation": 0.2,
+        "pricePassThrough": 0.8
+      }
+    },
+    {
+      "id": "insurance",
+      "label": "Insurance",
+      "inCostOfLiving": true,
+      "composition": [
+        { "item": "healthInsurance", "sign": 1 },
+        { "item": "vehicleInsurance", "sign": 1 },
+        { "item": "lifeInsurance", "sign": 1 }
+      ],
+      "compositionNote": "Health insurance, vehicle insurance, and life and other personal insurance. Social Security and retirement contributions are not a cost of living and are left out.",
+      "parameters": {
+        "laborShare0": 0.3,
+        "automatability": 0.8,
+        "nonlaborCostDeclineAtFullAutomation": 0.05,
+        "outputGrowthAtFullAutomation": 0.05,
+        "pricePassThrough": 0.5
+      }
+    },
+    {
+      "id": "healthcare",
+      "label": "Healthcare",
+      "inCostOfLiving": true,
+      "composition": [
+        { "item": "healthcare", "sign": 1 },
+        { "item": "healthInsurance", "sign": -1 }
+      ],
+      "compositionNote": "CE healthcare minus health insurance, so services, drugs, and supplies. The healthcare major component is 7.9 percent of all-consumer-unit spending in 2024, which is large enough to keep the services sector. Health insurance is in the insurance sector.",
+      "parameters": {
+        "laborShare0": 0.55,
+        "automatability": 0.25,
+        "nonlaborCostDeclineAtFullAutomation": 0.15,
+        "outputGrowthAtFullAutomation": 0.1,
+        "pricePassThrough": 0.4
+      }
+    },
+    {
+      "id": "logistics",
+      "label": "Logistics",
+      "inCostOfLiving": false,
+      "composition": [],
+      "compositionNote": "No verified household expenditure share. The P&L is still computed. Its price is not added to food or to cost of living.",
+      "parameters": {
+        "laborShare0": 0.4,
+        "automatability": 0.85,
+        "nonlaborCostDeclineAtFullAutomation": 0.35,
+        "outputGrowthAtFullAutomation": 0.4,
+        "pricePassThrough": 0.9
+      }
+    }
+  ]
+}
