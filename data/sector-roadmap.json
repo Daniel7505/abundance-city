@@ -1,0 +1,3691 @@
+{
+  "schema": "abundance-city.sector-roadmap.v1",
+  "years": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "wagePolicies": [
+    "MarketWages",
+    "WageGuarantee"
+  ],
+  "quintiles": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "sectorsInCostOfLiving": [
+    "housing",
+    "food",
+    "utilities",
+    "transport",
+    "insurance",
+    "healthcare"
+  ],
+  "pnl": [
+    {
+      "sectorId": "housing",
+      "year": 0,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1,
+      "unitCostIndex": 1,
+      "laborShare": 0.28600000000000003,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0,
+      "priceIndex": 1,
+      "revenueIndex": 1,
+      "surplusIndex": 0
+    },
+    {
+      "sectorId": "food",
+      "year": 0,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1,
+      "unitCostIndex": 1,
+      "laborShare": 0.2,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0,
+      "priceIndex": 1,
+      "revenueIndex": 1,
+      "surplusIndex": 0
+    },
+    {
+      "sectorId": "utilities",
+      "year": 0,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1,
+      "unitCostIndex": 1,
+      "laborShare": 0.12,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0,
+      "priceIndex": 1,
+      "revenueIndex": 1,
+      "surplusIndex": 0
+    },
+    {
+      "sectorId": "transport",
+      "year": 0,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1,
+      "unitCostIndex": 1,
+      "laborShare": 0.35,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0,
+      "priceIndex": 1,
+      "revenueIndex": 1,
+      "surplusIndex": 0
+    },
+    {
+      "sectorId": "insurance",
+      "year": 0,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1,
+      "unitCostIndex": 1,
+      "laborShare": 0.3,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0,
+      "priceIndex": 1,
+      "revenueIndex": 1,
+      "surplusIndex": 0
+    },
+    {
+      "sectorId": "healthcare",
+      "year": 0,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1,
+      "unitCostIndex": 1,
+      "laborShare": 0.55,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0,
+      "priceIndex": 1,
+      "revenueIndex": 1,
+      "surplusIndex": 0
+    },
+    {
+      "sectorId": "logistics",
+      "year": 0,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1,
+      "unitCostIndex": 1,
+      "laborShare": 0.4,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0,
+      "priceIndex": 1,
+      "revenueIndex": 1,
+      "surplusIndex": 0
+    },
+    {
+      "sectorId": "housing",
+      "year": 0,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1,
+      "unitCostIndex": 1,
+      "laborShare": 0.28600000000000003,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0,
+      "priceIndex": 1,
+      "revenueIndex": 1,
+      "surplusIndex": 0
+    },
+    {
+      "sectorId": "food",
+      "year": 0,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1,
+      "unitCostIndex": 1,
+      "laborShare": 0.2,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0,
+      "priceIndex": 1,
+      "revenueIndex": 1,
+      "surplusIndex": 0
+    },
+    {
+      "sectorId": "utilities",
+      "year": 0,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1,
+      "unitCostIndex": 1,
+      "laborShare": 0.12,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0,
+      "priceIndex": 1,
+      "revenueIndex": 1,
+      "surplusIndex": 0
+    },
+    {
+      "sectorId": "transport",
+      "year": 0,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1,
+      "unitCostIndex": 1,
+      "laborShare": 0.35,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0,
+      "priceIndex": 1,
+      "revenueIndex": 1,
+      "surplusIndex": 0
+    },
+    {
+      "sectorId": "insurance",
+      "year": 0,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1,
+      "unitCostIndex": 1,
+      "laborShare": 0.3,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0,
+      "priceIndex": 1,
+      "revenueIndex": 1,
+      "surplusIndex": 0
+    },
+    {
+      "sectorId": "healthcare",
+      "year": 0,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1,
+      "unitCostIndex": 1,
+      "laborShare": 0.55,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0,
+      "priceIndex": 1,
+      "revenueIndex": 1,
+      "surplusIndex": 0
+    },
+    {
+      "sectorId": "logistics",
+      "year": 0,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1,
+      "unitCostIndex": 1,
+      "laborShare": 0.4,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0,
+      "priceIndex": 1,
+      "revenueIndex": 1,
+      "surplusIndex": 0
+    },
+    {
+      "sectorId": "housing",
+      "year": 1,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1,
+      "unitCostIndex": 0.9515100000000001,
+      "laborShare": 0.27051738815146453,
+      "wageBillIndex": 0.8999999999999999,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.9515100000000001,
+      "revenueIndex": 0.9515100000000001,
+      "surplusIndex": 0
+    },
+    {
+      "sectorId": "food",
+      "year": 1,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.025,
+      "unitCostIndex": 0.9534634146341464,
+      "laborShare": 0.19032027013199634,
+      "wageBillIndex": 0.93,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.9604439024390244,
+      "revenueIndex": 0.984455,
+      "surplusIndex": 0.007154999999999911
+    },
+    {
+      "sectorId": "utilities",
+      "year": 1,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.03,
+      "unitCostIndex": 0.971914563106796,
+      "laborShare": 0.11267920788914283,
+      "wageBillIndex": 0.94,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.9747231067961164,
+      "revenueIndex": 1.0039647999999999,
+      "surplusIndex": 0.0028927999999999177
+    },
+    {
+      "sectorId": "transport",
+      "year": 1,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.02,
+      "unitCostIndex": 0.9511519607843137,
+      "laborShare": 0.3337026825057335,
+      "wageBillIndex": 0.925,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.960921568627451,
+      "revenueIndex": 0.9801400000000001,
+      "surplusIndex": 0.009965000000000113
+    },
+    {
+      "sectorId": "insurance",
+      "year": 1,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.005,
+      "unitCostIndex": 0.9711268656716419,
+      "laborShare": 0.2827919557983878,
+      "wageBillIndex": 0.9199999999999999,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.9855634328358209,
+      "revenueIndex": 0.9904912499999999,
+      "surplusIndex": 0.01450875000000007
+    },
+    {
+      "sectorId": "healthcare",
+      "year": 1,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.01,
+      "unitCostIndex": 0.974190594059406,
+      "laborShare": 0.5450068983390629,
+      "wageBillIndex": 0.975,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.9896762376237624,
+      "revenueIndex": 0.999573,
+      "surplusIndex": 0.015640500000000057
+    },
+    {
+      "sectorId": "logistics",
+      "year": 1,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.04,
+      "unitCostIndex": 0.930923076923077,
+      "laborShare": 0.3780366881507189,
+      "wageBillIndex": 0.915,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.9378307692307692,
+      "revenueIndex": 0.9753440000000001,
+      "surplusIndex": 0.007184000000000079
+    },
+    {
+      "sectorId": "housing",
+      "year": 1,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1,
+      "unitCostIndex": 0.98011,
+      "laborShare": 0.29180398118578527,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.028600000000000014,
+      "priceIndex": 0.98011,
+      "revenueIndex": 0.98011,
+      "surplusIndex": 0
+    },
+    {
+      "sectorId": "food",
+      "year": 1,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.025,
+      "unitCostIndex": 0.9671219512195123,
+      "laborShare": 0.20175527085645115,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.013999999999999985,
+      "priceIndex": 0.9720536585365854,
+      "revenueIndex": 0.996355,
+      "surplusIndex": 0.005054999999999921
+    },
+    {
+      "sectorId": "utilities",
+      "year": 1,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.03,
+      "unitCostIndex": 0.9789048543689319,
+      "laborShare": 0.11901550375295555,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.007200000000000012,
+      "priceIndex": 0.9810143689320387,
+      "revenueIndex": 1.0104448,
+      "surplusIndex": 0.0021727999999999748
+    },
+    {
+      "sectorId": "transport",
+      "year": 1,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.02,
+      "unitCostIndex": 0.9768872549019607,
+      "laborShare": 0.35125573926788267,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.026249999999999996,
+      "priceIndex": 0.9815098039215686,
+      "revenueIndex": 1.00114,
+      "surplusIndex": 0.004714999999999914
+    },
+    {
+      "sectorId": "insurance",
+      "year": 1,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.005,
+      "unitCostIndex": 0.9950074626865673,
+      "laborShare": 0.3000052500918766,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.02400000000000002,
+      "priceIndex": 0.9975037313432836,
+      "revenueIndex": 1.0024912499999998,
+      "surplusIndex": 0.0025087499999998375
+    },
+    {
+      "sectorId": "healthcare",
+      "year": 1,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.01,
+      "unitCostIndex": 0.9878044554455445,
+      "laborShare": 0.5512775858051034,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.01375000000000004,
+      "priceIndex": 0.9951217821782178,
+      "revenueIndex": 1.0050729999999999,
+      "surplusIndex": 0.0073904999999998555
+    },
+    {
+      "sectorId": "logistics",
+      "year": 1,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.04,
+      "unitCostIndex": 0.9636153846153845,
+      "laborShare": 0.39913786221761,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.033999999999999975,
+      "priceIndex": 0.9672538461538461,
+      "revenueIndex": 1.005944,
+      "surplusIndex": 0.0037839999999998986
+    },
+    {
+      "sectorId": "housing",
+      "year": 2,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1,
+      "unitCostIndex": 0.9030199999999999,
+      "laborShare": 0.25337201833846434,
+      "wageBillIndex": 0.8,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.9030199999999999,
+      "revenueIndex": 0.9030199999999999,
+      "surplusIndex": 0
+    },
+    {
+      "sectorId": "food",
+      "year": 2,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.05,
+      "unitCostIndex": 0.907809523809524,
+      "laborShare": 0.18044481745698698,
+      "wageBillIndex": 0.86,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.9216380952380954,
+      "revenueIndex": 0.9677200000000001,
+      "surplusIndex": 0.014519999999999977
+    },
+    {
+      "sectorId": "utilities",
+      "year": 2,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.06,
+      "unitCostIndex": 0.9444226415094339,
+      "laborShare": 0.10548523206751055,
+      "wageBillIndex": 0.88,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.9499803773584905,
+      "revenueIndex": 1.0069792,
+      "surplusIndex": 0.005891199999999874
+    },
+    {
+      "sectorId": "transport",
+      "year": 2,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.04,
+      "unitCostIndex": 0.9035576923076922,
+      "laborShare": 0.31659040119186976,
+      "wageBillIndex": 0.85,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.9228461538461538,
+      "revenueIndex": 0.95976,
+      "surplusIndex": 0.020059999999999967
+    },
+    {
+      "sectorId": "insurance",
+      "year": 2,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.01,
+      "unitCostIndex": 0.9425049504950495,
+      "laborShare": 0.26472534745201853,
+      "wageBillIndex": 0.8400000000000001,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.9712524752475247,
+      "revenueIndex": 0.980965,
+      "surplusIndex": 0.029035000000000033
+    },
+    {
+      "sectorId": "healthcare",
+      "year": 2,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.02,
+      "unitCostIndex": 0.9487549019607842,
+      "laborShare": 0.5399233257210173,
+      "wageBillIndex": 0.9499999999999998,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.9795019607843136,
+      "revenueIndex": 0.9990919999999999,
+      "surplusIndex": 0.031361999999999945
+    },
+    {
+      "sectorId": "logistics",
+      "year": 2,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.08,
+      "unitCostIndex": 0.8654074074074074,
+      "laborShare": 0.3552169819395703,
+      "wageBillIndex": 0.83,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.8788666666666667,
+      "revenueIndex": 0.9491760000000001,
+      "surplusIndex": 0.014536000000000104
+    },
+    {
+      "sectorId": "housing",
+      "year": 2,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1,
+      "unitCostIndex": 0.96022,
+      "laborShare": 0.29784840973943477,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.0572,
+      "priceIndex": 0.96022,
+      "revenueIndex": 0.96022,
+      "surplusIndex": 0
+    },
+    {
+      "sectorId": "food",
+      "year": 2,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.05,
+      "unitCostIndex": 0.9344761904761906,
+      "laborShare": 0.2038320423970648,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.027999999999999997,
+      "priceIndex": 0.944304761904762,
+      "revenueIndex": 0.9915200000000001,
+      "surplusIndex": 0.010319999999999885
+    },
+    {
+      "sectorId": "utilities",
+      "year": 2,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.06,
+      "unitCostIndex": 0.9580075471698113,
+      "laborShare": 0.11816978634902628,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.014399999999999996,
+      "priceIndex": 0.9622067924528301,
+      "revenueIndex": 1.0199392,
+      "surplusIndex": 0.0044511999999999885
+    },
+    {
+      "sectorId": "transport",
+      "year": 2,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.04,
+      "unitCostIndex": 0.9540384615384614,
+      "laborShare": 0.35275146139891156,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.05249999999999999,
+      "priceIndex": 0.9632307692307691,
+      "revenueIndex": 1.00176,
+      "surplusIndex": 0.009560000000000013
+    },
+    {
+      "sectorId": "insurance",
+      "year": 2,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.01,
+      "unitCostIndex": 0.9900297029702969,
+      "laborShare": 0.3000210014701029,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.04799999999999999,
+      "priceIndex": 0.9950148514851485,
+      "revenueIndex": 1.0049649999999999,
+      "surplusIndex": 0.005034999999999901
+    },
+    {
+      "sectorId": "healthcare",
+      "year": 2,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.02,
+      "unitCostIndex": 0.9757156862745098,
+      "laborShare": 0.5526360740733299,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.02750000000000008,
+      "priceIndex": 0.9902862745098039,
+      "revenueIndex": 1.010092,
+      "surplusIndex": 0.014861999999999986
+    },
+    {
+      "sectorId": "logistics",
+      "year": 2,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.08,
+      "unitCostIndex": 0.9283703703703704,
+      "laborShare": 0.39894678049948135,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.068,
+      "priceIndex": 0.9355333333333333,
+      "revenueIndex": 1.0103760000000002,
+      "surplusIndex": 0.007736000000000076
+    },
+    {
+      "sectorId": "housing",
+      "year": 3,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1,
+      "unitCostIndex": 0.85453,
+      "laborShare": 0.23428083273846442,
+      "wageBillIndex": 0.7,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.85453,
+      "revenueIndex": 0.85453,
+      "surplusIndex": 0
+    },
+    {
+      "sectorId": "food",
+      "year": 3,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.075,
+      "unitCostIndex": 0.8629767441860466,
+      "laborShare": 0.17031367899105315,
+      "wageBillIndex": 0.7900000000000001,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.8835302325581397,
+      "revenueIndex": 0.9497950000000001,
+      "surplusIndex": 0.022094999999999976
+    },
+    {
+      "sectorId": "utilities",
+      "year": 3,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.09,
+      "unitCostIndex": 0.9174752293577981,
+      "laborShare": 0.09839527702670273,
+      "wageBillIndex": 0.8200000000000001,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.9257277064220183,
+      "revenueIndex": 1.0090432,
+      "surplusIndex": 0.008995199999999981
+    },
+    {
+      "sectorId": "transport",
+      "year": 3,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.06,
+      "unitCostIndex": 0.8571462264150944,
+      "laborShare": 0.29854442396059755,
+      "wageBillIndex": 0.775,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.8857169811320755,
+      "revenueIndex": 0.9388600000000001,
+      "surplusIndex": 0.030285000000000006
+    },
+    {
+      "sectorId": "insurance",
+      "year": 3,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.015,
+      "unitCostIndex": 0.9141305418719212,
+      "laborShare": 0.24573136065657694,
+      "wageBillIndex": 0.76,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.9570652709359606,
+      "revenueIndex": 0.9714212499999999,
+      "surplusIndex": 0.04357875
+    },
+    {
+      "sectorId": "healthcare",
+      "year": 3,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.03,
+      "unitCostIndex": 0.9236820388349514,
+      "laborShare": 0.5347424958678989,
+      "wageBillIndex": 0.925,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.9694728155339806,
+      "revenueIndex": 0.998557,
+      "surplusIndex": 0.0471645
+    },
+    {
+      "sectorId": "logistics",
+      "year": 3,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.12,
+      "unitCostIndex": 0.8030714285714285,
+      "laborShare": 0.33131726407542467,
+      "wageBillIndex": 0.7449999999999999,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.8227642857142857,
+      "revenueIndex": 0.9214960000000001,
+      "surplusIndex": 0.022055999999999965
+    },
+    {
+      "sectorId": "housing",
+      "year": 3,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1,
+      "unitCostIndex": 0.94033,
+      "laborShare": 0.30414854359639704,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.08580000000000002,
+      "priceIndex": 0.94033,
+      "revenueIndex": 0.94033,
+      "surplusIndex": 0
+    },
+    {
+      "sectorId": "food",
+      "year": 3,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.075,
+      "unitCostIndex": 0.902046511627907,
+      "laborShare": 0.20624935547076417,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.04199999999999998,
+      "priceIndex": 0.916739534883721,
+      "revenueIndex": 0.985495,
+      "surplusIndex": 0.015795000000000003
+    },
+    {
+      "sectorId": "utilities",
+      "year": 3,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.09,
+      "unitCostIndex": 0.937291743119266,
+      "laborShare": 0.11745728470079714,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.021599999999999994,
+      "priceIndex": 0.9435625688073394,
+      "revenueIndex": 1.0284832,
+      "surplusIndex": 0.00683519999999993
+    },
+    {
+      "sectorId": "transport",
+      "year": 3,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.06,
+      "unitCostIndex": 0.9314386792452831,
+      "laborShare": 0.35449320132681733,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.07874999999999999,
+      "priceIndex": 0.9451509433962265,
+      "revenueIndex": 1.0018600000000002,
+      "surplusIndex": 0.014535000000000076
+    },
+    {
+      "sectorId": "insurance",
+      "year": 3,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.015,
+      "unitCostIndex": 0.9850665024630543,
+      "laborShare": 0.3000472574430473,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.07200000000000001,
+      "priceIndex": 0.9925332512315271,
+      "revenueIndex": 1.00742125,
+      "surplusIndex": 0.0075787499999999675
+    },
+    {
+      "sectorId": "healthcare",
+      "year": 3,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.03,
+      "unitCostIndex": 0.9637305825242718,
+      "laborShare": 0.554076618722249,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.04125000000000001,
+      "priceIndex": 0.9854922330097087,
+      "revenueIndex": 1.0150569999999999,
+      "surplusIndex": 0.022414499999999837
+    },
+    {
+      "sectorId": "logistics",
+      "year": 3,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.12,
+      "unitCostIndex": 0.8941428571428571,
+      "laborShare": 0.3994248282473239,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.10200000000000004,
+      "priceIndex": 0.9047285714285714,
+      "revenueIndex": 1.0132960000000002,
+      "surplusIndex": 0.011856000000000089
+    },
+    {
+      "sectorId": "housing",
+      "year": 4,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1,
+      "unitCostIndex": 0.80604,
+      "laborShare": 0.21289266041387525,
+      "wageBillIndex": 0.6,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.80604,
+      "revenueIndex": 0.80604,
+      "surplusIndex": 0
+    },
+    {
+      "sectorId": "food",
+      "year": 4,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.1,
+      "unitCostIndex": 0.8189090909090909,
+      "laborShare": 0.15985790408525752,
+      "wageBillIndex": 0.7199999999999999,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.8460727272727273,
+      "revenueIndex": 0.9306800000000001,
+      "surplusIndex": 0.029879999999999907
+    },
+    {
+      "sectorId": "utilities",
+      "year": 4,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.12,
+      "unitCostIndex": 0.8910285714285714,
+      "laborShare": 0.09138716090553453,
+      "wageBillIndex": 0.76,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.9019257142857142,
+      "revenueIndex": 1.0101568,
+      "surplusIndex": 0.012204800000000016
+    },
+    {
+      "sectorId": "transport",
+      "year": 4,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.08,
+      "unitCostIndex": 0.8118518518518518,
+      "laborShare": 0.2794251824817518,
+      "wageBillIndex": 0.7,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.8494814814814815,
+      "revenueIndex": 0.91744,
+      "surplusIndex": 0.0406399999999999
+    },
+    {
+      "sectorId": "insurance",
+      "year": 4,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.02,
+      "unitCostIndex": 0.8859999999999999,
+      "laborShare": 0.22573363431151242,
+      "wageBillIndex": 0.6799999999999999,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.943,
+      "revenueIndex": 0.9618599999999999,
+      "surplusIndex": 0.05813999999999997
+    },
+    {
+      "sectorId": "healthcare",
+      "year": 4,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.04,
+      "unitCostIndex": 0.8989615384615384,
+      "laborShare": 0.5294570658452061,
+      "wageBillIndex": 0.9,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.9595846153846154,
+      "revenueIndex": 0.997968,
+      "surplusIndex": 0.06304799999999994
+    },
+    {
+      "sectorId": "logistics",
+      "year": 4,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.1600000000000001,
+      "unitCostIndex": 0.7435862068965516,
+      "laborShare": 0.30606566499721755,
+      "wageBillIndex": 0.6599999999999998,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.7692275862068965,
+      "revenueIndex": 0.892304,
+      "surplusIndex": 0.02974399999999988
+    },
+    {
+      "sectorId": "housing",
+      "year": 4,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1,
+      "unitCostIndex": 0.92044,
+      "laborShare": 0.3107209595410891,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.11440000000000003,
+      "priceIndex": 0.92044,
+      "revenueIndex": 0.92044,
+      "surplusIndex": 0
+    },
+    {
+      "sectorId": "food",
+      "year": 4,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.1,
+      "unitCostIndex": 0.8698181818181818,
+      "laborShare": 0.20903010033444816,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.05600000000000002,
+      "priceIndex": 0.8893454545454546,
+      "revenueIndex": 0.97828,
+      "surplusIndex": 0.021479999999999944
+    },
+    {
+      "sectorId": "utilities",
+      "year": 4,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.12,
+      "unitCostIndex": 0.9167428571428571,
+      "laborShare": 0.11687340273016267,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.028799999999999992,
+      "priceIndex": 0.9250685714285714,
+      "revenueIndex": 1.0360768,
+      "surplusIndex": 0.009324799999999911
+    },
+    {
+      "sectorId": "transport",
+      "year": 4,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.08,
+      "unitCostIndex": 0.9090740740740741,
+      "laborShare": 0.3564880831126501,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.10500000000000001,
+      "priceIndex": 0.9272592592592593,
+      "revenueIndex": 1.00144,
+      "surplusIndex": 0.01963999999999999
+    },
+    {
+      "sectorId": "insurance",
+      "year": 4,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.02,
+      "unitCostIndex": 0.9801176470588235,
+      "laborShare": 0.3000840235265875,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.096,
+      "priceIndex": 0.9900588235294118,
+      "revenueIndex": 1.00986,
+      "surplusIndex": 0.010139999999999927
+    },
+    {
+      "sectorId": "healthcare",
+      "year": 4,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.04,
+      "unitCostIndex": 0.9518461538461538,
+      "laborShare": 0.5556004525618232,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.05499999999999999,
+      "priceIndex": 0.9807384615384616,
+      "revenueIndex": 1.019968,
+      "surplusIndex": 0.03004800000000002
+    },
+    {
+      "sectorId": "logistics",
+      "year": 4,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.1600000000000001,
+      "unitCostIndex": 0.8608275862068966,
+      "laborShare": 0.40057683063611593,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.13600000000000007,
+      "priceIndex": 0.8747448275862069,
+      "revenueIndex": 1.014704,
+      "surplusIndex": 0.016143999999999936
+    },
+    {
+      "sectorId": "housing",
+      "year": 5,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1,
+      "unitCostIndex": 0.7575500000000001,
+      "laborShare": 0.18876641805821398,
+      "wageBillIndex": 0.5,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.7575500000000001,
+      "revenueIndex": 0.7575500000000001,
+      "surplusIndex": 0
+    },
+    {
+      "sectorId": "food",
+      "year": 5,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.125,
+      "unitCostIndex": 0.7755555555555556,
+      "laborShare": 0.1489971346704871,
+      "wageBillIndex": 0.65,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.8092222222222223,
+      "revenueIndex": 0.910375,
+      "surplusIndex": 0.03787499999999999
+    },
+    {
+      "sectorId": "utilities",
+      "year": 5,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.15,
+      "unitCostIndex": 0.8650434782608696,
+      "laborShare": 0.0844390832328106,
+      "wageBillIndex": 0.7,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.8785391304347826,
+      "revenueIndex": 1.0103199999999999,
+      "surplusIndex": 0.015519999999999978
+    },
+    {
+      "sectorId": "transport",
+      "year": 5,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.1,
+      "unitCostIndex": 0.7676136363636363,
+      "laborShare": 0.25906735751295334,
+      "wageBillIndex": 0.625,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.8140909090909091,
+      "revenueIndex": 0.8955000000000001,
+      "surplusIndex": 0.05112500000000009
+    },
+    {
+      "sectorId": "insurance",
+      "year": 5,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.025,
+      "unitCostIndex": 0.858109756097561,
+      "laborShare": 0.20464719675975274,
+      "wageBillIndex": 0.6,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.9290548780487805,
+      "revenueIndex": 0.95228125,
+      "surplusIndex": 0.07271875000000005
+    },
+    {
+      "sectorId": "healthcare",
+      "year": 5,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.05,
+      "unitCostIndex": 0.8745833333333333,
+      "laborShare": 0.5240590757503574,
+      "wageBillIndex": 0.875,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.9498333333333333,
+      "revenueIndex": 0.997325,
+      "surplusIndex": 0.07901249999999999
+    },
+    {
+      "sectorId": "logistics",
+      "year": 5,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.2,
+      "unitCostIndex": 0.6866666666666665,
+      "laborShare": 0.27912621359223305,
+      "wageBillIndex": 0.575,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.7179999999999999,
+      "revenueIndex": 0.8615999999999998,
+      "surplusIndex": 0.03759999999999997
+    },
+    {
+      "sectorId": "housing",
+      "year": 5,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1,
+      "unitCostIndex": 0.9005500000000001,
+      "laborShare": 0.31758369885070237,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.14300000000000002,
+      "priceIndex": 0.9005500000000001,
+      "revenueIndex": 0.9005500000000001,
+      "surplusIndex": 0
+    },
+    {
+      "sectorId": "food",
+      "year": 5,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.125,
+      "unitCostIndex": 0.8377777777777778,
+      "laborShare": 0.21220159151193632,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.07,
+      "priceIndex": 0.8621111111111112,
+      "revenueIndex": 0.969875,
+      "surplusIndex": 0.027375000000000038
+    },
+    {
+      "sectorId": "utilities",
+      "year": 5,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.15,
+      "unitCostIndex": 0.8963478260869566,
+      "laborShare": 0.11641443538998836,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.036000000000000004,
+      "priceIndex": 0.906713043478261,
+      "revenueIndex": 1.04272,
+      "surplusIndex": 0.011920000000000153
+    },
+    {
+      "sectorId": "transport",
+      "year": 5,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.1,
+      "unitCostIndex": 0.8869318181818181,
+      "laborShare": 0.35874439461883406,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.13124999999999998,
+      "priceIndex": 0.9095454545454544,
+      "revenueIndex": 1.0005,
+      "surplusIndex": 0.02487499999999998
+    },
+    {
+      "sectorId": "insurance",
+      "year": 5,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.025,
+      "unitCostIndex": 0.9751829268292683,
+      "laborShare": 0.3001313074470081,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.12,
+      "priceIndex": 0.9875914634146341,
+      "revenueIndex": 1.0122812499999998,
+      "surplusIndex": 0.012718749999999779
+    },
+    {
+      "sectorId": "healthcare",
+      "year": 5,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.05,
+      "unitCostIndex": 0.9400595238095237,
+      "laborShare": 0.5572088900145635,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.06874999999999998,
+      "priceIndex": 0.9760238095238095,
+      "revenueIndex": 1.024825,
+      "surplusIndex": 0.03776250000000009
+    },
+    {
+      "sectorId": "logistics",
+      "year": 5,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.2,
+      "unitCostIndex": 0.8283333333333334,
+      "laborShare": 0.4024144869215292,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.17000000000000004,
+      "priceIndex": 0.8455,
+      "revenueIndex": 1.0146,
+      "surplusIndex": 0.020600000000000063
+    },
+    {
+      "sectorId": "housing",
+      "year": 6,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1,
+      "unitCostIndex": 0.70906,
+      "laborShare": 0.16134036611852312,
+      "wageBillIndex": 0.4,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.70906,
+      "revenueIndex": 0.70906,
+      "surplusIndex": 0
+    },
+    {
+      "sectorId": "food",
+      "year": 6,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.15,
+      "unitCostIndex": 0.7328695652173914,
+      "laborShare": 0.13763644992880875,
+      "wageBillIndex": 0.5800000000000001,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.7729391304347828,
+      "revenueIndex": 0.8888800000000001,
+      "surplusIndex": 0.04608000000000001
+    },
+    {
+      "sectorId": "utilities",
+      "year": 6,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.18,
+      "unitCostIndex": 0.8394847457627118,
+      "laborShare": 0.07752939656286342,
+      "wageBillIndex": 0.64,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.8555362711864406,
+      "revenueIndex": 1.0095328,
+      "surplusIndex": 0.01894079999999998
+    },
+    {
+      "sectorId": "transport",
+      "year": 6,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.12,
+      "unitCostIndex": 0.724375,
+      "laborShare": 0.2372735116479724,
+      "wageBillIndex": 0.55,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.7795,
+      "revenueIndex": 0.87304,
+      "surplusIndex": 0.06174000000000002
+    },
+    {
+      "sectorId": "insurance",
+      "year": 6,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.03,
+      "unitCostIndex": 0.8304563106796116,
+      "laborShare": 0.18237721687690708,
+      "wageBillIndex": 0.52,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.9152281553398058,
+      "revenueIndex": 0.942685,
+      "surplusIndex": 0.08731500000000003
+    },
+    {
+      "sectorId": "healthcare",
+      "year": 6,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.06,
+      "unitCostIndex": 0.8505377358490566,
+      "laborShare": 0.518539880430804,
+      "wageBillIndex": 0.85,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.9402150943396226,
+      "revenueIndex": 0.996628,
+      "surplusIndex": 0.09505799999999992
+    },
+    {
+      "sectorId": "logistics",
+      "year": 6,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.24,
+      "unitCostIndex": 0.6320645161290323,
+      "laborShare": 0.25007655404715734,
+      "wageBillIndex": 0.49,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.6688580645161291,
+      "revenueIndex": 0.829384,
+      "surplusIndex": 0.045624
+    },
+    {
+      "sectorId": "housing",
+      "year": 6,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1,
+      "unitCostIndex": 0.88066,
+      "laborShare": 0.3247564326754934,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.17160000000000003,
+      "priceIndex": 0.88066,
+      "revenueIndex": 0.88066,
+      "surplusIndex": 0
+    },
+    {
+      "sectorId": "food",
+      "year": 6,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.15,
+      "unitCostIndex": 0.805913043478261,
+      "laborShare": 0.21579628830384118,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.08399999999999999,
+      "priceIndex": 0.8350260869565218,
+      "revenueIndex": 0.96028,
+      "surplusIndex": 0.033479999999999954
+    },
+    {
+      "sectorId": "utilities",
+      "year": 6,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.18,
+      "unitCostIndex": 0.8760949152542372,
+      "laborShare": 0.11607750882189069,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.0432,
+      "priceIndex": 0.8884854237288135,
+      "revenueIndex": 1.0484128,
+      "surplusIndex": 0.01462079999999999
+    },
+    {
+      "sectorId": "transport",
+      "year": 6,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.12,
+      "unitCostIndex": 0.865,
+      "laborShare": 0.361271676300578,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.15749999999999997,
+      "priceIndex": 0.892,
+      "revenueIndex": 0.9990400000000002,
+      "surplusIndex": 0.030240000000000156
+    },
+    {
+      "sectorId": "insurance",
+      "year": 6,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.03,
+      "unitCostIndex": 0.97026213592233,
+      "laborShare": 0.3001891191450614,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.144,
+      "priceIndex": 0.985131067961165,
+      "revenueIndex": 1.014685,
+      "surplusIndex": 0.015315000000000079
+    },
+    {
+      "sectorId": "healthcare",
+      "year": 6,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.06,
+      "unitCostIndex": 0.9283679245283019,
+      "laborShare": 0.5589033300476592,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.08250000000000002,
+      "priceIndex": 0.9713471698113207,
+      "revenueIndex": 1.029628,
+      "surplusIndex": 0.04555799999999993
+    },
+    {
+      "sectorId": "logistics",
+      "year": 6,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.24,
+      "unitCostIndex": 0.7965806451612903,
+      "laborShare": 0.40495666963634896,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.20400000000000001,
+      "priceIndex": 0.8169225806451613,
+      "revenueIndex": 1.012984,
+      "surplusIndex": 0.025224000000000135
+    },
+    {
+      "sectorId": "housing",
+      "year": 7,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1,
+      "unitCostIndex": 0.6605699999999999,
+      "laborShare": 0.12988782415186892,
+      "wageBillIndex": 0.30000000000000004,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.6605699999999999,
+      "revenueIndex": 0.6605699999999999,
+      "surplusIndex": 0
+    },
+    {
+      "sectorId": "food",
+      "year": 7,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.175,
+      "unitCostIndex": 0.690808510638298,
+      "laborShare": 0.1256621904644573,
+      "wageBillIndex": 0.51,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.7371872340425533,
+      "revenueIndex": 0.8661950000000002,
+      "surplusIndex": 0.05449500000000007
+    },
+    {
+      "sectorId": "utilities",
+      "year": 7,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.21,
+      "unitCostIndex": 0.8143206611570248,
+      "laborShare": 0.07063637692220257,
+      "wageBillIndex": 0.5800000000000001,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.8328885950413223,
+      "revenueIndex": 1.0077952,
+      "surplusIndex": 0.02246719999999991
+    },
+    {
+      "sectorId": "transport",
+      "year": 7,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.14,
+      "unitCostIndex": 0.6820833333333334,
+      "laborShare": 0.21380574221136225,
+      "wageBillIndex": 0.47500000000000003,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.7456666666666667,
+      "revenueIndex": 0.8500599999999999,
+      "surplusIndex": 0.07248499999999991
+    },
+    {
+      "sectorId": "insurance",
+      "year": 7,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.035,
+      "unitCostIndex": 0.803036231884058,
+      "laborShare": 0.15881753128976078,
+      "wageBillIndex": 0.44000000000000006,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.901518115942029,
+      "revenueIndex": 0.9330712499999999,
+      "surplusIndex": 0.10192875000000001
+    },
+    {
+      "sectorId": "healthcare",
+      "year": 7,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.07,
+      "unitCostIndex": 0.8268154205607476,
+      "laborShare": 0.5128900719741605,
+      "wageBillIndex": 0.825,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.9307261682242991,
+      "revenueIndex": 0.9958770000000001,
+      "surplusIndex": 0.11118450000000019
+    },
+    {
+      "sectorId": "logistics",
+      "year": 7,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.28,
+      "unitCostIndex": 0.5795625,
+      "laborShare": 0.2183759301197024,
+      "wageBillIndex": 0.4050000000000001,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.6216062499999999,
+      "revenueIndex": 0.7956559999999999,
+      "surplusIndex": 0.053815999999999975
+    },
+    {
+      "sectorId": "housing",
+      "year": 7,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1,
+      "unitCostIndex": 0.8607699999999999,
+      "laborShare": 0.33226065034794433,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.2002,
+      "priceIndex": 0.8607699999999999,
+      "revenueIndex": 0.8607699999999999,
+      "surplusIndex": 0
+    },
+    {
+      "sectorId": "food",
+      "year": 7,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.175,
+      "unitCostIndex": 0.7742127659574469,
+      "laborShare": 0.2198526986918764,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.098,
+      "priceIndex": 0.8080808510638299,
+      "revenueIndex": 0.9494950000000001,
+      "surplusIndex": 0.039794999999999914
+    },
+    {
+      "sectorId": "utilities",
+      "year": 7,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.21,
+      "unitCostIndex": 0.8559735537190083,
+      "laborShare": 0.11586053481222869,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.050399999999999986,
+      "priceIndex": 0.8703761983471074,
+      "revenueIndex": 1.0531552,
+      "surplusIndex": 0.017427199999999976
+    },
+    {
+      "sectorId": "transport",
+      "year": 7,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.14,
+      "unitCostIndex": 0.8432675438596491,
+      "laborShare": 0.36408082594335944,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.18374999999999997,
+      "priceIndex": 0.8746140350877193,
+      "revenueIndex": 0.99706,
+      "surplusIndex": 0.03573499999999996
+    },
+    {
+      "sectorId": "insurance",
+      "year": 7,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.035,
+      "unitCostIndex": 0.9653550724637681,
+      "laborShare": 0.3002574707811949,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.16799999999999998,
+      "priceIndex": 0.982677536231884,
+      "revenueIndex": 1.0170712499999999,
+      "surplusIndex": 0.017928749999999938
+    },
+    {
+      "sectorId": "healthcare",
+      "year": 7,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.07,
+      "unitCostIndex": 0.916768691588785,
+      "laborShare": 0.5606852593296754,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.09625000000000006,
+      "priceIndex": 0.966707476635514,
+      "revenueIndex": 1.034377,
+      "surplusIndex": 0.05343450000000011
+    },
+    {
+      "sectorId": "logistics",
+      "year": 7,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.28,
+      "unitCostIndex": 0.7655,
+      "laborShare": 0.4082299150881777,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.238,
+      "priceIndex": 0.7889499999999999,
+      "revenueIndex": 1.0098559999999999,
+      "surplusIndex": 0.03001599999999993
+    },
+    {
+      "sectorId": "housing",
+      "year": 8,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1,
+      "unitCostIndex": 0.61208,
+      "laborShare": 0.09345183636125996,
+      "wageBillIndex": 0.19999999999999996,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.61208,
+      "revenueIndex": 0.61208,
+      "surplusIndex": 0
+    },
+    {
+      "sectorId": "food",
+      "year": 8,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.2,
+      "unitCostIndex": 0.6493333333333333,
+      "laborShare": 0.11293634496919923,
+      "wageBillIndex": 0.4400000000000001,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.7019333333333333,
+      "revenueIndex": 0.84232,
+      "surplusIndex": 0.06311999999999995
+    },
+    {
+      "sectorId": "utilities",
+      "year": 8,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.24,
+      "unitCostIndex": 0.7895225806451612,
+      "laborShare": 0.06373798784075309,
+      "wageBillIndex": 0.52,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.8105703225806451,
+      "revenueIndex": 1.0051071999999999,
+      "surplusIndex": 0.026099199999999878
+    },
+    {
+      "sectorId": "transport",
+      "year": 8,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.1600000000000001,
+      "unitCostIndex": 0.6406896551724137,
+      "laborShare": 0.18837459634015064,
+      "wageBillIndex": 0.3999999999999999,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.7125517241379309,
+      "revenueIndex": 0.82656,
+      "surplusIndex": 0.08335999999999999
+    },
+    {
+      "sectorId": "insurance",
+      "year": 8,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.04,
+      "unitCostIndex": 0.7758461538461537,
+      "laborShare": 0.13384889946460435,
+      "wageBillIndex": 0.3599999999999999,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.8879230769230768,
+      "revenueIndex": 0.9234399999999999,
+      "surplusIndex": 0.11656
+    },
+    {
+      "sectorId": "healthcare",
+      "year": 8,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.08,
+      "unitCostIndex": 0.8034074074074073,
+      "laborShare": 0.5070993914807304,
+      "wageBillIndex": 0.8,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.9213629629629629,
+      "revenueIndex": 0.9950720000000001,
+      "surplusIndex": 0.127392
+    },
+    {
+      "sectorId": "logistics",
+      "year": 8,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.32,
+      "unitCostIndex": 0.528969696969697,
+      "laborShare": 0.18331805682859756,
+      "wageBillIndex": 0.3199999999999999,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.5760727272727273,
+      "revenueIndex": 0.7604160000000001,
+      "surplusIndex": 0.06217600000000012
+    },
+    {
+      "sectorId": "housing",
+      "year": 8,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1,
+      "unitCostIndex": 0.84088,
+      "laborShare": 0.3401198744172772,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.22880000000000003,
+      "priceIndex": 0.84088,
+      "revenueIndex": 0.84088,
+      "surplusIndex": 0
+    },
+    {
+      "sectorId": "food",
+      "year": 8,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.2,
+      "unitCostIndex": 0.7426666666666666,
+      "laborShare": 0.22441651705565535,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.11199999999999999,
+      "priceIndex": 0.7812666666666666,
+      "revenueIndex": 0.9375199999999998,
+      "surplusIndex": 0.046319999999999806
+    },
+    {
+      "sectorId": "utilities",
+      "year": 8,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.24,
+      "unitCostIndex": 0.8359741935483871,
+      "laborShare": 0.11576217818114465,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.0576,
+      "priceIndex": 0.8523767741935484,
+      "revenueIndex": 1.0569472,
+      "surplusIndex": 0.0203392
+    },
+    {
+      "sectorId": "transport",
+      "year": 8,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.1600000000000001,
+      "unitCostIndex": 0.8217241379310345,
+      "laborShare": 0.3671842215694502,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.21000000000000002,
+      "priceIndex": 0.8573793103448276,
+      "revenueIndex": 0.9945600000000001,
+      "surplusIndex": 0.04136000000000006
+    },
+    {
+      "sectorId": "insurance",
+      "year": 8,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.04,
+      "unitCostIndex": 0.9604615384615384,
+      "laborShare": 0.30033637674195096,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.19200000000000003,
+      "priceIndex": 0.9802307692307692,
+      "revenueIndex": 1.0194400000000001,
+      "surplusIndex": 0.020560000000000134
+    },
+    {
+      "sectorId": "healthcare",
+      "year": 8,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.08,
+      "unitCostIndex": 0.9052592592592592,
+      "laborShare": 0.5625562556255627,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.10999999999999999,
+      "priceIndex": 0.9621037037037037,
+      "revenueIndex": 1.039072,
+      "surplusIndex": 0.06139199999999995
+    },
+    {
+      "sectorId": "logistics",
+      "year": 8,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.32,
+      "unitCostIndex": 0.735030303030303,
+      "laborShare": 0.41226912928759896,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.272,
+      "priceIndex": 0.7615272727272727,
+      "revenueIndex": 1.005216,
+      "surplusIndex": 0.03497600000000012
+    },
+    {
+      "sectorId": "housing",
+      "year": 9,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1,
+      "unitCostIndex": 0.5635899999999999,
+      "laborShare": 0.0507461097606416,
+      "wageBillIndex": 0.09999999999999998,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.5635899999999999,
+      "revenueIndex": 0.5635899999999999,
+      "surplusIndex": 0
+    },
+    {
+      "sectorId": "food",
+      "year": 9,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.225,
+      "unitCostIndex": 0.6084081632653061,
+      "laborShare": 0.09928887696229706,
+      "wageBillIndex": 0.36999999999999994,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.6671469387755102,
+      "revenueIndex": 0.8172550000000001,
+      "surplusIndex": 0.07195499999999999
+    },
+    {
+      "sectorId": "utilities",
+      "year": 9,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.27,
+      "unitCostIndex": 0.7650645669291337,
+      "laborShare": 0.0568116323875706,
+      "wageBillIndex": 0.45999999999999996,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.7885581102362204,
+      "revenueIndex": 1.0014687999999998,
+      "surplusIndex": 0.029836799999999886
+    },
+    {
+      "sectorId": "transport",
+      "year": 9,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.18,
+      "unitCostIndex": 0.6001483050847458,
+      "laborShare": 0.16062413951353827,
+      "wageBillIndex": 0.32499999999999996,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.6801186440677967,
+      "revenueIndex": 0.80254,
+      "surplusIndex": 0.09436500000000003
+    },
+    {
+      "sectorId": "insurance",
+      "year": 9,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.045,
+      "unitCostIndex": 0.7488827751196172,
+      "laborShare": 0.10733692613877768,
+      "wageBillIndex": 0.2799999999999999,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.8744413875598086,
+      "revenueIndex": 0.9137912499999999,
+      "surplusIndex": 0.1312087500000001
+    },
+    {
+      "sectorId": "healthcare",
+      "year": 9,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.09,
+      "unitCostIndex": 0.7803050458715597,
+      "laborShare": 0.5011566283475352,
+      "wageBillIndex": 0.775,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.9121220183486238,
+      "revenueIndex": 0.994213,
+      "surplusIndex": 0.1436805
+    },
+    {
+      "sectorId": "logistics",
+      "year": 9,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.36,
+      "unitCostIndex": 0.48011764705882354,
+      "laborShare": 0.1439598137711345,
+      "wageBillIndex": 0.235,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.5321058823529412,
+      "revenueIndex": 0.7236640000000001,
+      "surplusIndex": 0.07070399999999999
+    },
+    {
+      "sectorId": "housing",
+      "year": 9,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1,
+      "unitCostIndex": 0.82099,
+      "laborShare": 0.3483599069416193,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.2574,
+      "priceIndex": 0.82099,
+      "revenueIndex": 0.82099,
+      "surplusIndex": 0
+    },
+    {
+      "sectorId": "food",
+      "year": 9,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.225,
+      "unitCostIndex": 0.711265306122449,
+      "laborShare": 0.2295420635831516,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.126,
+      "priceIndex": 0.7545755102040816,
+      "revenueIndex": 0.924355,
+      "surplusIndex": 0.05305499999999996
+    },
+    {
+      "sectorId": "utilities",
+      "year": 9,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.27,
+      "unitCostIndex": 0.8160881889763778,
+      "laborShare": 0.1157818361455455,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.0648,
+      "priceIndex": 0.8344793700787401,
+      "revenueIndex": 1.0597888,
+      "surplusIndex": 0.023356800000000066
+    },
+    {
+      "sectorId": "transport",
+      "year": 9,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.18,
+      "unitCostIndex": 0.8003601694915254,
+      "laborShare": 0.37059586520898957,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.23625000000000002,
+      "priceIndex": 0.8402881355932204,
+      "revenueIndex": 0.99154,
+      "surplusIndex": 0.04711500000000002
+    },
+    {
+      "sectorId": "insurance",
+      "year": 9,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.045,
+      "unitCostIndex": 0.9555813397129187,
+      "laborShare": 0.30042585364754537,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.21600000000000003,
+      "priceIndex": 0.9777906698564593,
+      "revenueIndex": 1.02179125,
+      "surplusIndex": 0.02320875
+    },
+    {
+      "sectorId": "healthcare",
+      "year": 9,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.09,
+      "unitCostIndex": 0.8938371559633027,
+      "laborShare": 0.5645179914449865,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.12374999999999997,
+      "priceIndex": 0.957534862385321,
+      "revenueIndex": 1.0437130000000001,
+      "surplusIndex": 0.06943050000000006
+    },
+    {
+      "sectorId": "logistics",
+      "year": 9,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.36,
+      "unitCostIndex": 0.7051176470588236,
+      "laborShare": 0.41711854509051466,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.30600000000000005,
+      "priceIndex": 0.7346058823529413,
+      "revenueIndex": 0.9990640000000003,
+      "surplusIndex": 0.04010400000000014
+    },
+    {
+      "sectorId": "housing",
+      "year": 10,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1,
+      "unitCostIndex": 0.5151,
+      "laborShare": 0,
+      "wageBillIndex": 0,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.5151,
+      "revenueIndex": 0.5151,
+      "surplusIndex": 0
+    },
+    {
+      "sectorId": "food",
+      "year": 10,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.25,
+      "unitCostIndex": 0.5680000000000001,
+      "laborShare": 0.08450704225352113,
+      "wageBillIndex": 0.30000000000000004,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.6328,
+      "revenueIndex": 0.791,
+      "surplusIndex": 0.08099999999999996
+    },
+    {
+      "sectorId": "utilities",
+      "year": 10,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.3,
+      "unitCostIndex": 0.740923076923077,
+      "laborShare": 0.049833887043189355,
+      "wageBillIndex": 0.4,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.7668307692307693,
+      "revenueIndex": 0.9968800000000001,
+      "surplusIndex": 0.03367999999999993
+    },
+    {
+      "sectorId": "transport",
+      "year": 10,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.2,
+      "unitCostIndex": 0.5604166666666667,
+      "laborShare": 0.13011152416356878,
+      "wageBillIndex": 0.25,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.6483333333333333,
+      "revenueIndex": 0.7779999999999999,
+      "surplusIndex": 0.10549999999999982
+    },
+    {
+      "sectorId": "insurance",
+      "year": 10,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.05,
+      "unitCostIndex": 0.7221428571428571,
+      "laborShare": 0.07912957467853608,
+      "wageBillIndex": 0.19999999999999996,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.8610714285714285,
+      "revenueIndex": 0.904125,
+      "surplusIndex": 0.1458750000000001
+    },
+    {
+      "sectorId": "healthcare",
+      "year": 10,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.1,
+      "unitCostIndex": 0.7575,
+      "laborShare": 0.4950495049504951,
+      "wageBillIndex": 0.75,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.903,
+      "revenueIndex": 0.9933000000000001,
+      "surplusIndex": 0.16005000000000003
+    },
+    {
+      "sectorId": "logistics",
+      "year": 10,
+      "wagePolicy": "MarketWages",
+      "outputIndex": 1.4,
+      "unitCostIndex": 0.4328571428571429,
+      "laborShare": 0.09900990099009904,
+      "wageBillIndex": 0.15000000000000002,
+      "wageTopUpIndex": 0,
+      "priceIndex": 0.48957142857142855,
+      "revenueIndex": 0.6853999999999999,
+      "surplusIndex": 0.07939999999999992
+    },
+    {
+      "sectorId": "housing",
+      "year": 10,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1,
+      "unitCostIndex": 0.8011,
+      "laborShare": 0.3570091124703533,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.28600000000000003,
+      "priceIndex": 0.8011,
+      "revenueIndex": 0.8011,
+      "surplusIndex": 0
+    },
+    {
+      "sectorId": "food",
+      "year": 10,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.25,
+      "unitCostIndex": 0.68,
+      "laborShare": 0.23529411764705882,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.14,
+      "priceIndex": 0.728,
+      "revenueIndex": 0.9099999999999999,
+      "surplusIndex": 0.05999999999999994
+    },
+    {
+      "sectorId": "utilities",
+      "year": 10,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.3,
+      "unitCostIndex": 0.7963076923076924,
+      "laborShare": 0.115919629057187,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.072,
+      "priceIndex": 0.8166769230769231,
+      "revenueIndex": 1.06168,
+      "surplusIndex": 0.026479999999999837
+    },
+    {
+      "sectorId": "transport",
+      "year": 10,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.2,
+      "unitCostIndex": 0.7791666666666668,
+      "laborShare": 0.374331550802139,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.26249999999999996,
+      "priceIndex": 0.8233333333333335,
+      "revenueIndex": 0.9880000000000001,
+      "surplusIndex": 0.05300000000000005
+    },
+    {
+      "sectorId": "insurance",
+      "year": 10,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.05,
+      "unitCostIndex": 0.9507142857142856,
+      "laborShare": 0.30052592036063114,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.24,
+      "priceIndex": 0.9753571428571428,
+      "revenueIndex": 1.024125,
+      "surplusIndex": 0.02587499999999998
+    },
+    {
+      "sectorId": "healthcare",
+      "year": 10,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.1,
+      "unitCostIndex": 0.8825,
+      "laborShare": 0.56657223796034,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.1375,
+      "priceIndex": 0.953,
+      "revenueIndex": 1.0483,
+      "surplusIndex": 0.07755000000000001
+    },
+    {
+      "sectorId": "logistics",
+      "year": 10,
+      "wagePolicy": "WageGuarantee",
+      "outputIndex": 1.4,
+      "unitCostIndex": 0.6757142857142857,
+      "laborShare": 0.4228329809725159,
+      "wageBillIndex": 1,
+      "wageTopUpIndex": 0.34,
+      "priceIndex": 0.7081428571428572,
+      "revenueIndex": 0.9914,
+      "surplusIndex": 0.045399999999999996
+    }
+  ],
+  "costOfLiving": [
+    {
+      "year": 0,
+      "abundance": 0,
+      "wagePolicy": "MarketWages",
+      "quintile": 1,
+      "costOfLivingUsd": 28785,
+      "bySectorUsd": {
+        "housing": 11629,
+        "food": 5498,
+        "utilities": 2934,
+        "transport": 4210,
+        "insurance": 3222,
+        "healthcare": 1292
+      }
+    },
+    {
+      "year": 0,
+      "abundance": 0,
+      "wagePolicy": "MarketWages",
+      "quintile": 2,
+      "costOfLivingUsd": 40135,
+      "bySectorUsd": {
+        "housing": 15109,
+        "food": 7400,
+        "utilities": 4065,
+        "transport": 6751,
+        "insurance": 5178,
+        "healthcare": 1632
+      }
+    },
+    {
+      "year": 0,
+      "abundance": 0,
+      "wagePolicy": "MarketWages",
+      "quintile": 3,
+      "costOfLivingUsd": 50958,
+      "bySectorUsd": {
+        "housing": 19458,
+        "food": 9097,
+        "utilities": 4635,
+        "transport": 9629,
+        "insurance": 6305,
+        "healthcare": 1834
+      }
+    },
+    {
+      "year": 0,
+      "abundance": 0,
+      "wagePolicy": "MarketWages",
+      "quintile": 4,
+      "costOfLivingUsd": 65036,
+      "bySectorUsd": {
+        "housing": 23943,
+        "food": 11845,
+        "utilities": 5431,
+        "transport": 13434,
+        "insurance": 8049,
+        "healthcare": 2334
+      }
+    },
+    {
+      "year": 0,
+      "abundance": 0,
+      "wagePolicy": "MarketWages",
+      "quintile": 5,
+      "costOfLivingUsd": 97510,
+      "bySectorUsd": {
+        "housing": 37426,
+        "food": 16989,
+        "utilities": 6607,
+        "transport": 22538,
+        "insurance": 10339,
+        "healthcare": 3611
+      }
+    },
+    {
+      "year": 0,
+      "abundance": 0,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 1,
+      "costOfLivingUsd": 28785,
+      "bySectorUsd": {
+        "housing": 11629,
+        "food": 5498,
+        "utilities": 2934,
+        "transport": 4210,
+        "insurance": 3222,
+        "healthcare": 1292
+      }
+    },
+    {
+      "year": 0,
+      "abundance": 0,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 2,
+      "costOfLivingUsd": 40135,
+      "bySectorUsd": {
+        "housing": 15109,
+        "food": 7400,
+        "utilities": 4065,
+        "transport": 6751,
+        "insurance": 5178,
+        "healthcare": 1632
+      }
+    },
+    {
+      "year": 0,
+      "abundance": 0,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 3,
+      "costOfLivingUsd": 50958,
+      "bySectorUsd": {
+        "housing": 19458,
+        "food": 9097,
+        "utilities": 4635,
+        "transport": 9629,
+        "insurance": 6305,
+        "healthcare": 1834
+      }
+    },
+    {
+      "year": 0,
+      "abundance": 0,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 4,
+      "costOfLivingUsd": 65036,
+      "bySectorUsd": {
+        "housing": 23943,
+        "food": 11845,
+        "utilities": 5431,
+        "transport": 13434,
+        "insurance": 8049,
+        "healthcare": 2334
+      }
+    },
+    {
+      "year": 0,
+      "abundance": 0,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 5,
+      "costOfLivingUsd": 97510,
+      "bySectorUsd": {
+        "housing": 37426,
+        "food": 16989,
+        "utilities": 6607,
+        "transport": 22538,
+        "insurance": 10339,
+        "healthcare": 3611
+      }
+    },
+    {
+      "year": 1,
+      "abundance": 0.1,
+      "wagePolicy": "MarketWages",
+      "quintile": 1,
+      "costOfLivingUsd": 27705.09,
+      "bySectorUsd": {
+        "housing": 11065.11,
+        "food": 5280.52,
+        "utilities": 2859.84,
+        "transport": 4045.48,
+        "insurance": 3175.49,
+        "healthcare": 1278.66
+      }
+    },
+    {
+      "year": 1,
+      "abundance": 0.1,
+      "wagePolicy": "MarketWages",
+      "quintile": 2,
+      "costOfLivingUsd": 38651.48,
+      "bySectorUsd": {
+        "housing": 14376.36,
+        "food": 7107.28,
+        "utilities": 3962.25,
+        "transport": 6487.18,
+        "insurance": 5103.25,
+        "healthcare": 1615.15
+      }
+    },
+    {
+      "year": 1,
+      "abundance": 0.1,
+      "wagePolicy": "MarketWages",
+      "quintile": 3,
+      "costOfLivingUsd": 49051.24,
+      "bySectorUsd": {
+        "housing": 18514.48,
+        "food": 8737.16,
+        "utilities": 4517.84,
+        "transport": 9252.71,
+        "insurance": 6213.98,
+        "healthcare": 1815.07
+      }
+    },
+    {
+      "year": 1,
+      "abundance": 0.1,
+      "wagePolicy": "MarketWages",
+      "quintile": 4,
+      "costOfLivingUsd": 62603.91,
+      "bySectorUsd": {
+        "housing": 22782,
+        "food": 11376.46,
+        "utilities": 5293.72,
+        "transport": 12909.02,
+        "insurance": 7932.8,
+        "healthcare": 2309.9
+      }
+    },
+    {
+      "year": 1,
+      "abundance": 0.1,
+      "wagePolicy": "MarketWages",
+      "quintile": 5,
+      "costOfLivingUsd": 93788.9,
+      "bySectorUsd": {
+        "housing": 35611.21,
+        "food": 16316.98,
+        "utilities": 6440,
+        "transport": 21657.25,
+        "insurance": 10189.74,
+        "healthcare": 3573.72
+      }
+    },
+    {
+      "year": 1,
+      "abundance": 0.1,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 1,
+      "costOfLivingUsd": 28252.16,
+      "bySectorUsd": {
+        "housing": 11397.7,
+        "food": 5344.35,
+        "utilities": 2878.3,
+        "transport": 4132.16,
+        "insurance": 3213.96,
+        "healthcare": 1285.7
+      }
+    },
+    {
+      "year": 1,
+      "abundance": 0.1,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 2,
+      "costOfLivingUsd": 39404.79,
+      "bySectorUsd": {
+        "housing": 14808.48,
+        "food": 7193.2,
+        "utilities": 3987.82,
+        "transport": 6626.17,
+        "insurance": 5165.07,
+        "healthcare": 1624.04
+      }
+    },
+    {
+      "year": 1,
+      "abundance": 0.1,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 3,
+      "costOfLivingUsd": 50026.03,
+      "bySectorUsd": {
+        "housing": 19070.98,
+        "food": 8842.77,
+        "utilities": 4547,
+        "transport": 9450.96,
+        "insurance": 6289.26,
+        "healthcare": 1825.05
+      }
+    },
+    {
+      "year": 1,
+      "abundance": 0.1,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 4,
+      "costOfLivingUsd": 63845.76,
+      "bySectorUsd": {
+        "housing": 23466.77,
+        "food": 11513.98,
+        "utilities": 5327.89,
+        "transport": 13185.6,
+        "insurance": 8028.91,
+        "healthcare": 2322.61
+      }
+    },
+    {
+      "year": 1,
+      "abundance": 0.1,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 5,
+      "costOfLivingUsd": 95705.22,
+      "bySectorUsd": {
+        "housing": 36681.6,
+        "food": 16514.22,
+        "utilities": 6481.56,
+        "transport": 22121.27,
+        "insurance": 10313.19,
+        "healthcare": 3593.38
+      }
+    },
+    {
+      "year": 2,
+      "abundance": 0.2,
+      "wagePolicy": "MarketWages",
+      "quintile": 1,
+      "costOfLivingUsd": 26635.7,
+      "bySectorUsd": {
+        "housing": 10501.22,
+        "food": 5067.17,
+        "utilities": 2787.24,
+        "transport": 3885.18,
+        "insurance": 3129.38,
+        "healthcare": 1265.52
+      }
+    },
+    {
+      "year": 2,
+      "abundance": 0.2,
+      "wagePolicy": "MarketWages",
+      "quintile": 2,
+      "costOfLivingUsd": 37183.35,
+      "bySectorUsd": {
+        "housing": 13643.73,
+        "food": 6820.12,
+        "utilities": 3861.67,
+        "transport": 6230.13,
+        "insurance": 5029.15,
+        "healthcare": 1598.55
+      }
+    },
+    {
+      "year": 2,
+      "abundance": 0.2,
+      "wagePolicy": "MarketWages",
+      "quintile": 3,
+      "costOfLivingUsd": 47164.5,
+      "bySectorUsd": {
+        "housing": 17570.96,
+        "food": 8384.14,
+        "utilities": 4403.16,
+        "transport": 8886.09,
+        "insurance": 6123.75,
+        "healthcare": 1796.41
+      }
+    },
+    {
+      "year": 2,
+      "abundance": 0.2,
+      "wagePolicy": "MarketWages",
+      "quintile": 4,
+      "costOfLivingUsd": 60198.44,
+      "bySectorUsd": {
+        "housing": 21621.01,
+        "food": 10916.8,
+        "utilities": 5159.34,
+        "transport": 12397.52,
+        "insurance": 7817.61,
+        "healthcare": 2286.16
+      }
+    },
+    {
+      "year": 2,
+      "abundance": 0.2,
+      "wagePolicy": "MarketWages",
+      "quintile": 5,
+      "costOfLivingUsd": 90108.52,
+      "bySectorUsd": {
+        "housing": 33796.43,
+        "food": 15657.71,
+        "utilities": 6276.52,
+        "transport": 20799.11,
+        "insurance": 10041.78,
+        "healthcare": 3536.98
+      }
+    },
+    {
+      "year": 2,
+      "abundance": 0.2,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 1,
+      "costOfLivingUsd": 27721.89,
+      "bySectorUsd": {
+        "housing": 11166.4,
+        "food": 5191.79,
+        "utilities": 2823.11,
+        "transport": 4055.2,
+        "insurance": 3205.94,
+        "healthcare": 1279.45
+      }
+    },
+    {
+      "year": 2,
+      "abundance": 0.2,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 2,
+      "costOfLivingUsd": 38678.29,
+      "bySectorUsd": {
+        "housing": 14507.96,
+        "food": 6987.86,
+        "utilities": 3911.37,
+        "transport": 6502.77,
+        "insurance": 5152.19,
+        "healthcare": 1616.15
+      }
+    },
+    {
+      "year": 2,
+      "abundance": 0.2,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 3,
+      "costOfLivingUsd": 49098.83,
+      "bySectorUsd": {
+        "housing": 18683.96,
+        "food": 8590.34,
+        "utilities": 4459.83,
+        "transport": 9274.95,
+        "insurance": 6273.57,
+        "healthcare": 1816.19
+      }
+    },
+    {
+      "year": 2,
+      "abundance": 0.2,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 4,
+      "costOfLivingUsd": 62661.83,
+      "bySectorUsd": {
+        "housing": 22990.55,
+        "food": 11185.29,
+        "utilities": 5225.75,
+        "transport": 12940.04,
+        "insurance": 8008.87,
+        "healthcare": 2311.33
+      }
+    },
+    {
+      "year": 2,
+      "abundance": 0.2,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 5,
+      "costOfLivingUsd": 93909.96,
+      "bySectorUsd": {
+        "housing": 35937.19,
+        "food": 16042.79,
+        "utilities": 6357.3,
+        "transport": 21709.3,
+        "insurance": 10287.46,
+        "healthcare": 3575.92
+      }
+    },
+    {
+      "year": 3,
+      "abundance": 0.3,
+      "wagePolicy": "MarketWages",
+      "quintile": 1,
+      "costOfLivingUsd": 25576.16,
+      "bySectorUsd": {
+        "housing": 9937.33,
+        "food": 4857.65,
+        "utilities": 2716.09,
+        "transport": 3728.87,
+        "insurance": 3083.66,
+        "healthcare": 1252.56
+      }
+    },
+    {
+      "year": 3,
+      "abundance": 0.3,
+      "wagePolicy": "MarketWages",
+      "quintile": 2,
+      "costOfLivingUsd": 35729.64,
+      "bySectorUsd": {
+        "housing": 12911.09,
+        "food": 6538.12,
+        "utilities": 3763.08,
+        "transport": 5979.48,
+        "insurance": 4955.68,
+        "healthcare": 1582.18
+      }
+    },
+    {
+      "year": 3,
+      "abundance": 0.3,
+      "wagePolicy": "MarketWages",
+      "quintile": 3,
+      "costOfLivingUsd": 45296.55,
+      "bySectorUsd": {
+        "housing": 16627.44,
+        "food": 8037.47,
+        "utilities": 4290.75,
+        "transport": 8528.57,
+        "insurance": 6034.3,
+        "healthcare": 1778.01
+      }
+    },
+    {
+      "year": 3,
+      "abundance": 0.3,
+      "wagePolicy": "MarketWages",
+      "quintile": 4,
+      "costOfLivingUsd": 57817.94,
+      "bySectorUsd": {
+        "housing": 20460.01,
+        "food": 10465.42,
+        "utilities": 5027.63,
+        "transport": 11898.72,
+        "insurance": 7703.42,
+        "healthcare": 2262.75
+      }
+    },
+    {
+      "year": 3,
+      "abundance": 0.3,
+      "wagePolicy": "MarketWages",
+      "quintile": 5,
+      "costOfLivingUsd": 86466.37,
+      "bySectorUsd": {
+        "housing": 31981.64,
+        "food": 15010.3,
+        "utilities": 6116.28,
+        "transport": 19962.29,
+        "insurance": 9895.1,
+        "healthcare": 3500.77
+      }
+    },
+    {
+      "year": 3,
+      "abundance": 0.3,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 1,
+      "costOfLivingUsd": 27194.03,
+      "bySectorUsd": {
+        "housing": 10935.1,
+        "food": 5040.23,
+        "utilities": 2768.41,
+        "transport": 3979.09,
+        "insurance": 3197.94,
+        "healthcare": 1273.26
+      }
+    },
+    {
+      "year": 3,
+      "abundance": 0.3,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 2,
+      "costOfLivingUsd": 37955.27,
+      "bySectorUsd": {
+        "housing": 14207.45,
+        "food": 6783.87,
+        "utilities": 3835.58,
+        "transport": 6380.71,
+        "insurance": 5139.34,
+        "healthcare": 1608.32
+      }
+    },
+    {
+      "year": 3,
+      "abundance": 0.3,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 3,
+      "costOfLivingUsd": 48176.11,
+      "bySectorUsd": {
+        "housing": 18296.94,
+        "food": 8339.58,
+        "utilities": 4373.41,
+        "transport": 9100.86,
+        "insurance": 6257.92,
+        "healthcare": 1807.39
+      }
+    },
+    {
+      "year": 3,
+      "abundance": 0.3,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 4,
+      "costOfLivingUsd": 61483.79,
+      "bySectorUsd": {
+        "housing": 22514.32,
+        "food": 10858.78,
+        "utilities": 5124.49,
+        "transport": 12697.16,
+        "insurance": 7988.9,
+        "healthcare": 2300.14
+      }
+    },
+    {
+      "year": 3,
+      "abundance": 0.3,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 5,
+      "costOfLivingUsd": 92123.62,
+      "bySectorUsd": {
+        "housing": 35192.79,
+        "food": 15574.49,
+        "utilities": 6234.12,
+        "transport": 21301.81,
+        "insurance": 10261.8,
+        "healthcare": 3558.61
+      }
+    },
+    {
+      "year": 4,
+      "abundance": 0.4,
+      "wagePolicy": "MarketWages",
+      "quintile": 1,
+      "costOfLivingUsd": 24525.84,
+      "bySectorUsd": {
+        "housing": 9373.44,
+        "food": 4651.71,
+        "utilities": 2646.25,
+        "transport": 3576.32,
+        "insurance": 3038.35,
+        "healthcare": 1239.78
+      }
+    },
+    {
+      "year": 4,
+      "abundance": 0.4,
+      "wagePolicy": "MarketWages",
+      "quintile": 2,
+      "costOfLivingUsd": 34289.47,
+      "bySectorUsd": {
+        "housing": 12178.46,
+        "food": 6260.94,
+        "utilities": 3666.33,
+        "transport": 5734.85,
+        "insurance": 4882.85,
+        "healthcare": 1566.04
+      }
+    },
+    {
+      "year": 4,
+      "abundance": 0.4,
+      "wagePolicy": "MarketWages",
+      "quintile": 3,
+      "costOfLivingUsd": 43446.23,
+      "bySectorUsd": {
+        "housing": 15683.93,
+        "food": 7696.72,
+        "utilities": 4180.43,
+        "transport": 8179.66,
+        "insurance": 5945.62,
+        "healthcare": 1759.88
+      }
+    },
+    {
+      "year": 4,
+      "abundance": 0.4,
+      "wagePolicy": "MarketWages",
+      "quintile": 4,
+      "costOfLivingUsd": 55460.92,
+      "bySectorUsd": {
+        "housing": 19299.02,
+        "food": 10021.73,
+        "utilities": 4898.36,
+        "transport": 11411.93,
+        "insurance": 7590.21,
+        "healthcare": 2239.67
+      }
+    },
+    {
+      "year": 4,
+      "abundance": 0.4,
+      "wagePolicy": "MarketWages",
+      "quintile": 5,
+      "costOfLivingUsd": 82860.16,
+      "bySectorUsd": {
+        "housing": 30166.85,
+        "food": 14373.93,
+        "utilities": 5959.02,
+        "transport": 19145.61,
+        "insurance": 9749.68,
+        "healthcare": 3465.06
+      }
+    },
+    {
+      "year": 4,
+      "abundance": 0.4,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 1,
+      "costOfLivingUsd": 26668.41,
+      "bySectorUsd": {
+        "housing": 10703.8,
+        "food": 4889.62,
+        "utilities": 2714.15,
+        "transport": 3903.76,
+        "insurance": 3189.97,
+        "healthcare": 1267.11
+      }
+    },
+    {
+      "year": 4,
+      "abundance": 0.4,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 2,
+      "costOfLivingUsd": 37235.51,
+      "bySectorUsd": {
+        "housing": 13906.93,
+        "food": 6581.16,
+        "utilities": 3760.4,
+        "transport": 6259.93,
+        "insurance": 5126.52,
+        "healthcare": 1600.57
+      }
+    },
+    {
+      "year": 4,
+      "abundance": 0.4,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 3,
+      "costOfLivingUsd": 47257.56,
+      "bySectorUsd": {
+        "housing": 17909.92,
+        "food": 8090.38,
+        "utilities": 4287.69,
+        "transport": 8928.58,
+        "insurance": 6242.32,
+        "healthcare": 1798.67
+      }
+    },
+    {
+      "year": 4,
+      "abundance": 0.4,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 4,
+      "costOfLivingUsd": 60311.27,
+      "bySectorUsd": {
+        "housing": 22038.09,
+        "food": 10534.3,
+        "utilities": 5024.05,
+        "transport": 12456.8,
+        "insurance": 7968.98,
+        "healthcare": 2289.04
+      }
+    },
+    {
+      "year": 4,
+      "abundance": 0.4,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 5,
+      "costOfLivingUsd": 90345.64,
+      "bySectorUsd": {
+        "housing": 34448.39,
+        "food": 15109.09,
+        "utilities": 6111.93,
+        "transport": 20898.57,
+        "insurance": 10236.22,
+        "healthcare": 3541.45
+      }
+    },
+    {
+      "year": 5,
+      "abundance": 0.5,
+      "wagePolicy": "MarketWages",
+      "quintile": 1,
+      "costOfLivingUsd": 23484.21,
+      "bySectorUsd": {
+        "housing": 8809.55,
+        "food": 4449.1,
+        "utilities": 2577.63,
+        "transport": 3427.32,
+        "insurance": 2993.41,
+        "healthcare": 1227.18
+      }
+    },
+    {
+      "year": 5,
+      "abundance": 0.5,
+      "wagePolicy": "MarketWages",
+      "quintile": 2,
+      "costOfLivingUsd": 32862.03,
+      "bySectorUsd": {
+        "housing": 11445.82,
+        "food": 5988.24,
+        "utilities": 3571.26,
+        "transport": 5495.93,
+        "insurance": 4810.65,
+        "healthcare": 1550.13
+      }
+    },
+    {
+      "year": 5,
+      "abundance": 0.5,
+      "wagePolicy": "MarketWages",
+      "quintile": 3,
+      "costOfLivingUsd": 41612.5,
+      "bySectorUsd": {
+        "housing": 14740.41,
+        "food": 7361.49,
+        "utilities": 4072.03,
+        "transport": 7838.88,
+        "insurance": 5857.69,
+        "healthcare": 1741.99
+      }
+    },
+    {
+      "year": 5,
+      "abundance": 0.5,
+      "wagePolicy": "MarketWages",
+      "quintile": 4,
+      "costOfLivingUsd": 53125.97,
+      "bySectorUsd": {
+        "housing": 18138.02,
+        "food": 9585.24,
+        "utilities": 4771.35,
+        "transport": 10936.5,
+        "insurance": 7477.96,
+        "healthcare": 2216.91
+      }
+    },
+    {
+      "year": 5,
+      "abundance": 0.5,
+      "wagePolicy": "MarketWages",
+      "quintile": 5,
+      "costOfLivingUsd": 79287.78,
+      "bySectorUsd": {
+        "housing": 28352.07,
+        "food": 13747.88,
+        "utilities": 5804.51,
+        "transport": 18347.98,
+        "insurance": 9605.5,
+        "healthcare": 3429.85
+      }
+    },
+    {
+      "year": 5,
+      "abundance": 0.5,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 1,
+      "costOfLivingUsd": 26144.91,
+      "bySectorUsd": {
+        "housing": 10472.5,
+        "food": 4739.89,
+        "utilities": 2660.3,
+        "transport": 3829.19,
+        "insurance": 3182.02,
+        "healthcare": 1261.02
+      }
+    },
+    {
+      "year": 5,
+      "abundance": 0.5,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 2,
+      "costOfLivingUsd": 36518.78,
+      "bySectorUsd": {
+        "housing": 13606.41,
+        "food": 6379.62,
+        "utilities": 3685.79,
+        "transport": 6140.34,
+        "insurance": 5113.75,
+        "healthcare": 1592.87
+      }
+    },
+    {
+      "year": 5,
+      "abundance": 0.5,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 3,
+      "costOfLivingUsd": 46342.95,
+      "bySectorUsd": {
+        "housing": 17522.9,
+        "food": 7842.62,
+        "utilities": 4202.61,
+        "transport": 8758.01,
+        "insurance": 6226.76,
+        "healthcare": 1790.03
+      }
+    },
+    {
+      "year": 5,
+      "abundance": 0.5,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 4,
+      "costOfLivingUsd": 59143.93,
+      "bySectorUsd": {
+        "housing": 21561.87,
+        "food": 10211.71,
+        "utilities": 4924.36,
+        "transport": 12218.83,
+        "insurance": 7949.12,
+        "healthcare": 2278.04
+      }
+    },
+    {
+      "year": 5,
+      "abundance": 0.5,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 5,
+      "costOfLivingUsd": 88575.51,
+      "bySectorUsd": {
+        "housing": 33703.98,
+        "food": 14646.41,
+        "utilities": 5990.65,
+        "transport": 20499.34,
+        "insurance": 10210.71,
+        "healthcare": 3524.42
+      }
+    },
+    {
+      "year": 6,
+      "abundance": 0.6,
+      "wagePolicy": "MarketWages",
+      "quintile": 1,
+      "costOfLivingUsd": 22450.74,
+      "bySectorUsd": {
+        "housing": 8245.66,
+        "food": 4249.62,
+        "utilities": 2510.14,
+        "transport": 3281.7,
+        "insurance": 2948.87,
+        "healthcare": 1214.76
+      }
+    },
+    {
+      "year": 6,
+      "abundance": 0.6,
+      "wagePolicy": "MarketWages",
+      "quintile": 2,
+      "costOfLivingUsd": 31446.58,
+      "bySectorUsd": {
+        "housing": 10713.19,
+        "food": 5719.75,
+        "utilities": 3477.75,
+        "transport": 5262.4,
+        "insurance": 4739.05,
+        "healthcare": 1534.43
+      }
+    },
+    {
+      "year": 6,
+      "abundance": 0.6,
+      "wagePolicy": "MarketWages",
+      "quintile": 3,
+      "costOfLivingUsd": 39794.4,
+      "bySectorUsd": {
+        "housing": 13796.89,
+        "food": 7031.43,
+        "utilities": 3965.41,
+        "transport": 7505.81,
+        "insurance": 5770.51,
+        "healthcare": 1724.35
+      }
+    },
+    {
+      "year": 6,
+      "abundance": 0.6,
+      "wagePolicy": "MarketWages",
+      "quintile": 4,
+      "costOfLivingUsd": 50811.84,
+      "bySectorUsd": {
+        "housing": 16977.02,
+        "food": 9155.46,
+        "utilities": 4646.42,
+        "transport": 10471.8,
+        "insurance": 7366.67,
+        "healthcare": 2194.46
+      }
+    },
+    {
+      "year": 6,
+      "abundance": 0.6,
+      "wagePolicy": "MarketWages",
+      "quintile": 5,
+      "costOfLivingUsd": 75747.3,
+      "bySectorUsd": {
+        "housing": 26537.28,
+        "food": 13131.46,
+        "utilities": 5652.53,
+        "transport": 17568.37,
+        "insurance": 9462.54,
+        "healthcare": 3395.12
+      }
+    },
+    {
+      "year": 6,
+      "abundance": 0.6,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 1,
+      "costOfLivingUsd": 25623.38,
+      "bySectorUsd": {
+        "housing": 10241.2,
+        "food": 4590.97,
+        "utilities": 2606.82,
+        "transport": 3755.32,
+        "insurance": 3174.09,
+        "healthcare": 1254.98
+      }
+    },
+    {
+      "year": 6,
+      "abundance": 0.6,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 2,
+      "costOfLivingUsd": 35804.92,
+      "bySectorUsd": {
+        "housing": 13305.89,
+        "food": 6179.19,
+        "utilities": 3611.69,
+        "transport": 6021.89,
+        "insurance": 5101.01,
+        "healthcare": 1585.24
+      }
+    },
+    {
+      "year": 6,
+      "abundance": 0.6,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 3,
+      "costOfLivingUsd": 45432.01,
+      "bySectorUsd": {
+        "housing": 17135.88,
+        "food": 7596.23,
+        "utilities": 4118.13,
+        "transport": 8589.07,
+        "insurance": 6211.25,
+        "healthcare": 1781.45
+      }
+    },
+    {
+      "year": 6,
+      "abundance": 0.6,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 4,
+      "costOfLivingUsd": 57981.46,
+      "bySectorUsd": {
+        "housing": 21085.64,
+        "food": 9890.88,
+        "utilities": 4825.36,
+        "transport": 11983.13,
+        "insurance": 7929.32,
+        "healthcare": 2267.12
+      }
+    },
+    {
+      "year": 6,
+      "abundance": 0.6,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 5,
+      "costOfLivingUsd": 86812.76,
+      "bySectorUsd": {
+        "housing": 32959.58,
+        "food": 14186.26,
+        "utilities": 5870.22,
+        "transport": 20103.9,
+        "insurance": 10185.27,
+        "healthcare": 3507.53
+      }
+    },
+    {
+      "year": 7,
+      "abundance": 0.7,
+      "wagePolicy": "MarketWages",
+      "quintile": 1,
+      "costOfLivingUsd": 21424.97,
+      "bySectorUsd": {
+        "housing": 7681.77,
+        "food": 4053.06,
+        "utilities": 2443.7,
+        "transport": 3139.26,
+        "insurance": 2904.69,
+        "healthcare": 1202.5
+      }
+    },
+    {
+      "year": 7,
+      "abundance": 0.7,
+      "wagePolicy": "MarketWages",
+      "quintile": 2,
+      "costOfLivingUsd": 30042.43,
+      "bySectorUsd": {
+        "housing": 9980.55,
+        "food": 5455.19,
+        "utilities": 3385.69,
+        "transport": 5034,
+        "insurance": 4668.06,
+        "healthcare": 1518.95
+      }
+    },
+    {
+      "year": 7,
+      "abundance": 0.7,
+      "wagePolicy": "MarketWages",
+      "quintile": 3,
+      "costOfLivingUsd": 37991.05,
+      "bySectorUsd": {
+        "housing": 12853.37,
+        "food": 6706.19,
+        "utilities": 3860.44,
+        "transport": 7180.02,
+        "insurance": 5684.07,
+        "healthcare": 1706.95
+      }
+    },
+    {
+      "year": 7,
+      "abundance": 0.7,
+      "wagePolicy": "MarketWages",
+      "quintile": 4,
+      "costOfLivingUsd": 48517.35,
+      "bySectorUsd": {
+        "housing": 15816.03,
+        "food": 8731.98,
+        "utilities": 4523.42,
+        "transport": 10017.29,
+        "insurance": 7256.32,
+        "healthcare": 2172.31
+      }
+    },
+    {
+      "year": 7,
+      "abundance": 0.7,
+      "wagePolicy": "MarketWages",
+      "quintile": 5,
+      "costOfLivingUsd": 72236.95,
+      "bySectorUsd": {
+        "housing": 24722.49,
+        "food": 12524.07,
+        "utilities": 5502.89,
+        "transport": 16805.84,
+        "insurance": 9320.8,
+        "healthcare": 3360.85
+      }
+    },
+    {
+      "year": 7,
+      "abundance": 0.7,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 1,
+      "costOfLivingUsd": 25103.7,
+      "bySectorUsd": {
+        "housing": 10009.89,
+        "food": 4442.83,
+        "utilities": 2553.68,
+        "transport": 3682.13,
+        "insurance": 3166.19,
+        "healthcare": 1248.99
+      }
+    },
+    {
+      "year": 7,
+      "abundance": 0.7,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 2,
+      "costOfLivingUsd": 35093.74,
+      "bySectorUsd": {
+        "housing": 13005.37,
+        "food": 5979.8,
+        "utilities": 3538.08,
+        "transport": 5904.52,
+        "insurance": 5088.3,
+        "healthcare": 1577.67
+      }
+    },
+    {
+      "year": 7,
+      "abundance": 0.7,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 3,
+      "costOfLivingUsd": 44524.55,
+      "bySectorUsd": {
+        "housing": 16748.86,
+        "food": 7351.11,
+        "utilities": 4034.19,
+        "transport": 8421.66,
+        "insurance": 6195.78,
+        "healthcare": 1772.94
+      }
+    },
+    {
+      "year": 7,
+      "abundance": 0.7,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 4,
+      "costOfLivingUsd": 56823.58,
+      "bySectorUsd": {
+        "housing": 20609.42,
+        "food": 9571.72,
+        "utilities": 4727.01,
+        "transport": 11749.56,
+        "insurance": 7909.57,
+        "healthcare": 2256.3
+      }
+    },
+    {
+      "year": 7,
+      "abundance": 0.7,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 5,
+      "costOfLivingUsd": 85056.97,
+      "bySectorUsd": {
+        "housing": 32215.18,
+        "food": 13728.49,
+        "utilities": 5750.58,
+        "transport": 19712.05,
+        "insurance": 10159.9,
+        "healthcare": 3490.78
+      }
+    },
+    {
+      "year": 8,
+      "abundance": 0.8,
+      "wagePolicy": "MarketWages",
+      "quintile": 1,
+      "costOfLivingUsd": 20406.45,
+      "bySectorUsd": {
+        "housing": 7117.88,
+        "food": 3859.23,
+        "utilities": 2378.21,
+        "transport": 2999.84,
+        "insurance": 2860.89,
+        "healthcare": 1190.4
+      }
+    },
+    {
+      "year": 8,
+      "abundance": 0.8,
+      "wagePolicy": "MarketWages",
+      "quintile": 2,
+      "costOfLivingUsd": 28648.96,
+      "bySectorUsd": {
+        "housing": 9247.92,
+        "food": 5194.31,
+        "utilities": 3294.97,
+        "transport": 4810.44,
+        "insurance": 4597.67,
+        "healthcare": 1503.66
+      }
+    },
+    {
+      "year": 8,
+      "abundance": 0.8,
+      "wagePolicy": "MarketWages",
+      "quintile": 3,
+      "costOfLivingUsd": 36201.63,
+      "bySectorUsd": {
+        "housing": 11909.85,
+        "food": 6385.49,
+        "utilities": 3756.99,
+        "transport": 6861.16,
+        "insurance": 5598.36,
+        "healthcare": 1689.78
+      }
+    },
+    {
+      "year": 8,
+      "abundance": 0.8,
+      "wagePolicy": "MarketWages",
+      "quintile": 4,
+      "costOfLivingUsd": 46241.41,
+      "bySectorUsd": {
+        "housing": 14655.03,
+        "food": 8314.4,
+        "utilities": 4402.21,
+        "transport": 9572.42,
+        "insurance": 7146.89,
+        "healthcare": 2150.46
+      }
+    },
+    {
+      "year": 8,
+      "abundance": 0.8,
+      "wagePolicy": "MarketWages",
+      "quintile": 5,
+      "costOfLivingUsd": 68755.06,
+      "bySectorUsd": {
+        "housing": 22907.71,
+        "food": 11925.15,
+        "utilities": 5355.44,
+        "transport": 16059.49,
+        "insurance": 9180.24,
+        "healthcare": 3327.04
+      }
+    },
+    {
+      "year": 8,
+      "abundance": 0.8,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 1,
+      "costOfLivingUsd": 24585.78,
+      "bySectorUsd": {
+        "housing": 9778.59,
+        "food": 4295.4,
+        "utilities": 2500.87,
+        "transport": 3609.57,
+        "insurance": 3158.3,
+        "healthcare": 1243.04
+      }
+    },
+    {
+      "year": 8,
+      "abundance": 0.8,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 2,
+      "costOfLivingUsd": 34385.1,
+      "bySectorUsd": {
+        "housing": 12704.86,
+        "food": 5781.37,
+        "utilities": 3464.91,
+        "transport": 5788.17,
+        "insurance": 5075.63,
+        "healthcare": 1570.15
+      }
+    },
+    {
+      "year": 8,
+      "abundance": 0.8,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 3,
+      "costOfLivingUsd": 43620.35,
+      "bySectorUsd": {
+        "housing": 16361.84,
+        "food": 7107.18,
+        "utilities": 3950.77,
+        "transport": 8255.71,
+        "insurance": 6180.36,
+        "healthcare": 1764.5
+      }
+    },
+    {
+      "year": 8,
+      "abundance": 0.8,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 4,
+      "costOfLivingUsd": 55670.01,
+      "bySectorUsd": {
+        "housing": 20133.19,
+        "food": 9254.1,
+        "utilities": 4629.26,
+        "transport": 11518.03,
+        "insurance": 7889.88,
+        "healthcare": 2245.55
+      }
+    },
+    {
+      "year": 8,
+      "abundance": 0.8,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 5,
+      "costOfLivingUsd": 83307.74,
+      "bySectorUsd": {
+        "housing": 31470.77,
+        "food": 13272.94,
+        "utilities": 5631.65,
+        "transport": 19323.61,
+        "insurance": 10134.61,
+        "healthcare": 3474.16
+      }
+    },
+    {
+      "year": 9,
+      "abundance": 0.9,
+      "wagePolicy": "MarketWages",
+      "quintile": 1,
+      "costOfLivingUsd": 19394.8,
+      "bySectorUsd": {
+        "housing": 6553.99,
+        "food": 3667.97,
+        "utilities": 2313.63,
+        "transport": 2863.3,
+        "insurance": 2817.45,
+        "healthcare": 1178.46
+      }
+    },
+    {
+      "year": 9,
+      "abundance": 0.9,
+      "wagePolicy": "MarketWages",
+      "quintile": 2,
+      "costOfLivingUsd": 27265.58,
+      "bySectorUsd": {
+        "housing": 8515.28,
+        "food": 4936.89,
+        "utilities": 3205.49,
+        "transport": 4591.48,
+        "insurance": 4527.86,
+        "healthcare": 1488.58
+      }
+    },
+    {
+      "year": 9,
+      "abundance": 0.9,
+      "wagePolicy": "MarketWages",
+      "quintile": 3,
+      "costOfLivingUsd": 34425.38,
+      "bySectorUsd": {
+        "housing": 10966.33,
+        "food": 6069.04,
+        "utilities": 3654.97,
+        "transport": 6548.86,
+        "insurance": 5513.35,
+        "healthcare": 1672.83
+      }
+    },
+    {
+      "year": 9,
+      "abundance": 0.9,
+      "wagePolicy": "MarketWages",
+      "quintile": 4,
+      "costOfLivingUsd": 43983.04,
+      "bySectorUsd": {
+        "housing": 13494.04,
+        "food": 7902.36,
+        "utilities": 4282.66,
+        "transport": 9136.71,
+        "insurance": 7038.38,
+        "healthcare": 2128.89
+      }
+    },
+    {
+      "year": 9,
+      "abundance": 0.9,
+      "wagePolicy": "MarketWages",
+      "quintile": 5,
+      "costOfLivingUsd": 65300.12,
+      "bySectorUsd": {
+        "housing": 21092.92,
+        "food": 11334.16,
+        "utilities": 5210,
+        "transport": 15328.51,
+        "insurance": 9040.85,
+        "healthcare": 3293.67
+      }
+    },
+    {
+      "year": 9,
+      "abundance": 0.9,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 1,
+      "costOfLivingUsd": 24069.5,
+      "bySectorUsd": {
+        "housing": 9547.29,
+        "food": 4148.66,
+        "utilities": 2448.36,
+        "transport": 3537.61,
+        "insurance": 3150.44,
+        "healthcare": 1237.14
+      }
+    },
+    {
+      "year": 9,
+      "abundance": 0.9,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 2,
+      "costOfLivingUsd": 33678.84,
+      "bySectorUsd": {
+        "housing": 12404.34,
+        "food": 5583.86,
+        "utilities": 3392.16,
+        "transport": 5672.79,
+        "insurance": 5063,
+        "healthcare": 1562.7
+      }
+    },
+    {
+      "year": 9,
+      "abundance": 0.9,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 3,
+      "costOfLivingUsd": 42719.23,
+      "bySectorUsd": {
+        "housing": 15974.82,
+        "food": 6864.37,
+        "utilities": 3867.81,
+        "transport": 8091.13,
+        "insurance": 6164.97,
+        "healthcare": 1756.12
+      }
+    },
+    {
+      "year": 9,
+      "abundance": 0.9,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 4,
+      "costOfLivingUsd": 54520.52,
+      "bySectorUsd": {
+        "housing": 19656.96,
+        "food": 8937.95,
+        "utilities": 4532.06,
+        "transport": 11288.43,
+        "insurance": 7870.24,
+        "healthcare": 2234.89
+      }
+    },
+    {
+      "year": 9,
+      "abundance": 0.9,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 5,
+      "costOfLivingUsd": 81564.71,
+      "bySectorUsd": {
+        "housing": 30726.37,
+        "food": 12819.48,
+        "utilities": 5513.41,
+        "transport": 18938.41,
+        "insurance": 10109.38,
+        "healthcare": 3457.66
+      }
+    },
+    {
+      "year": 10,
+      "abundance": 1,
+      "wagePolicy": "MarketWages",
+      "quintile": 1,
+      "costOfLivingUsd": 18389.65,
+      "bySectorUsd": {
+        "housing": 5990.1,
+        "food": 3479.13,
+        "utilities": 2249.88,
+        "transport": 2729.48,
+        "insurance": 2774.37,
+        "healthcare": 1166.68
+      }
+    },
+    {
+      "year": 10,
+      "abundance": 1,
+      "wagePolicy": "MarketWages",
+      "quintile": 2,
+      "costOfLivingUsd": 25891.76,
+      "bySectorUsd": {
+        "housing": 7782.65,
+        "food": 4682.72,
+        "utilities": 3117.17,
+        "transport": 4376.9,
+        "insurance": 4458.63,
+        "healthcare": 1473.7
+      }
+    },
+    {
+      "year": 10,
+      "abundance": 1,
+      "wagePolicy": "MarketWages",
+      "quintile": 3,
+      "costOfLivingUsd": 32661.62,
+      "bySectorUsd": {
+        "housing": 10022.82,
+        "food": 5756.58,
+        "utilities": 3554.26,
+        "transport": 6242.8,
+        "insurance": 5429.06,
+        "healthcare": 1656.1
+      }
+    },
+    {
+      "year": 10,
+      "abundance": 1,
+      "wagePolicy": "MarketWages",
+      "quintile": 4,
+      "costOfLivingUsd": 41741.29,
+      "bySectorUsd": {
+        "housing": 12333.04,
+        "food": 7495.52,
+        "utilities": 4164.66,
+        "transport": 8709.71,
+        "insurance": 6930.76,
+        "healthcare": 2107.6
+      }
+    },
+    {
+      "year": 10,
+      "abundance": 1,
+      "wagePolicy": "MarketWages",
+      "quintile": 5,
+      "costOfLivingUsd": 61870.71,
+      "bySectorUsd": {
+        "housing": 19278.13,
+        "food": 10750.64,
+        "utilities": 5066.45,
+        "transport": 14612.14,
+        "insurance": 8902.62,
+        "healthcare": 3260.73
+      }
+    },
+    {
+      "year": 10,
+      "abundance": 1,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 1,
+      "costOfLivingUsd": 23554.78,
+      "bySectorUsd": {
+        "housing": 9315.99,
+        "food": 4002.54,
+        "utilities": 2396.13,
+        "transport": 3466.23,
+        "insurance": 3142.6,
+        "healthcare": 1231.28
+      }
+    },
+    {
+      "year": 10,
+      "abundance": 1,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 2,
+      "costOfLivingUsd": 32974.83,
+      "bySectorUsd": {
+        "housing": 12103.82,
+        "food": 5387.2,
+        "utilities": 3319.79,
+        "transport": 5558.32,
+        "insurance": 5050.4,
+        "healthcare": 1555.3
+      }
+    },
+    {
+      "year": 10,
+      "abundance": 1,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 3,
+      "costOfLivingUsd": 41821.02,
+      "bySectorUsd": {
+        "housing": 15587.8,
+        "food": 6622.62,
+        "utilities": 3785.3,
+        "transport": 7927.88,
+        "insurance": 6149.63,
+        "healthcare": 1747.8
+      }
+    },
+    {
+      "year": 10,
+      "abundance": 1,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 4,
+      "costOfLivingUsd": 53374.88,
+      "bySectorUsd": {
+        "housing": 19180.74,
+        "food": 8623.16,
+        "utilities": 4435.37,
+        "transport": 11060.66,
+        "insurance": 7850.65,
+        "healthcare": 2224.3
+      }
+    },
+    {
+      "year": 10,
+      "abundance": 1,
+      "wagePolicy": "WageGuarantee",
+      "quintile": 5,
+      "costOfLivingUsd": 79827.53,
+      "bySectorUsd": {
+        "housing": 29981.97,
+        "food": 12367.99,
+        "utilities": 5395.78,
+        "transport": 18556.29,
+        "insurance": 10084.22,
+        "healthcare": 3441.28
+      }
+    }
+  ]
+}
